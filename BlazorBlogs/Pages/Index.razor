@@ -1,0 +1,176 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject UserManager<IdentityUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IConfiguration _configuration
+@*
+    Using OwningComponentBase ensures that the service and related services
+    that share its scope are disposed with the component.
+    Otherwise DbContext in ForecastService will live for the life of the
+    connection, which may be problematic if clients stay
+    connected for a long time.
+
+    We access WeatherForecastService using @Service
+*@
+@inherits OwningComponentBase<BlogsService>
+
+<h1>Blazor Blogs</h1>
+
+<!-- Show the blogs -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Blog Title</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var blog in colBlogs.Blogs)
+        {
+            <tr>
+                <td>@blog.BlogDate.ToShortDateString()</td>
+                <td>@blog.BlogTitle</td>
+                <td>
+                    <button class="btn btn-primary"
+                            @onclick="(() => ViewBlog(blog))">
+                        View
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-warning"
+        @onclick="Previous">
+    <b>&#x3C;</b>
+</button>
+@if (ShowNextButton)
+{
+    <button class="btn btn-warning"
+            @onclick="Next">
+        <b>&#x3E;</b>
+    </button>
+}
+@if (ShowPopup)
+{
+    <!-- This is the popup to view the selected Blog -->
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">View Blog</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <p>@SelectedBlog.BlogDate</p>
+                    </div>
+                    <div class="form-group">
+                        <p>@SelectedBlog.BlogTitle</p>
+                    </div>
+                    <div class="form-group">
+                        <p>@SelectedBlog.BlogSummary</p> 
+                    </div>
+                    <div class="form-group">                        
+                     @((MarkupString)SelectedBlog.BlogContent)           
+                    </div>
+                    <br /><br />                   
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<br />
+<br />
+@code {
+    string ADMINISTRATION_ROLE = "Administrators";
+    int CurrentPage = 1;
+    BlogsPaged colBlogs =
+        new BlogsPaged()
+        {
+            Blogs = new List<Blogs>(),
+            BlogCount = 0
+        };
+
+    Blogs SelectedBlog;
+    bool ShowPopup = false;
+    bool ShowNextButton
+    {
+        get
+        {
+            return (
+                (colBlogs.BlogCount > (CurrentPage * 5))
+                );
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // ensure there is a ADMINISTRATION_ROLE
+        var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+        if (RoleResult == null)
+        {
+            // Create ADMINISTRATION_ROLE Role
+            await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
+        }
+
+        // Ensure there is a user who is an Administrator
+        string strAdministratorUserName = _configuration["AdministratorUserName"];
+        string strAdministratorPassword = _configuration["AdministratorPassword"];
+
+        var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+        if (user != null)
+        {
+            // Is user in administrator role?
+            var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
+            if (!UserResult)
+            {
+                // Put admin in Administrator role
+                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+            }
+        }
+
+        // We access BlogsService using @Service
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowPopup = false;
+    }
+
+    void ViewBlog(Blogs Blog)
+    {
+        // Set the selected Blog
+        // as the current Blog
+        SelectedBlog = Blog;
+
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    async Task Previous()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = CurrentPage - 1;
+            colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        }
+    }
+
+    async Task Next()
+    {
+        CurrentPage = CurrentPage + 1;
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }
+}

@@ -1,0 +1,345 @@
+﻿@page "/blogadministration"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject UserManager<IdentityUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IConfiguration _configuration
+@*
+    Using OwningComponentBase ensures that the service and related services
+    that share its scope are disposed with the component.
+    Otherwise DbContext in ForecastService will live for the life of the
+    connection, which may be problematic if clients stay
+    connected for a long time.
+
+    We access WeatherForecastService using @Service
+*@
+@inherits OwningComponentBase<BlogsService>
+
+<h3>Blog Administration</h3>
+<!-- AuthorizeView allows us to only show sections of the page -->
+<!-- based on the security on the current user -->
+<AuthorizeView>
+    <!-- Show this section if the user is logged in -->
+    <Authorized>
+        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            @if (colBlogs == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <!-- Show the blogs -->
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Blog Title</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var blog in colBlogs.Blogs)
+                        {
+                            <tr>
+                                <td>@blog.BlogDate.ToShortDateString()</td>
+                                <td>@blog.BlogTitle</td>
+                                <td>
+                                    <!-- Edit the current blog -->
+                                    <button class="btn btn-primary"
+                                            @onclick="(() => EditBlog(blog))">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p>
+                    <!-- Add a new Blog -->
+                    <button class="btn btn-success"
+                            @onclick="AddNewBlog">
+                        Add New Blog
+                    </button>
+                    <button class="btn btn-warning"
+                            @onclick="Previous">
+                        <b>&#x3C;</b>
+                    </button>
+                    @if (ShowNextButton)
+                    {
+                        <button class="btn btn-warning"
+                                @onclick="Next">
+                            <b>&#x3E;</b>
+                        </button>
+                    }
+                </p>
+            }
+            @if (ShowPopup)
+            {
+                <!-- This is the popup to create or edit a Blog -->
+                <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Edit Blog</h3>
+                                <!-- Button to close the popup -->
+                                <button type="button" class="close"
+                                        @onclick="ClosePopup">
+                                    <span aria-hidden="true">X</span>
+                                </button>
+                            </div>
+                            <!-- Edit form for the current Blog -->
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <input class="form-control" type="date"
+                                           placeholder="Blog Date"
+                                           @bind="SelectedBlog.BlogDate" />
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="text"
+                                           placeholder="Blog Title"
+                                           @bind="SelectedBlog.BlogTitle" />
+                                </div>
+                                <div class="form-group">
+                                    <input class="form-control" type="text"
+                                           placeholder="Blog Summary"
+                                           @bind="SelectedBlog.BlogSummary" />
+                                </div>
+                                <div class="form-group">
+                                    <BlazoredTextEditor @ref="@QuillHtml">
+                                        <ToolbarContent>
+                                            <select class="ql-header">
+                                                <option selected=""></option>
+                                                <option value="1"></option>
+                                                <option value="2"></option>
+                                                <option value="3"></option>
+                                                <option value="4"></option>
+                                                <option value="5"></option>
+                                            </select>
+                                            <span class="ql-formats">
+                                                <button class="ql-bold"></button>
+                                                <button class="ql-italic"></button>
+                                                <button class="ql-underline"></button>
+                                                <button class="ql-strike"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <select class="ql-color"></select>
+                                                <select class="ql-background"></select>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-list" value="ordered"></button>
+                                                <button class="ql-list" value="bullet"></button>
+                                            </span>
+                                            <span class="ql-formats">
+                                                <button class="ql-link"></button>
+                                            </span>
+                                        </ToolbarContent>
+                                        <EditorContent>
+                                            @((MarkupString)SelectedBlog.BlogContent)
+                                        </EditorContent>
+                                    </BlazoredTextEditor>
+                                </div>
+                                    <br /><br />
+                                    <!-- Button to save the user -->
+                                    <button class="btn btn-primary"
+                                            @onclick="SaveBlog">
+                                        Save
+                                    </button>
+                                    <!-- Only show delete button if not a new record -->
+                                    @if (SelectedBlog.BlogId.ToString() != "0")
+                                    {
+                                        <!-- Button to delete the forecast -->
+                                        <button class="btn btn-danger"
+                                                @onclick="DeleteBlog">
+                                            Delete
+                                        </button>
+                                    }
+                                    <br />
+                                    <span style="color:red">@strError</span>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>You must be an Administrator</p>
+        }
+    </Authorized>
+    <!-- Show this section if the user is not logged in -->
+    <NotAuthorized>
+        <p>You're not signed in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    // AuthenticationState is available as a CascadingParameter
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    BlazoredTextEditor QuillHtml;
+    int CurrentPage = 1;
+    BlogsPaged colBlogs =
+        new BlogsPaged()
+        {
+            Blogs = new List<Blogs>(),
+            BlogCount = 0
+        };
+
+    Blogs SelectedBlog;
+    bool ShowPopup = false;
+    bool ShowNextButton
+    {
+        get
+        {
+            return (
+                (colBlogs.BlogCount > (CurrentPage * 5))
+                );
+        }
+    }
+    string strError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // We access BlogsService using @Service
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }  
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowPopup = false;
+    }
+
+    void AddNewBlog()
+    {
+        // Make new Blog
+        SelectedBlog = new Blogs();
+        // Set the default date
+        SelectedBlog.BlogDate = DateTime.Now;
+        // Set Id to 0 so we know it is a new record
+        SelectedBlog.BlogId = 0;
+        // Clear any error messages
+        strError = "";
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    void EditBlog(Blogs Blog)
+    {
+        // Set the selected Blog
+        // as the current Blog
+        SelectedBlog = Blog;
+
+        // Clear any error messages
+        strError = "";
+
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    async Task SaveBlog()
+    {
+        try
+        {
+            // Get the current user
+            var user = (await authenticationStateTask).User;
+
+            // A new Blog will have the Id set to 0
+            if (SelectedBlog.BlogId == 0)
+            {
+                // Create new Blog
+                Blogs objNewBlog = new Blogs();
+
+                objNewBlog.BlogDate =
+                    SelectedBlog.BlogDate;
+
+                objNewBlog.BlogTitle =
+                    SelectedBlog.BlogTitle;
+
+                objNewBlog.BlogSummary =
+                    SelectedBlog.BlogSummary;
+
+                objNewBlog.BlogContent = await this.QuillHtml.GetHTML();        
+
+                objNewBlog.BlogUserName =
+                    user.Identity.Name;
+
+                // Save the result
+                var result =
+                @Service.CreateBlogAsync(objNewBlog);
+            }
+            else
+            {
+                // Get HTML Content
+                SelectedBlog.BlogContent = 
+                    await this.QuillHtml.GetHTML();  
+
+                var result =
+                @Service.UpdateBlogAsync(SelectedBlog);
+            }
+
+            // Get the Blogs
+            colBlogs =
+            await @Service.GetBlogsAsync(CurrentPage);
+
+            // Close the Popup
+            ShowPopup = false;
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task Previous()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = CurrentPage - 1;
+            colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        }
+    }
+
+    async Task Next()
+    {
+        CurrentPage = CurrentPage + 1;
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }
+
+    async Task DeleteBlog()
+    {
+        try
+        {
+            // Get the current user
+            var user = (await authenticationStateTask).User;
+
+            // Delete the Blog
+            var result = @Service.DeleteBlogAsync(SelectedBlog);
+
+            // If the current page has no records
+            // and not on page one go back a page
+            if((CurrentPage > 1) && 
+                !((colBlogs.BlogCount -1) > (CurrentPage * 5)))
+            {
+                CurrentPage = CurrentPage - 1;
+            }
+
+            // Get the Blogs
+            colBlogs =
+            await @Service.GetBlogsAsync(CurrentPage);
+
+            // Close the Popup
+            ShowPopup = false;
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+}
