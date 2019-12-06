@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorBlogs", "BlazorBlogs\BlazorBlogs.csproj", "{E639B06E-B3EA-4F36-B667-60B0FE33A00D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorBlogs", "BlazorBlogs\BlazorBlogs.csproj", "{E639B06E-B3EA-4F36-B667-60B0FE33A00D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubContent", "GitHubContent", "{B094EED7-9C64-451D-A484-DB3ECC725832}"
+	ProjectSection(SolutionItems) = preProject
+		BlogSample1.png = BlogSample1.png
+		BlogSample2.png = BlogSample2.png
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
