@@ -109,58 +109,79 @@
                                            @bind="SelectedBlog.BlogSummary" />
                                 </div>
                                 <div class="form-group">
-                                    <BlazoredTextEditor @ref="@QuillHtml">
-                                        <ToolbarContent>
-                                            <select class="ql-header">
-                                                <option selected=""></option>
-                                                <option value="1"></option>
-                                                <option value="2"></option>
-                                                <option value="3"></option>
-                                                <option value="4"></option>
-                                                <option value="5"></option>
-                                            </select>
-                                            <span class="ql-formats">
-                                                <button class="ql-bold"></button>
-                                                <button class="ql-italic"></button>
-                                                <button class="ql-underline"></button>
-                                                <button class="ql-strike"></button>
-                                            </span>
-                                            <span class="ql-formats">
-                                                <select class="ql-color"></select>
-                                                <select class="ql-background"></select>
-                                            </span>
-                                            <span class="ql-formats">
-                                                <button class="ql-list" value="ordered"></button>
-                                                <button class="ql-list" value="bullet"></button>
-                                            </span>
-                                            <span class="ql-formats">
-                                                <button class="ql-link"></button>
-                                            </span>
-                                        </ToolbarContent>
-                                        <EditorContent>
-                                            @((MarkupString)SelectedBlog.BlogContent)
-                                        </EditorContent>
-                                    </BlazoredTextEditor>
-                                </div>
-                                    <br /><br />
-                                    <!-- Button to save the user -->
-                                    <button class="btn btn-primary"
-                                            @onclick="SaveBlog">
-                                        Save
-                                    </button>
-                                    <!-- Only show delete button if not a new record -->
-                                    @if (SelectedBlog.BlogId.ToString() != "0")
+                                    @if (!RichTextEditorMode)
                                     {
-                                        <!-- Button to delete the forecast -->
-                                        <button class="btn btn-danger"
-                                                @onclick="DeleteBlog">
-                                            Delete
+                                        <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
+                                    }
+                                    else
+                                    {
+                                        <BlazoredTextEditor @ref="@QuillHtml">
+                                            <ToolbarContent>
+                                                <select class="ql-header">
+                                                    <option selected=""></option>
+                                                    <option value="1"></option>
+                                                    <option value="2"></option>
+                                                    <option value="3"></option>
+                                                    <option value="4"></option>
+                                                    <option value="5"></option>
+                                                </select>
+                                                <span class="ql-formats">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                    <button class="ql-strike"></button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <select class="ql-color"></select>
+                                                    <select class="ql-background"></select>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-list" value="ordered"></button>
+                                                    <button class="ql-list" value="bullet"></button>
+                                                </span>
+                                                <span class="ql-formats">
+                                                    <button class="ql-link"></button>
+                                                </span>
+                                            </ToolbarContent>
+                                            <EditorContent>
+                                                @((MarkupString)SelectedBlog.BlogContent)
+                                            </EditorContent>
+                                        </BlazoredTextEditor>
+                                    }
+                                    @if (!RichTextEditorMode)
+                                    {
+                                        <button type="button" class="btn btn-link"
+                                                @onclick="RichTextEditor">
+                                            [Rich Text Editor]
                                         </button>
                                     }
-                                    <br />
-                                    <span style="color:red">@strError</span>
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-link"
+                                                @onclick="RawHTMLEditor">
+                                            [Raw HTML Editor]
+                                        </button>
+                                    }
                                 </div>
+                                <br /><br />
+                                <!-- Button to save the user -->
+                                <button class="btn btn-primary"
+                                        @onclick="SaveBlog">
+                                    Save
+                                </button>
+                                <!-- Only show delete button if not a new record -->
+                                @if (SelectedBlog.BlogId.ToString() != "0")
+                                {
+                                    <!-- Button to delete the forecast -->
+                                    <button class="btn btn-danger"
+                                            @onclick="DeleteBlog">
+                                        Delete
+                                    </button>
+                                }
+                                <br />
+                                <span style="color:red">@strError</span>
                             </div>
+                        </div>
                     </div>
                 </div>
             }
@@ -183,6 +204,7 @@
 
     string ADMINISTRATION_ROLE = "Administrators";
     BlazoredTextEditor QuillHtml;
+    bool RichTextEditorMode = true;
     int CurrentPage = 1;
     BlogsPaged colBlogs =
         new BlogsPaged()
@@ -208,7 +230,7 @@
     {
         // We access BlogsService using @Service
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
-    }  
+    }
 
     void ClosePopup()
     {
@@ -265,7 +287,16 @@
                 objNewBlog.BlogSummary =
                     SelectedBlog.BlogSummary;
 
-                objNewBlog.BlogContent = await this.QuillHtml.GetHTML();        
+                if (RichTextEditorMode)
+                {
+                    SelectedBlog.BlogContent =
+                        await this.QuillHtml.GetHTML();
+                }
+                else
+                {
+                    objNewBlog.BlogContent =
+                        SelectedBlog.BlogContent;
+                }
 
                 objNewBlog.BlogUserName =
                     user.Identity.Name;
@@ -277,11 +308,45 @@
             else
             {
                 // Get HTML Content
-                SelectedBlog.BlogContent = 
-                    await this.QuillHtml.GetHTML();  
+                if (RichTextEditorMode)
+                {
+                    SelectedBlog.BlogContent =
+                        await this.QuillHtml.GetHTML();
+                }
 
                 var result =
                 @Service.UpdateBlogAsync(SelectedBlog);
+            }
+
+            // Get the Blogs
+            colBlogs =
+            await @Service.GetBlogsAsync(CurrentPage);
+
+            // Close the Popup
+            ShowPopup = false;
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task DeleteBlog()
+    {
+        try
+        {
+            // Get the current user
+            var user = (await authenticationStateTask).User;
+
+            // Delete the Blog
+            var result = @Service.DeleteBlogAsync(SelectedBlog);
+
+            // If the current page has no records
+            // and not on page one go back a page
+            if ((CurrentPage > 1) &&
+                !((colBlogs.BlogCount - 1) > (CurrentPage * 5)))
+            {
+                CurrentPage = CurrentPage - 1;
             }
 
             // Get the Blogs
@@ -312,34 +377,16 @@
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
     }
 
-    async Task DeleteBlog()
+    private void RichTextEditor()
     {
-        try
-        {
-            // Get the current user
-            var user = (await authenticationStateTask).User;
+        RichTextEditorMode = true;
+        StateHasChanged();
+    }
 
-            // Delete the Blog
-            var result = @Service.DeleteBlogAsync(SelectedBlog);
-
-            // If the current page has no records
-            // and not on page one go back a page
-            if((CurrentPage > 1) && 
-                !((colBlogs.BlogCount -1) > (CurrentPage * 5)))
-            {
-                CurrentPage = CurrentPage - 1;
-            }
-
-            // Get the Blogs
-            colBlogs =
-            await @Service.GetBlogsAsync(CurrentPage);
-
-            // Close the Popup
-            ShowPopup = false;
-        }
-        catch (Exception ex)
-        {
-            strError = ex.GetBaseException().Message;
-        }
+    private async Task RawHTMLEditor()
+    {
+        RichTextEditorMode = false;
+        SelectedBlog.BlogContent =
+            await this.QuillHtml.GetHTML();
     }
 }
