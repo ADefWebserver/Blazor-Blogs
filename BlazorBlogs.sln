@@ -8,7 +8,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubContent", "GitHubContent", "{B094EED7-9C64-451D-A484-DB3ECC725832}"
 	ProjectSection(SolutionItems) = preProject
 		Animation.gif = Animation.gif
-		BlogSample1.png = BlogSample1.png
 		README.md = README.md
 	EndProjectSection
 EndProject

@@ -3,8 +3,6 @@ Simple blogging application written in Microsoft Server Side Blazor
 
 ![Screenshot](Animation.gif)
 
-![Screenshot](BlogSample1.png)
-
 
 ### Installing
 
