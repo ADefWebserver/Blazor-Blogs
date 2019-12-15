@@ -7,8 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorBlogs", "BlazorBlogs\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubContent", "GitHubContent", "{B094EED7-9C64-451D-A484-DB3ECC725832}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\..\..\..\TEMP\Animation.gif = ..\..\..\..\..\TEMP\Animation.gif
 		BlogSample1.png = BlogSample1.png
-		BlogSample2.png = BlogSample2.png
 		README.md = README.md
 	EndProjectSection
 EndProject

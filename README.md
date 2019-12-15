@@ -1,9 +1,10 @@
 # Blazor-Blogs
 Simple blogging application written in Microsoft Server Side Blazor
 
+![Screenshot](Animation.gif)
+
 ![Screenshot](BlogSample1.png)
 
-![Screenshot](BlogSample2.png)
 
 ### Installing
 

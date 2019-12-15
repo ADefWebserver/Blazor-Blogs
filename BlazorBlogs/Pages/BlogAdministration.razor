@@ -81,7 +81,7 @@
             {
                 <!-- This is the popup to create or edit a Blog -->
                 <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog-scrollable">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h3 class="modal-title">Edit Blog</h3>
@@ -141,6 +141,10 @@
                                                 </span>
                                                 <span class="ql-formats">
                                                     <button class="ql-link"></button>
+                                                    <button class="btn btn-link" id="custom-button"
+                                                            @onclick="InsertImageClick">
+                                                        <img src="imageIcon.png" style="border:hidden" />
+                                                    </button>
                                                 </span>
                                             </ToolbarContent>
                                             <EditorContent>
@@ -184,6 +188,9 @@
                         </div>
                     </div>
                 </div>
+
+                <FileManager @ref="FileManagerControl"
+                             ImageSelected="InsertImage" />
             }
         }
         else
@@ -202,6 +209,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    private FileManager FileManagerControl;
     string ADMINISTRATION_ROLE = "Administrators";
     BlazoredTextEditor QuillHtml;
     bool RichTextEditorMode = true;
@@ -289,7 +297,7 @@
 
                 if (RichTextEditorMode)
                 {
-                    SelectedBlog.BlogContent =
+                    objNewBlog.BlogContent =
                         await this.QuillHtml.GetHTML();
                 }
                 else
@@ -388,5 +396,19 @@
         RichTextEditorMode = false;
         SelectedBlog.BlogContent =
             await this.QuillHtml.GetHTML();
+    }
+
+    // Inserting Images
+
+    private void InsertImageClick()
+    {
+        FileManagerControl.SetShowFileManager(true);
+    }
+
+    async Task InsertImage(string paramImageURL)
+    {
+        await this.QuillHtml.InsertImage(paramImageURL);
+
+        FileManagerControl.SetShowFileManager(false);
     }
 }
