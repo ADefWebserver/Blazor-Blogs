@@ -13,7 +13,7 @@ Simple blogging application written in Microsoft Server Side Blazor
 
 ### Helpful Articles
 
-* [Uploading Images With The Blazor Rich Text Editor](http://http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4369/Uploading-Images-With-The-Blazor-Rich-Text-Editor.aspx")
+* [Uploading Images With The Blazor Rich Text Editor](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4369/Uploading-Images-With-The-Blazor-Rich-Text-Editor.aspx")
 * [Creating Reusable Custom Blazor Controls](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4365/Creating-Reusable-Custom-Blazor-Controls.aspx "BlazorHelpWebsite.com")
 * [Creating A Rich Text Editor In Blazor Using Quill](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4364/Creating-A-Rich-Text-Editor-In-Blazor-Using-Quill.aspx "BlazorHelpWebsite.com")
 
