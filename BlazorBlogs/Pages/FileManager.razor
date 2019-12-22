@@ -368,18 +368,19 @@
             // Delete
             if (item.Value == "Delete")
             {
-                if (CurrentDirectory != CurrentRoot)
-                {
-                    string path = Path.Combine(
-                        HostEnvironment.WebRootPath,
-                        CurrentDirectory);
+                string path = Path.Combine(
+                    HostEnvironment.WebRootPath,
+                    CurrentDirectory);
 
+                if (path.ToLower() != CurrentRoot.ToLower())
+                {
                     if (Directory.Exists(path))
                     {
                         Directory.Delete(path, true);
 
-                        CurrentDirectory =
-                            HostEnvironment.WebRootPath;
+                        CurrentDirectory = Path.Combine(
+                            HostEnvironment.WebRootPath,
+                            "uploads");
 
                         LoadFiles();
                     }
