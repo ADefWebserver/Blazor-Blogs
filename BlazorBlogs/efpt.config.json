@@ -14,7 +14,19 @@
    "Tables": [
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[BlogCategory]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[Blogs]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[Categorys]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[Comment]"
       }
    ],
    "UseDatabaseNames": false,
