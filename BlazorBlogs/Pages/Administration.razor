@@ -52,6 +52,7 @@
                             <!-- Edit form for the current forecast -->
                             <div class="modal-body">
                                 <!-- Only allow edit if a new user -->
+                                <b>User Name</b>
                                 @if (objUser.Id != "")
                                 {
                                     <p>@objUser.UserName</p>
@@ -60,14 +61,23 @@
                                 {
                                     <input class="form-control" type="text"
                                            placeholder="UserName"
-                                           @bind="objUser.UserName" />
+                                           @bind="objUser.UserName" /><br />
                                 }
+                                <b>Email</b>
                                 <input class="form-control" type="text"
                                        placeholder="Email"
                                        @bind="objUser.Email" />
-                                <input class="form-control" type="password"
-                                       placeholder="Password"
-                                       @bind="objUser.PasswordHash" />
+                                <br /><b>Email Confirmed</b>
+                                <select class="form-control"
+                                        @bind="@EmailConfirmed">
+                                    @foreach (var option in OptionsTrueFalse)
+                                    {
+                                        <option value="@option">
+                                            @option
+                                        </option>
+                                    }
+                                </select>
+                                <br /><b>Role</b>
                                 <select class="form-control"
                                         @bind="@CurrentUserRole">
                                     @foreach (var option in Options)
@@ -77,6 +87,10 @@
                                         </option>
                                     }
                                 </select>
+                                <br /><b>Password</b>
+                                <input class="form-control" type="password"
+                                       placeholder="Password"
+                                       @bind="objUser.PasswordHash" />
                                 <br /><br />
                                 <!-- Button to save the user -->
                                 <button class="btn btn-primary"
@@ -119,7 +133,9 @@
     List<IdentityUser> ColUsers = new List<IdentityUser>();
 
     List<string> Options = new List<string>() { "Users", "Administrators" };
+    List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     System.Security.Claims.ClaimsPrincipal CurrentUser;
+    string EmailConfirmed { get; set; } = "False";
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     bool ShowPopup = false;
@@ -188,6 +204,9 @@
                 // Update Email
                 user.Email = objUser.Email;
 
+                // Set Email Confirmed
+                user.EmailConfirmed = Convert.ToBoolean(EmailConfirmed);
+
                 // Update the user
                 await _UserManager.UpdateAsync(user);
 
@@ -246,6 +265,8 @@
                         Email = objUser.Email
                     };
 
+                NewUser.EmailConfirmed = Convert.ToBoolean(EmailConfirmed);
+
                 var CreateResult = await _UserManager.CreateAsync(NewUser, objUser.PasswordHash);
 
                 if (!CreateResult.Succeeded)
@@ -293,6 +314,7 @@
 
         // Get the user
         var user = await _UserManager.FindByIdAsync(objUser.Id);
+
         if (user != null)
         {
             // Is user in administrator role?
@@ -305,6 +327,15 @@
             else
             {
                 CurrentUserRole = "Users";
+            }
+
+            if (user.EmailConfirmed)
+            {
+                EmailConfirmed = "True";
+            }
+            else
+            {
+                EmailConfirmed = "False";
             }
         }
 
