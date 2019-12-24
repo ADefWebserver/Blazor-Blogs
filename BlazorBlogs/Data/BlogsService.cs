@@ -30,6 +30,24 @@ namespace BlazorBlogs.Data
             return objBlogsPaged;
         }
 
+        public async Task<BlogsPaged> GetBlogsAdminAsync(string strUserName, int page)
+        {
+            page = page - 1;
+            BlogsPaged objBlogsPaged = new BlogsPaged();
+
+            objBlogsPaged.BlogCount = await _context.Blogs
+                .Where(x => x.BlogUserName == strUserName)
+                .CountAsync();
+
+            objBlogsPaged.Blogs = await _context.Blogs
+                .Where(x => x.BlogUserName == strUserName)
+                .OrderBy(x => x.BlogDate)
+                .Skip(page * 5)
+                .Take(5).ToListAsync();
+
+            return objBlogsPaged;
+        }
+
         public Task<Blogs>
             CreateBlogAsync(Blogs objBlogs)
         {

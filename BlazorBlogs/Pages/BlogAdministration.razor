@@ -255,6 +255,8 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    public System.Security.Claims.ClaimsPrincipal CurrentUser; 
+
     private FileManager FileManagerControlSummary;
     private FileManager FileManagerControl;
     string ADMINISTRATION_ROLE = "Administrators";
@@ -273,8 +275,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
         // We access BlogsService using @Service
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
     }
 
     void ClosePopup()
@@ -314,9 +319,6 @@
     {
         try
         {
-            // Get the current user
-            var user = (await authenticationStateTask).User;
-
             // A new Blog will have the Id set to 0
             if (SelectedBlog.BlogId == 0)
             {
@@ -352,7 +354,7 @@
                 }
 
                 objNewBlog.BlogUserName =
-                    user.Identity.Name;
+                    CurrentUser.Identity.Name;
 
                 // Save the result
                 var result =
@@ -380,7 +382,7 @@
 
             // Get the Blogs
             colBlogs =
-            await @Service.GetBlogsAsync(CurrentPage);
+            await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
 
             // Close the Popup
             ShowPopup = false;
@@ -395,9 +397,6 @@
     {
         try
         {
-            // Get the current user
-            var user = (await authenticationStateTask).User;
-
             // Delete the Blog
             var result = @Service.DeleteBlogAsync(SelectedBlog);
 
@@ -411,7 +410,7 @@
 
             // Get the Blogs
             colBlogs =
-            await @Service.GetBlogsAsync(CurrentPage);
+            await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
 
             // Close the Popup
             ShowPopup = false;
@@ -427,14 +426,14 @@
         if (CurrentPage > 1)
         {
             CurrentPage = CurrentPage - 1;
-            colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+            colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
         }
     }
 
     async Task Next()
     {
         CurrentPage = CurrentPage + 1;
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
     }
 
     //Summary
