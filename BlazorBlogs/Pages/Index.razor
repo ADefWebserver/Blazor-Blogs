@@ -10,41 +10,27 @@
 @*
     Using OwningComponentBase ensures that the service and related services
     that share its scope are disposed with the component.
-    Otherwise DbContext in ForecastService will live for the life of the
+    Otherwise DbContext will live for the life of the
     connection, which may be problematic if clients stay
     connected for a long time.
 
-    We access WeatherForecastService using @Service
+    We access BlogsService using @Service
 *@
 @inherits OwningComponentBase<BlogsService>
-
-<h1>Blazor Blogs</h1>
-
 <!-- Show the blogs -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>Blog Title</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var blog in colBlogs.Blogs)
-        {
-            <tr>
-                <td>@blog.BlogDate.ToShortDateString()</td>
-                <td>@blog.BlogTitle</td>
-                <td>
-                    <button class="btn btn-primary"
-                            @onclick="(() => ViewBlog(blog))">
-                        View
-                    </button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+@foreach (var blog in colBlogs.Blogs)
+{
+    <button class="btn btn-link"
+            @onclick="(() => ViewBlog(blog))">
+        <h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2>
+    </button>
+    <div class="form-group">
+        @((MarkupString)blog.BlogSummary)
+    </div>
+    <hr />
+}
+<br />
 <button class="btn btn-warning"
         @onclick="Previous">
     <b>&#x3C;</b>
@@ -60,10 +46,11 @@
 {
     <!-- This is the popup to view the selected Blog -->
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog-scrollable">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
+                <i>@SelectedBlog.BlogDate.ToShortDateString()</i>
                 <div class="modal-header">
-                    <h3 class="modal-title">View Blog</h3>
+                    <h3 class="modal-title">@SelectedBlog.BlogTitle</h3>
                     <!-- Button to close the popup -->
                     <button type="button" class="close"
                             @onclick="ClosePopup">
@@ -71,17 +58,6 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
-                        <p>@SelectedBlog.BlogDate</p>
-                    </div>
-                    <div class="form-group">
-                        <b>@SelectedBlog.BlogTitle</b>
-                    </div>
-                    <hr />
-                    <div class="form-group">
-                        @((MarkupString)SelectedBlog.BlogSummary)
-                    </div>
-                    <hr />
                     <div class="form-group">
                         @((MarkupString)SelectedBlog.BlogContent)
                     </div>
