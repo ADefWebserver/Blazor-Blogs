@@ -51,6 +51,7 @@ namespace BlazorBlogs
                 RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             services.AddScoped<BlogsService>();
+            services.AddHttpContextAccessor();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

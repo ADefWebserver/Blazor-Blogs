@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
 
 namespace BlazorBlogs.Data
 {
     public class BlogsService
     {
         private readonly BlazorBlogsContext _context;
+
         public BlogsService(BlazorBlogsContext context)
         {
             _context = context;
         }
 
+        // Blogs
+
+        #region public async Task<BlogsPaged> GetBlogsAsync(int page)
         public async Task<BlogsPaged> GetBlogsAsync(int page)
         {
             page = page - 1;
@@ -29,7 +35,9 @@ namespace BlazorBlogs.Data
 
             return objBlogsPaged;
         }
+        #endregion
 
+        #region public async Task<BlogsPaged> GetBlogsAdminAsync(string strUserName, int page)
         public async Task<BlogsPaged> GetBlogsAdminAsync(string strUserName, int page)
         {
             page = page - 1;
@@ -47,18 +55,20 @@ namespace BlazorBlogs.Data
 
             return objBlogsPaged;
         }
+        #endregion
 
-        public Task<Blogs>
-            CreateBlogAsync(Blogs objBlogs)
+        #region public Task<Blogs> CreateBlogAsync(Blogs objBlogs)
+        public Task<Blogs> CreateBlogAsync(Blogs objBlogs)
         {
             _context.Blogs.Add(objBlogs);
             _context.SaveChanges();
 
             return Task.FromResult(objBlogs);
         }
+        #endregion
 
-        public Task<bool>
-            DeleteBlogAsync(Blogs objBlogs)
+        #region public Task<bool> DeleteBlogAsync(Blogs objBlogs)
+        public Task<bool> DeleteBlogAsync(Blogs objBlogs)
         {
             var ExistingBlogs =
                 _context.Blogs
@@ -77,9 +87,10 @@ namespace BlazorBlogs.Data
 
             return Task.FromResult(true);
         }
+        #endregion
 
-        public Task<bool>
-            UpdateBlogAsync(Blogs objBlogs)
+        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs)
+        public Task<bool> UpdateBlogAsync(Blogs objBlogs)
         {
             var ExistingBlogs =
                 _context.Blogs
@@ -109,5 +120,35 @@ namespace BlazorBlogs.Data
 
             return Task.FromResult(true);
         }
+        #endregion
+
+        // Logs
+
+        #region public async Task<LogsPaged> GetLogsAsync(int page)
+        public async Task<LogsPaged> GetLogsAsync(int page)
+        {
+            page = page - 1;
+            LogsPaged objLogsPaged = new LogsPaged();
+
+            objLogsPaged.LogCount = await _context.Logs
+                .CountAsync();
+
+            objLogsPaged.Logs = await _context.Logs
+                .OrderByDescending(x => x.LogId)
+                .Skip(page * 10)
+                .Take(10).ToListAsync();
+
+            return objLogsPaged;
+        }
+        #endregion
+
+        #region public Task<bool> CreateLogAsync(Logs objLogs)
+        public Task<bool> CreateLogAsync(Logs objLogs)
+        {
+            _context.Logs.Add(objLogs);
+            _context.SaveChanges();
+            return Task.FromResult(true);
+        } 
+        #endregion
     }
 }

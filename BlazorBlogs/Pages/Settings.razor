@@ -1,0 +1,43 @@
+﻿@page "/settings"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject UserManager<IdentityUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IConfiguration _configuration
+
+@inherits OwningComponentBase<BlogsService>
+
+<h1>Settings</h1>
+<!-- AuthorizeView allows us to only show sections of the page -->
+<!-- based on the security on the current user -->
+<AuthorizeView>
+    <!-- Show this section if the user is logged in -->
+    <Authorized>
+        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            <p>Hello @context.User.Identity.Name</p>
+        }
+    </Authorized>
+    <!-- Show this section if the user is not logged in -->
+    <NotAuthorized>
+        <p>You're not signed in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    // AuthenticationState is available as a CascadingParameter
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    public System.Security.Claims.ClaimsPrincipal CurrentUser;
+    string ADMINISTRATION_ROLE = "Administrators";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+    }
+}

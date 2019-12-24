@@ -1,5 +1,5 @@
 ﻿@page "/"
-@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
@@ -7,6 +7,7 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
+@inject IHttpContextAccessor httpContextAccessor
 @*
     Using OwningComponentBase ensures that the service and related services
     that share its scope are disposed with the component.
@@ -70,6 +71,10 @@
 <br />
 <br />
 @code {
+    // AuthenticationState is available as a CascadingParameter
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
     string ADMINISTRATION_ROLE = "Administrators";
     int CurrentPage = 1;
     BlogsPaged colBlogs =
@@ -127,7 +132,7 @@
         ShowPopup = false;
     }
 
-    void ViewBlog(Blogs Blog)
+    async Task ViewBlog(Blogs Blog)
     {
         // Set the selected Blog
         // as the current Blog
@@ -135,6 +140,8 @@
 
         // Open the Popup
         ShowPopup = true;
+
+        await LogAction($"View Blog #{Blog.BlogId}");
     }
 
     async Task Previous()
@@ -150,5 +157,19 @@
     {
         CurrentPage = CurrentPage + 1;
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }
+
+    private async Task LogAction(string strAction)
+    {
+        // Get the current user
+        var CurrentUser = (await authenticationStateTask).User;
+
+        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
+        objLog.LogDate = DateTime.Now;
+        objLog.LogAction = strAction;
+        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+
+        var result = await @Service.CreateLogAsync(objLog);
     }
 }
