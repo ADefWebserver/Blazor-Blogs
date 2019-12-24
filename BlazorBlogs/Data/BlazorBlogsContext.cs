@@ -21,6 +21,8 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Blogs> Blogs { get; set; }
         public virtual DbSet<Categorys> Categorys { get; set; }
         public virtual DbSet<Comment> Comment { get; set; }
+        public virtual DbSet<Logs> Logs { get; set; }
+        public virtual DbSet<Settings> Settings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -106,6 +108,40 @@ namespace BlazorBlogs.Data
                     .WithMany(p => p.InverseParentComment)
                     .HasForeignKey(d => d.ParentCommentId)
                     .HasConstraintName("FK_Comment_Comment");
+            });
+
+            modelBuilder.Entity<Logs>(entity =>
+            {
+                entity.HasKey(e => e.LogId);
+
+                entity.Property(e => e.LogAction)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.LogDate).HasColumnType("datetime");
+
+                entity.Property(e => e.LogIpaddress)
+                    .IsRequired()
+                    .HasColumnName("LogIPAddress")
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.LogUserName).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<Settings>(entity =>
+            {
+                entity.HasKey(e => e.SettingId)
+                    .HasName("PK_ADefHelpDesk_Settings");
+
+                entity.Property(e => e.SettingId).HasColumnName("SettingID");
+
+                entity.Property(e => e.SettingName)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.SettingValue)
+                    .IsRequired()
+                    .HasMaxLength(250);
             });
 
             OnModelCreatingPartial(modelBuilder);

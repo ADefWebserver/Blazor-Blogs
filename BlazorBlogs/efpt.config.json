@@ -27,6 +27,14 @@
       {
          "HasPrimaryKey": true,
          "Name": "[dbo].[Comment]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[Logs]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[Settings]"
       }
    ],
    "UseDatabaseNames": false,
