@@ -60,7 +60,7 @@
 {
     <!-- This is the popup to view the selected Blog -->
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">View Blog</h3>
@@ -75,15 +75,17 @@
                         <p>@SelectedBlog.BlogDate</p>
                     </div>
                     <div class="form-group">
-                        <p>@SelectedBlog.BlogTitle</p>
+                        <b>@SelectedBlog.BlogTitle</b>
                     </div>
+                    <hr />
                     <div class="form-group">
-                        <p>@SelectedBlog.BlogSummary</p> 
+                        @((MarkupString)SelectedBlog.BlogSummary)
                     </div>
-                    <div class="form-group">                        
-                     @((MarkupString)SelectedBlog.BlogContent)           
+                    <hr />
+                    <div class="form-group">
+                        @((MarkupString)SelectedBlog.BlogContent)
                     </div>
-                    <br /><br />                   
+                    <br /><br />
                 </div>
             </div>
         </div>
