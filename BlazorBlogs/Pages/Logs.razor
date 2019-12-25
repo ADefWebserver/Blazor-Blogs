@@ -1,13 +1,11 @@
 ﻿@page "/logs"
-@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
-@inject UserManager<IdentityUser> _UserManager
+@inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
-@inject IHttpContextAccessor httpContextAccessor
 
 @inherits OwningComponentBase<BlogsService>
 
@@ -101,8 +99,6 @@
         CurrentUser = (await authenticationStateTask).User;
 
         colLogs = await @Service.GetLogsAsync(CurrentPage);
-
-        await LogAction("View Logs");
     }
 
     async Task Previous()
@@ -118,16 +114,5 @@
     {
         CurrentPage = CurrentPage + 1;
         colLogs = await @Service.GetLogsAsync(CurrentPage);
-    }
-
-    private async Task LogAction(string strAction)
-    {
-        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
-        objLog.LogDate = DateTime.Now;
-        objLog.LogAction = strAction;
-        objLog.LogUserName = CurrentUser.Identity.Name;
-        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-
-        var result = await @Service.CreateLogAsync(objLog);
     }
 }

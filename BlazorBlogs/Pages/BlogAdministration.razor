@@ -1,11 +1,12 @@
 ﻿@page "/blogadministration"
-@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
-@inject UserManager<IdentityUser> _UserManager
+@inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IHttpContextAccessor httpContextAccessor
 @inject IConfiguration _configuration
 @*
     Using OwningComponentBase ensures that the service and related services
@@ -81,7 +82,7 @@
             {
                 <!-- This is the popup to create or edit a Blog -->
                 <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                    <div class="modal-dialog-scrollable">
+                    <div class="modal-dialog-scrollable modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h3 class="modal-title">Edit Blog</h3>
@@ -255,7 +256,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    public System.Security.Claims.ClaimsPrincipal CurrentUser; 
+    public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     private FileManager FileManagerControlSummary;
     private FileManager FileManagerControl;
@@ -359,6 +360,9 @@
                 // Save the result
                 var result =
                 @Service.CreateBlogAsync(objNewBlog);
+
+                // Log
+                await LogAction($"Create Blog #{objNewBlog.BlogId}");
             }
             else
             {
@@ -378,6 +382,9 @@
 
                 var result =
                 @Service.UpdateBlogAsync(SelectedBlog);
+
+                // Log
+                await LogAction($"Update Blog #{SelectedBlog.BlogId}");
             }
 
             // Get the Blogs
@@ -397,8 +404,13 @@
     {
         try
         {
+            int BlogId = SelectedBlog.BlogId;
+
             // Delete the Blog
             var result = @Service.DeleteBlogAsync(SelectedBlog);
+
+            // Log
+            await LogAction($"Delete Blog #{BlogId}");
 
             // If the current page has no records
             // and not on page one go back a page
@@ -413,7 +425,7 @@
             await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
 
             // Close the Popup
-            ShowPopup = false;
+            ShowPopup = false;            
         }
         catch (Exception ex)
         {
@@ -488,5 +500,19 @@
         await this.QuillHtml.InsertImage(paramImageURL);
 
         FileManagerControl.SetShowFileManager(false);
+    }
+
+    private async Task LogAction(string strAction)
+    {
+        // Get the current user
+        var CurrentUser = (await authenticationStateTask).User;
+
+        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
+        objLog.LogDate = DateTime.Now;
+        objLog.LogAction = strAction;
+        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+
+        var result = await @Service.CreateLogAsync(objLog);
     }
 }

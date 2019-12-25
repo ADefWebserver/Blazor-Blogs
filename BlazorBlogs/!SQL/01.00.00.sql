@@ -1,5 +1,4 @@
-﻿/****** Object:  Table [dbo].[AspNetRoleClaims]    Script Date: 12/4/2019 5:44:22 AM ******/
-SET ANSI_NULLS ON
+﻿SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
@@ -17,7 +16,6 @@ CREATE TABLE [dbo].[AspNetRoleClaims](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetRoles]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -36,7 +34,6 @@ CREATE TABLE [dbo].[AspNetRoles](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetUserClaims]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -55,7 +52,6 @@ CREATE TABLE [dbo].[AspNetUserClaims](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetUserLogins]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -75,7 +71,6 @@ CREATE TABLE [dbo].[AspNetUserLogins](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetUserRoles]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -93,7 +88,6 @@ CREATE TABLE [dbo].[AspNetUserRoles](
 ) ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetUsers]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -116,6 +110,8 @@ CREATE TABLE [dbo].[AspNetUsers](
 	[LockoutEnd] [datetimeoffset](7) NULL,
 	[LockoutEnabled] [bit] NOT NULL,
 	[AccessFailedCount] [int] NOT NULL,
+	[DisplayName] [nvarchar](256) NULL,
+	[NewsletterSubscriber] [bit] NULL,
  CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -123,7 +119,6 @@ CREATE TABLE [dbo].[AspNetUsers](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 GO
-/****** Object:  Table [dbo].[AspNetUserTokens]    Script Date: 12/4/2019 5:44:23 AM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -146,7 +141,6 @@ END
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_AspNetRoleClaims_RoleId]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetRoleClaims]') AND name = N'IX_AspNetRoleClaims_RoleId')
 CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId] ON [dbo].[AspNetRoleClaims]
 (
@@ -155,7 +149,6 @@ CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId] ON [dbo].[AspNetRoleClaim
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [RoleNameIndex]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetRoles]') AND name = N'RoleNameIndex')
 CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex] ON [dbo].[AspNetRoles]
 (
@@ -166,7 +159,6 @@ WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNOR
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_AspNetUserClaims_UserId]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetUserClaims]') AND name = N'IX_AspNetUserClaims_UserId')
 CREATE NONCLUSTERED INDEX [IX_AspNetUserClaims_UserId] ON [dbo].[AspNetUserClaims]
 (
@@ -175,7 +167,6 @@ CREATE NONCLUSTERED INDEX [IX_AspNetUserClaims_UserId] ON [dbo].[AspNetUserClaim
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_AspNetUserLogins_UserId]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetUserLogins]') AND name = N'IX_AspNetUserLogins_UserId')
 CREATE NONCLUSTERED INDEX [IX_AspNetUserLogins_UserId] ON [dbo].[AspNetUserLogins]
 (
@@ -184,7 +175,6 @@ CREATE NONCLUSTERED INDEX [IX_AspNetUserLogins_UserId] ON [dbo].[AspNetUserLogin
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [IX_AspNetUserRoles_RoleId]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetUserRoles]') AND name = N'IX_AspNetUserRoles_RoleId')
 CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId] ON [dbo].[AspNetUserRoles]
 (
@@ -193,7 +183,6 @@ CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId] ON [dbo].[AspNetUserRoles]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [EmailIndex]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetUsers]') AND name = N'EmailIndex')
 CREATE NONCLUSTERED INDEX [EmailIndex] ON [dbo].[AspNetUsers]
 (
@@ -202,7 +191,6 @@ CREATE NONCLUSTERED INDEX [EmailIndex] ON [dbo].[AspNetUsers]
 GO
 SET ANSI_PADDING ON
 GO
-/****** Object:  Index [UserNameIndex]    Script Date: 12/4/2019 5:44:23 AM ******/
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'[dbo].[AspNetUsers]') AND name = N'UserNameIndex')
 CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex] ON [dbo].[AspNetUsers]
 (

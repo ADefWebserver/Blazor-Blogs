@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BlazorBlogs.Areas.Identity;
 using BlazorBlogs.Data;
+using BlazorBlogs.Data.Models;
 
 namespace BlazorBlogs
 {
@@ -39,7 +40,7 @@ namespace BlazorBlogs
             options.UseSqlServer(
                 Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 

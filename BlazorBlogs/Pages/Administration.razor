@@ -1,7 +1,7 @@
 ﻿@page "/administration"
-@using Microsoft.AspNetCore.Authorization;
+@using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Identity;
-@inject UserManager<IdentityUser> _UserManager
+@inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
@@ -15,6 +15,7 @@
                 <thead>
                     <tr>
                         <th>User Name</th>
+                        <th>Display Name</th>
                         <th>Email</th>
                     </tr>
                 </thead>
@@ -23,6 +24,7 @@
                     {
                         <tr>
                             <td>@user.UserName</td>
+                            <td>@user.DisplayName</td>
                             <td>@user.Email</td>
                             <td>
                                 <!-- Edit the current forecast -->
@@ -39,7 +41,7 @@
             {
                 <!-- This is the popup to create or edit a user -->
                 <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                    <div class="modal-dialog">
+                    <div class="modal-dialog-scrollable modal-dialog-centered">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h3 class="modal-title">Edit User</h3>
@@ -60,16 +62,28 @@
                                 else
                                 {
                                     <input class="form-control" type="text"
-                                           placeholder="UserName"
                                            @bind="objUser.UserName" /><br />
                                 }
-                                <b>Email</b>
+                                <b>Display Name</b>
+                                <input class="form-control" type="text"
+                                       @bind="objUser.DisplayName" />
+                                <br /><b>Email</b>
                                 <input class="form-control" type="text"
                                        placeholder="Email"
                                        @bind="objUser.Email" />
                                 <br /><b>Email Confirmed</b>
                                 <select class="form-control"
                                         @bind="@EmailConfirmed">
+                                    @foreach (var option in OptionsTrueFalse)
+                                    {
+                                        <option value="@option">
+                                            @option
+                                        </option>
+                                    }
+                                </select>
+                                <br /><b>Newsletter Subscriber</b>
+                                <select class="form-control"
+                                        @bind="@NewsletterSubscriber">
                                     @foreach (var option in OptionsTrueFalse)
                                     {
                                         <option value="@option">
@@ -129,13 +143,14 @@
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     string ADMINISTRATION_ROLE = "Administrators";
-    IdentityUser objUser = new IdentityUser();
-    List<IdentityUser> ColUsers = new List<IdentityUser>();
+    ApplicationUser objUser = new ApplicationUser();
+    List<ApplicationUser> ColUsers = new List<ApplicationUser>();
 
     List<string> Options = new List<string>() { "Users", "Administrators" };
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     string EmailConfirmed { get; set; } = "False";
+    string NewsletterSubscriber { get; set; } = "False";
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     bool ShowPopup = false;
@@ -161,14 +176,16 @@
         strError = "";
 
         // Collection to hold users
-        ColUsers = new List<IdentityUser>();
+        ColUsers = new List<ApplicationUser>();
 
         // get users from _UserManager
-        var user = _UserManager.Users.Select(x => new IdentityUser
+        var user = _UserManager.Users.Select(x => new ApplicationUser
         {
             Id = x.Id,
             UserName = x.UserName,
+            DisplayName = x.DisplayName,
             Email = x.Email,
+            NewsletterSubscriber = x.NewsletterSubscriber,
             PasswordHash = "*****"
         });
 
@@ -181,7 +198,7 @@
     void AddNewUser()
     {
         // Make new user
-        objUser = new IdentityUser();
+        objUser = new ApplicationUser();
         objUser.PasswordHash = "*****";
 
         // Set Id to blank so we know it is a new record
@@ -204,8 +221,14 @@
                 // Update Email
                 user.Email = objUser.Email;
 
+                // Update DisplayName
+                user.DisplayName = objUser.DisplayName;
+
                 // Set Email Confirmed
                 user.EmailConfirmed = Convert.ToBoolean(EmailConfirmed);
+
+                // Set NewsletterSubscriber
+                user.NewsletterSubscriber = Convert.ToBoolean(NewsletterSubscriber);
 
                 // Update the user
                 await _UserManager.UpdateAsync(user);
@@ -259,13 +282,15 @@
                 // Insert new user
 
                 var NewUser =
-                    new IdentityUser
+                    new ApplicationUser
                     {
                         UserName = objUser.UserName,
+                        DisplayName = objUser.DisplayName,
                         Email = objUser.Email
                     };
 
                 NewUser.EmailConfirmed = Convert.ToBoolean(EmailConfirmed);
+                NewUser.NewsletterSubscriber = Convert.ToBoolean(NewsletterSubscriber);
 
                 var CreateResult = await _UserManager.CreateAsync(NewUser, objUser.PasswordHash);
 
@@ -306,7 +331,7 @@
         }
     }
 
-    async Task EditUser(IdentityUser _IdentityUser)
+    async Task EditUser(ApplicationUser _IdentityUser)
     {
         // Set the selected user
         // as the current user
@@ -336,6 +361,15 @@
             else
             {
                 EmailConfirmed = "False";
+            }
+
+            if (user.NewsletterSubscriber)
+            {
+                NewsletterSubscriber = "True";
+            }
+            else
+            {
+                NewsletterSubscriber = "False";
             }
         }
 
