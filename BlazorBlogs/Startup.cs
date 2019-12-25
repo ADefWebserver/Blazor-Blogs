@@ -52,6 +52,7 @@ namespace BlazorBlogs
                 RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             services.AddScoped<BlogsService>();
+            services.AddScoped<GeneralSettingsService>();
             services.AddHttpContextAccessor();
         }
 

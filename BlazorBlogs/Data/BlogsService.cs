@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
+using System;
 
 namespace BlazorBlogs.Data
 {
@@ -148,7 +149,8 @@ namespace BlazorBlogs.Data
             _context.Logs.Add(objLogs);
             _context.SaveChanges();
             return Task.FromResult(true);
-        } 
+        }
         #endregion
+
     }
 }

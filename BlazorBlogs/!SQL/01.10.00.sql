@@ -141,3 +141,26 @@ GO
 IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Comment_Comment]') AND parent_object_id = OBJECT_ID(N'[dbo].[Comment]'))
 ALTER TABLE [dbo].[Comment] CHECK CONSTRAINT [FK_Comment_Comment]
 GO
+
+SET IDENTITY_INSERT [dbo].[Settings] ON 
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (1, N'AllowRegistration', N'True')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (2, N'VerifiedRegistration', N'True')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (3, N'ApplicationName', N'')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (4, N'SMTPServer', N'')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (5, N'SMTPSecure', N'False')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (6, N'SMTPUserName', N'')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (7, N'SMTPPassword', N'')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (8, N'SMTPAuthendication', N'')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (9, N'SMTPFromEmail', N'')
+GO
+SET IDENTITY_INSERT [dbo].[Settings] OFF
+GO
