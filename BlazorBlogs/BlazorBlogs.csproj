@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
+    <PackageReference Include="Blazored.Toast" Version="2.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.0" />

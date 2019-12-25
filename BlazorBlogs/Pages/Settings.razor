@@ -7,6 +7,7 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
+@inject IToastService toastService
 
 @inherits OwningComponentBase<GeneralSettingsService>
 
@@ -65,8 +66,15 @@
                     <tr>
                         <td>SMTP Authentication</td>
                         <td>
-                            <input class="form-control" type="text"
-                                   @bind="objGeneralSettings.SMTPAuthendication" />
+                            <select class="form-control"
+                                    @bind="@SMTPAuthentication">
+                                @foreach (var option in OptionsSMTP)
+                                {
+                                    <option value="@option">
+                                        @option
+                                    </option>
+                                }
+                            </select>
                         </td>
                     </tr>
                     <tr>
@@ -126,9 +134,11 @@
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
+    List<string> OptionsSMTP = new List<string>() { "Anonymous", "Basic", "NTLM" };
     string AllowRegistration = "";
     string VerifiedRegistration = "";
     string SMTPSecure = "";
+    string SMTPAuthentication = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,6 +154,20 @@
         AllowRegistration = objGeneralSettings.AllowRegistration.ToString();
         VerifiedRegistration = objGeneralSettings.VerifiedRegistration.ToString();
         SMTPSecure = objGeneralSettings.SMTPSecure.ToString();
+
+        switch (objGeneralSettings.SMTPAuthendication.Trim())
+        {
+            case "":
+            case "0":
+                SMTPAuthentication = "Anonymous";
+                break;
+            case "1":
+                SMTPAuthentication = "Basic";
+                break;
+            case "2":
+                SMTPAuthentication = "NTLM";
+                break;
+        }
     }
 
     public async Task Save()
@@ -154,11 +178,26 @@
 
         var UpdateApplicationNameResult = @Service.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
         var UpdateSMTPServerResult = @Service.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
-        var UpdateSMTPAuthendicationResult = @Service.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
         var UpdateSMTPUserNameResult = @Service.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
         var UpdateSMTPPasswordResult = @Service.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
         var UpdateSMTPFromEmailResult = @Service.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
 
+        switch (SMTPAuthentication)
+        {
+            case "Anonymous":
+                objGeneralSettings.SMTPAuthendication = "0";
+                break;
+            case "Basic":
+                objGeneralSettings.SMTPAuthendication = "1";
+                break;
+            case "NTLM":
+                objGeneralSettings.SMTPAuthendication = "2";
+                break;
+        }
+
+        var UpdateSMTPAuthendicationResult = @Service.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
+
         objGeneralSettings = await @Service.GetGeneralSettingsAsync();
+        toastService.ShowSuccess("", "Saved!");
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using BlazorBlogs.Areas.Identity;
 using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
+using Blazored.Toast;
 
 namespace BlazorBlogs
 {
@@ -54,6 +55,7 @@ namespace BlazorBlogs
             services.AddScoped<BlogsService>();
             services.AddScoped<GeneralSettingsService>();
             services.AddHttpContextAccessor();
+            services.AddBlazoredToast();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
