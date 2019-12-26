@@ -19,8 +19,8 @@ namespace BlazorBlogs.Data
             _generalSettingsService = generalSettingsService;
         }
 
-        #region public async Task<string> SendMailAsync(bool SendAsync, string DefaultConnection, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body)
-        public async Task<string> SendMailAsync(bool SendAsync, string DefaultConnection, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body)
+        #region public async Task<string> SendMailAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body)
+        public async Task<string> SendMailAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body)
         {
             GeneralSettings GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
 
@@ -31,7 +31,7 @@ namespace BlazorBlogs.Data
 
             string[] arrAttachments = new string[0];
 
-            return await SendMailAsync(SendAsync, DefaultConnection,
+            return await SendMailAsync(SendAsync,
                 GeneralSettings.SMTPFromEmail, MailTo, MailToDisplayName,
                 Cc, Bcc, ReplyTo, System.Net.Mail.MailPriority.Normal,
                 Subject, Encoding.UTF8, Body, arrAttachments, "", "", "", "",
@@ -39,8 +39,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region private async Task<string> SendMailAsync(bool SendAsync,string DefaultConnection, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority, string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL)
-        private async Task<string> SendMailAsync(bool SendAsync, string DefaultConnection, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority,
+        #region private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority, string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL)
+        private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority,
             string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL)
         {
             string strSendMail = "";

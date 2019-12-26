@@ -1,5 +1,5 @@
 ﻿@page "/settings"
-@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
@@ -10,6 +10,7 @@
 @inject IToastService toastService
 @inject EmailService _EmailService
 @inject GeneralSettingsService _GeneralSettingsService
+@inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase
 
 <h1>Settings</h1>
@@ -127,7 +128,7 @@
 </AuthorizeView>
 
 @code {
-        // AuthenticationState is available as a CascadingParameter
+    // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -223,7 +224,18 @@
         try
         {
             await SaveSettings();
-            toastService.ShowSuccess("", "Send Test Email Clicked");
+
+            // Send Test Email
+            await _EmailService.SendMailAsync(
+                 false,
+                 objGeneralSettings.SMTPFromEmail,
+                 "Blazor-Blogs Administrator",
+                 "", "",
+                 objGeneralSettings.SMTPFromEmail,
+                 "Blazor-Blogs SMTP Test Email",
+                 $"This is a Blazor-Blogs SMTP Test Email from: { httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}");
+
+            toastService.ShowSuccess("", "Test Email Sent");
         }
         catch (Exception ex)
         {
