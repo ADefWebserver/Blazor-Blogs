@@ -8,8 +8,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
 @inject IToastService toastService
-
-@inherits OwningComponentBase<GeneralSettingsService>
+@inject EmailService _EmailService
+@inject GeneralSettingsService _GeneralSettingsService
+@inherits OwningComponentBase
 
 <h1>Settings</h1>
 <!-- AuthorizeView allows us to only show sections of the page -->
@@ -115,7 +116,8 @@
                 </tbody>
             </table>
             <br />
-            <button class="btn btn-success" @onclick="Save">Save</button>
+            <button class="btn btn-primary" @onclick="Save">Save</button>
+            <button class="btn btn-success" @onclick="SendTestEmail">Send Test Email</button>
         }
     </Authorized>
     <!-- Show this section if the user is not logged in -->
@@ -125,7 +127,7 @@
 </AuthorizeView>
 
 @code {
-    // AuthenticationState is available as a CascadingParameter
+        // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -145,12 +147,15 @@
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _EmailService = (EmailService)ScopedServices.GetService(typeof(EmailService));
+
         await LoadGeneralSettingsAsync();
     }
 
     protected async Task LoadGeneralSettingsAsync()
     {
-        objGeneralSettings = await @Service.GetGeneralSettingsAsync();
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
         AllowRegistration = objGeneralSettings.AllowRegistration.ToString();
         VerifiedRegistration = objGeneralSettings.VerifiedRegistration.ToString();
         SMTPSecure = objGeneralSettings.SMTPSecure.ToString();
@@ -172,15 +177,28 @@
 
     public async Task Save()
     {
-        var AllowRegistrationResult = @Service.UpdateAllowRegistrationAsync(Convert.ToBoolean(AllowRegistration));
-        var VerifiedRegistrationResult = @Service.UpdateVerifiedRegistrationAsync(Convert.ToBoolean(VerifiedRegistration));
-        var SMTPSecureResult = @Service.UpdateSMTPSecureAsync(Convert.ToBoolean(SMTPSecure));
+        try
+        {
+            await SaveSettings();
+            toastService.ShowSuccess("", "Saved!");
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowSuccess("Error", ex.GetBaseException().Message);
+        }
+    }
 
-        var UpdateApplicationNameResult = @Service.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
-        var UpdateSMTPServerResult = @Service.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
-        var UpdateSMTPUserNameResult = @Service.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
-        var UpdateSMTPPasswordResult = @Service.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
-        var UpdateSMTPFromEmailResult = @Service.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
+    public async Task SaveSettings()
+    {
+        var AllowRegistrationResult = _GeneralSettingsService.UpdateAllowRegistrationAsync(Convert.ToBoolean(AllowRegistration));
+        var VerifiedRegistrationResult = _GeneralSettingsService.UpdateVerifiedRegistrationAsync(Convert.ToBoolean(VerifiedRegistration));
+        var SMTPSecureResult = _GeneralSettingsService.UpdateSMTPSecureAsync(Convert.ToBoolean(SMTPSecure));
+
+        var UpdateApplicationNameResult = _GeneralSettingsService.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
+        var UpdateSMTPServerResult = _GeneralSettingsService.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
+        var UpdateSMTPUserNameResult = _GeneralSettingsService.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
+        var UpdateSMTPPasswordResult = _GeneralSettingsService.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
+        var UpdateSMTPFromEmailResult = _GeneralSettingsService.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
 
         switch (SMTPAuthentication)
         {
@@ -195,9 +213,21 @@
                 break;
         }
 
-        var UpdateSMTPAuthendicationResult = @Service.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
+        var UpdateSMTPAuthendicationResult = _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
 
-        objGeneralSettings = await @Service.GetGeneralSettingsAsync();
-        toastService.ShowSuccess("", "Saved!");
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+    }
+
+    public async Task SendTestEmail()
+    {
+        try
+        {
+            await SaveSettings();
+            toastService.ShowSuccess("", "Send Test Email Clicked");
+        }
+        catch (Exception ex)
+        {
+            toastService.ShowSuccess("Error", ex.GetBaseException().Message);
+        }
     }
 }

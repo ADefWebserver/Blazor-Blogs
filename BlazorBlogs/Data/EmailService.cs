@@ -126,7 +126,6 @@ namespace BlazorBlogs.Data
                     objMail.AlternateViews.Add(HTMLView);
                 }
             }
-
             catch (Exception objException)
             {
                 // Problem creating Mail Object
