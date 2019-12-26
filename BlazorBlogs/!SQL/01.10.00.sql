@@ -83,7 +83,7 @@ BEGIN
 CREATE TABLE [dbo].[Logs](
 	[LogId] [int] IDENTITY(1,1) NOT NULL,
 	[LogDate] [datetime] NOT NULL,
-	[LogAction] [nvarchar](50) NOT NULL,
+	[LogAction] [nvarchar](4000) NOT NULL,
 	[LogUserName] [nvarchar](500) NULL,
 	[LogIPAddress] [nvarchar](500) NOT NULL,
  CONSTRAINT [PK_Logs] PRIMARY KEY CLUSTERED 

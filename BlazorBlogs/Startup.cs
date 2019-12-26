@@ -54,6 +54,7 @@ namespace BlazorBlogs
 
             services.AddScoped<BlogsService>();
             services.AddScoped<GeneralSettingsService>();
+            services.AddScoped<EmailService>();
             services.AddHttpContextAccessor();
             services.AddBlazoredToast();
         }
