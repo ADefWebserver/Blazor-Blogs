@@ -226,7 +226,7 @@
             await SaveSettings();
 
             // Send Test Email
-            await _EmailService.SendMailAsync(
+            string strError = await _EmailService.SendMailAsync(
                  false,
                  objGeneralSettings.SMTPFromEmail,
                  "Blazor-Blogs Administrator",
@@ -235,11 +235,18 @@
                  "Blazor-Blogs SMTP Test Email",
                  $"This is a Blazor-Blogs SMTP Test Email from: { httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}");
 
-            toastService.ShowSuccess("", "Test Email Sent");
+            if (strError == "")
+            {
+                toastService.ShowSuccess("", "Test Email Sent");
+            }
+            else
+            {
+                toastService.ShowError("", strError);
+            }
         }
         catch (Exception ex)
         {
-            toastService.ShowSuccess("Error", ex.GetBaseException().Message);
+            toastService.ShowError("", ex.GetBaseException().Message);
         }
     }
 }
