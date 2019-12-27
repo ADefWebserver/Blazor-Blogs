@@ -17,6 +17,7 @@ using BlazorBlogs.Areas.Identity;
 using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
 using Blazored.Toast;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace BlazorBlogs
 {
@@ -41,7 +42,8 @@ namespace BlazorBlogs
             options.UseSqlServer(
                 Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<ApplicationUser>()
+            services.AddDefaultIdentity<ApplicationUser>(
+                  options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -55,6 +57,7 @@ namespace BlazorBlogs
             services.AddScoped<BlogsService>();
             services.AddScoped<GeneralSettingsService>();
             services.AddScoped<EmailService>();
+            services.AddTransient<IEmailSender, EmailSender>();
             services.AddHttpContextAccessor();
             services.AddBlazoredToast();
         }

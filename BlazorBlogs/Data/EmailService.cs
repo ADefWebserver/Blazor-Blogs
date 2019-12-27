@@ -135,7 +135,7 @@ namespace BlazorBlogs.Data
                 BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
                 objLog.LogDate = DateTime.Now;
                 objLog.LogAction = $"{Constants.EmailError} - Error: {strSendMail}";
-                objLog.LogUserName = null;
+                objLog.LogUserName = MailTo;
                 objLog.LogIpaddress = "127.0.0.1";
             }
 
@@ -278,8 +278,8 @@ namespace BlazorBlogs.Data
             {
                 BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
                 objLog.LogDate = DateTime.Now;
-                objLog.LogAction = $"{Constants.EmailSent} - To: {item.DisplayName} ({item.Address}) Subject: {objMailMessage.Subject}";
-                objLog.LogUserName = null;
+                objLog.LogAction = $"{Constants.EmailSent} - To: {item.DisplayName} Subject: {objMailMessage.Subject}";
+                objLog.LogUserName = item.Address;
                 objLog.LogIpaddress = "127.0.0.1";
 
                 _context.Logs.Add(objLog);
