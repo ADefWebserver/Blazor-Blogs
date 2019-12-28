@@ -1,4 +1,7 @@
-﻿<AuthorizeView>
+﻿@using BlazorBlogs.Data;
+@inherits OwningComponentBase<GeneralSettingsService>
+
+<AuthorizeView>
     <Authorized>
         <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
         <form method="post" action="Identity/Account/LogOut">
@@ -6,7 +9,19 @@
         </form>
     </Authorized>
     <NotAuthorized>
-        <a href="Identity/Account/Register">Register</a>
+        @if (AllowRegistration)
+        {
+            <a href="Identity/Account/Register">Register</a>
+        }
         <a href="Identity/Account/Login">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
+@code {
+    bool AllowRegistration = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var objGeneralSettings = await @Service.GetGeneralSettingsAsync();
+        AllowRegistration = objGeneralSettings.AllowRegistration;
+    }
+}
