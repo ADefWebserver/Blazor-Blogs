@@ -1,14 +1,12 @@
 ﻿@page "/ViewBlogPost/{BlogPostId}"
+
 @using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
-@inject UserManager<ApplicationUser> _UserManager
-@inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase<BlogsService>
+
 <a href="/"><h4>[Back]</h4></a>
 <br />
 <i>@SelectedBlog.BlogDate.ToShortDateString()</i>
@@ -41,7 +39,7 @@
         catch
         {
             await LogAction($"Error Viewing Blog #{BlogPostId}");
-            SelectedBlog = new Blogs(){ BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found"};
+            SelectedBlog = new Blogs() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
         }
     }
 
