@@ -42,12 +42,12 @@ namespace BlazorBlogs.Data
         public async Task<Blogs> GetBlogAsync(int BlogId)
         {
             var objBlog = await _context.Blogs
-                .Where(x => x.BlogId == BlogId)
+                .Where(x => x.BlogId == BlogId).AsNoTracking()
                 .FirstOrDefaultAsync();
 
             // Try to get name
             var objUser = await _context.AspNetUsers
-                .Where(x => x.Email.ToLower() == objBlog.BlogUserName)
+                .Where(x => x.Email.ToLower() == objBlog.BlogUserName).AsNoTracking()
                 .FirstOrDefaultAsync();
 
             if(objUser != null)
@@ -70,6 +70,7 @@ namespace BlazorBlogs.Data
 
             objBlogsPaged.BlogCount = await _context.Blogs
                 .Where(x => x.BlogUserName == strUserName)
+                .AsNoTracking()
                 .CountAsync();
 
             objBlogsPaged.Blogs = await _context.Blogs
