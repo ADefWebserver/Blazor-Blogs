@@ -5,6 +5,8 @@ Simple blogging application written in Microsoft Server Side Blazor
 
 ![Screenshot](BlazorBlogsMainPage.png)
 
+![Screenshot](BlazorBlogsMainPage2.png)
+
 ### Installing
 
 1) Create Database and run scripts in !SQL directory

@@ -17,6 +17,7 @@ namespace BlazorBlogs.Data
         {
         }
 
+        public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<BlogCategory> BlogCategory { get; set; }
         public virtual DbSet<Blogs> Blogs { get; set; }
         public virtual DbSet<Categorys> Categorys { get; set; }
@@ -34,6 +35,29 @@ namespace BlazorBlogs.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
+
+            modelBuilder.Entity<AspNetUsers>(entity =>
+            {
+                entity.HasIndex(e => e.NormalizedEmail)
+                    .HasName("EmailIndex");
+
+                entity.HasIndex(e => e.NormalizedUserName)
+                    .HasName("UserNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedUserName] IS NOT NULL)");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.DisplayName).HasMaxLength(256);
+
+                entity.Property(e => e.Email).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
+
+                entity.Property(e => e.UserName).HasMaxLength(256);
+            });
 
             modelBuilder.Entity<BlogCategory>(entity =>
             {
@@ -116,7 +140,7 @@ namespace BlazorBlogs.Data
 
                 entity.Property(e => e.LogAction)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(4000);
 
                 entity.Property(e => e.LogDate).HasColumnType("datetime");
 

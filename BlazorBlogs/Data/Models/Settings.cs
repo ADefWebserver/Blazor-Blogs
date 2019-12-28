@@ -9,10 +9,5 @@ namespace BlazorBlogs.Data.Models
         public int SettingId { get; set; }
         public string SettingName { get; set; }
         public string SettingValue { get; set; }
-
-        internal object ToListAsync()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

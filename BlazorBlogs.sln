@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubContent", "GitHubCont
 	ProjectSection(SolutionItems) = preProject
 		Animation.gif = Animation.gif
 		BlazorBlogsMainPage.png = BlazorBlogsMainPage.png
+		BlazorBlogsMainPage2.png = BlazorBlogsMainPage2.png
 		README.md = README.md
 	EndProjectSection
 EndProject

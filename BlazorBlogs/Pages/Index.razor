@@ -22,10 +22,7 @@
 
 @foreach (var blog in colBlogs.Blogs)
 {
-    <button class="btn btn-link"
-            @onclick="(() => ViewBlog(blog))">
-        <h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2>
-    </button>
+    <a href="/ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
     <div class="form-group">
         @((MarkupString)blog.BlogSummary)
     </div>
@@ -43,35 +40,8 @@
         <b>&#x3E;</b>
     </button>
 }
-@if (ShowPopup)
-{
-    <!-- This is the popup to view the selected Blog -->
-    <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog-scrollable modal-dialog-centered">
-            <div class="modal-content">
-                <i>@SelectedBlog.BlogDate.ToShortDateString()</i>
-                <div class="modal-header">
-                    <h3 class="modal-title">@SelectedBlog.BlogTitle</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                            @onclick="ClosePopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        @((MarkupString)SelectedBlog.BlogContent)
-                    </div>
-                    <br /><br />
-                </div>
-            </div>
-        </div>
-    </div>
-}
-<br />
 <br />
 @code {
-    // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -84,8 +54,6 @@
             BlogCount = 0
         };
 
-    Blogs SelectedBlog;
-    bool ShowPopup = false;
     bool ShowNextButton
     {
         get
@@ -126,24 +94,6 @@
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
     }
 
-    void ClosePopup()
-    {
-        // Close the Popup
-        ShowPopup = false;
-    }
-
-    async Task ViewBlog(Blogs Blog)
-    {
-        // Set the selected Blog
-        // as the current Blog
-        SelectedBlog = Blog;
-
-        // Open the Popup
-        ShowPopup = true;
-
-        await LogAction($"View Blog #{Blog.BlogId}");
-    }
-
     async Task Previous()
     {
         if (CurrentPage > 1)
@@ -157,19 +107,5 @@
     {
         CurrentPage = CurrentPage + 1;
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
-    }
-
-    private async Task LogAction(string strAction)
-    {
-        // Get the current user
-        var CurrentUser = (await authenticationStateTask).User;
-
-        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
-        objLog.LogDate = DateTime.Now;
-        objLog.LogAction = strAction;
-        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
-        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-
-        var result = await @Service.CreateLogAsync(objLog);
     }
 }

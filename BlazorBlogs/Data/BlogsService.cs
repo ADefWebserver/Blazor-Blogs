@@ -38,6 +38,30 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public async Task<Blogs> GetBlogAsync(int BlogId)
+        public async Task<Blogs> GetBlogAsync(int BlogId)
+        {
+            var objBlog = await _context.Blogs
+                .Where(x => x.BlogId == BlogId)
+                .FirstOrDefaultAsync();
+
+            // Try to get name
+            var objUser = await _context.AspNetUsers
+                .Where(x => x.Email.ToLower() == objBlog.BlogUserName)
+                .FirstOrDefaultAsync();
+
+            if(objUser != null)
+            {
+                if(objUser.DisplayName != null)
+                {
+                    objBlog.BlogUserName = objUser.DisplayName;
+                }
+            }
+
+            return objBlog;
+        }
+        #endregion
+
         #region public async Task<BlogsPaged> GetBlogsAdminAsync(string strUserName, int page)
         public async Task<BlogsPaged> GetBlogsAdminAsync(string strUserName, int page)
         {
