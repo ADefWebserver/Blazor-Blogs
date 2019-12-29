@@ -102,7 +102,7 @@ BEGIN
 CREATE TABLE [dbo].[Settings](
 	[SettingID] [int] IDENTITY(1,1) NOT NULL,
 	[SettingName] [nvarchar](150) NOT NULL,
-	[SettingValue] [nvarchar](250) NOT NULL,
+	[SettingValue] [nvarchar](4000) NOT NULL,
  CONSTRAINT [PK_ADefHelpDesk_Settings] PRIMARY KEY CLUSTERED 
 (
 	[SettingID] ASC
