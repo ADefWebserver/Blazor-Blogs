@@ -13,32 +13,56 @@
     <Authorized>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>User Name</th>
-                        <th>Display Name</th>
-                        <th>Email</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in ColUsers.ApplicationUsers)
-                    {
+            @if (ColUsers == null)
+            {
+                <p><em>Loading...</em></p>
+            }
+            else
+            {
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>@user.UserName</td>
-                            <td>@user.DisplayName</td>
-                            <td>@user.Email</td>
-                            <td>
-                                <!-- Edit the current forecast -->
-                                <button class="btn btn-primary"
-                                        @onclick="(() => EditUser(user))">
-                                    Edit
-                                </button>
-                            </td>
+                            <th>User Name</th>
+                            <th>Display Name</th>
+                            <th>Email</th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in ColUsers.ApplicationUsers)
+                        {
+                            <tr>
+                                <td>@user.UserName</td>
+                                <td>@user.DisplayName</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <!-- Edit the current forecast -->
+                                    <button class="btn btn-primary"
+                                            @onclick="(() => EditUser(user))">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p>
+                    <button class="btn btn-success" @onclick="AddNewUser">Add User</button>
+                    @if (ShowPreviousButton)
+                    {
+                        <button class="btn btn-warning"
+                                @onclick="Previous">
+                            <b>&#x3C;</b>
+                        </button>
                     }
-                </tbody>
-            </table>
+                    @if (ShowNextButton)
+                    {
+                        <button class="btn btn-warning"
+                                @onclick="Next">
+                            <b>&#x3E;</b>
+                        </button>
+                    }
+                </p>
+            }
             @if (ShowPopup)
             {
                 <!-- This is the popup to create or edit a user -->
@@ -114,7 +138,8 @@
                                     Save
                                 </button>
                                 <!-- Only show delete button if not a new record -->
-                                @if (objUser.Id != "")
+                                <!-- and not the current user -->
+                                @if (objUser.Id != "" && objUser.UserName.ToLower() != @context.User.Identity.Name.ToLower())
                                 {
                                     <!-- Button to delete the forecast -->
                                     <button class="btn btn-danger"
@@ -129,26 +154,14 @@
                     </div>
                 </div>
             }
-            <button class="btn btn-success" @onclick="AddNewUser">Add User</button>
-            <button class="btn btn-warning"
-                    @onclick="Previous">
-                <b>&#x3C;</b>
-            </button>
-            @if (ShowNextButton)
-            {
-                <button class="btn btn-warning"
-                        @onclick="Next">
-                    <b>&#x3E;</b>
-                </button>
-            }
         }
         else
         {
-            <p>You're not signed in as a user in @ADMINISTRATION_ROLE.</p>
+            <p>You are not signed in as a user in @ADMINISTRATION_ROLE.</p>
         }
     </Authorized>
     <NotAuthorized>
-        <p>You're not logged in.</p>
+        <p>You are not logged in.</p>
     </NotAuthorized>
 </AuthorizeView>
 @code {
@@ -167,7 +180,9 @@
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     bool ShowPopup = false;
+
     int CurrentPage = 1;
+    bool ShowPreviousButton { get { return (CurrentPage > 1); } }
     bool ShowNextButton { get { return ((ColUsers.ApplicationUserCount > (CurrentPage * 5))); } }
 
     protected override async Task OnInitializedAsync()

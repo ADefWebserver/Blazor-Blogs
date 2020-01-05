@@ -157,9 +157,13 @@ namespace BlazorBlogs.Data
             LogsPaged objLogsPaged = new LogsPaged();
 
             objLogsPaged.LogCount = await _context.Logs
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
                 .CountAsync();
 
             objLogsPaged.Logs = await _context.Logs
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
                 .OrderByDescending(x => x.LogId)
                 .Skip(page * 10)
                 .Take(10).ToListAsync();
@@ -187,12 +191,16 @@ namespace BlazorBlogs.Data
             objApplicationUserPaged.ApplicationUsers = new List<ApplicationUser>();
 
             objApplicationUserPaged.ApplicationUserCount = await _context.AspNetUsers
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
                 .Where(x => x.UserName.ToLower().Contains(paramSearch)
                 || x.Email.ToLower().Contains(paramSearch)
                 || x.DisplayName.ToLower().Contains(paramSearch))
                 .CountAsync();
 
             var users = await _context.AspNetUsers
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
                 .Where(x => x.UserName.ToLower().Contains(paramSearch)
                 || x.Email.ToLower().Contains(paramSearch)
                 || x.DisplayName.ToLower().Contains(paramSearch))

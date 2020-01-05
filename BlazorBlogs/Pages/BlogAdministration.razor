@@ -11,10 +11,7 @@
 @inherits OwningComponentBase<BlogsService>
 
 <h3>Blog Administration</h3>
-<!-- AuthorizeView allows us to only show sections of the page -->
-<!-- based on the security on the current user -->
 <AuthorizeView>
-    <!-- Show this section if the user is logged in -->
     <Authorized>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
@@ -56,10 +53,13 @@
                             @onclick="AddNewBlog">
                         Add New Blog
                     </button>
-                    <button class="btn btn-warning"
-                            @onclick="Previous">
-                        <b>&#x3C;</b>
-                    </button>
+                    @if (ShowPreviousButton)
+                    {
+                        <button class="btn btn-warning"
+                                @onclick="Previous">
+                            <b>&#x3C;</b>
+                        </button>
+                    }
                     @if (ShowNextButton)
                     {
                         <button class="btn btn-warning"
@@ -233,15 +233,13 @@
         }
         else
         {
-            <p>You must be an Administrator</p>
+            <p>You are not signed in as a user in @ADMINISTRATION_ROLE.</p>
         }
     </Authorized>
-    <!-- Show this section if the user is not logged in -->
     <NotAuthorized>
-        <p>You're not signed in.</p>
+        <p>You are not logged in.</p>
     </NotAuthorized>
 </AuthorizeView>
-
 @code {
     // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
@@ -262,6 +260,7 @@
 
     Blogs SelectedBlog;
     bool ShowPopup = false;
+    bool ShowPreviousButton { get { return (CurrentPage > 1); } }
     bool ShowNextButton { get { return ((colBlogs.BlogCount > (CurrentPage * 5))); } }
     string strError;
 
