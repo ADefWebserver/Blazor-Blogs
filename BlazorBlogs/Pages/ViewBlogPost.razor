@@ -51,7 +51,7 @@
         BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
         objLog.LogDate = DateTime.Now;
         objLog.LogAction = strAction;
-        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";
         objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
 
         var result = await @Service.CreateLogAsync(objLog);
