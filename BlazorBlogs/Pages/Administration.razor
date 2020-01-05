@@ -8,7 +8,6 @@
 @inject IConfiguration _configuration
 @inherits OwningComponentBase<BlogsService>
 
-<h3>Administration</h3>
 <AuthorizeView>
     <Authorized>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
@@ -20,11 +19,21 @@
             else
             {
                 <table class="table">
+                    <tr>
+                        <th colspan="2"><h3>Administration</h3></th>
+                        <th colspan="2">
+                            <RadzenTextBox Placeholder="Search..."
+                                           @oninput="@(args => Search(args.Value.ToString(), "Search"))" />
+                        </th>
+                    </tr>
+                </table>
+                <table class="table">
                     <thead>
                         <tr>
                             <th>User Name</th>
                             <th>Display Name</th>
                             <th>Email</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -161,6 +170,7 @@
         }
     </Authorized>
     <NotAuthorized>
+        <h3>Administration</h3>
         <p>You are not logged in.</p>
     </NotAuthorized>
 </AuthorizeView>
@@ -179,6 +189,7 @@
     string NewsletterSubscriber { get; set; } = "False";
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
+    string strSearch = "";
     bool ShowPopup = false;
 
     int CurrentPage = 1;
@@ -194,18 +205,18 @@
         await GetUsers();
     }
 
-    void ClosePopup()
-    {
-        // Close the Popup
-        ShowPopup = false;
-    }
-
     public async Task GetUsers()
     {
         // clear any error messages
         strError = "";
 
-        ColUsers = await @Service.GetUsersAsync("", CurrentPage);
+        ColUsers = await @Service.GetUsersAsync(strSearch, CurrentPage);
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowPopup = false;
     }
 
     void AddNewUser()
@@ -402,6 +413,20 @@
             // Delete the user
             await _UserManager.DeleteAsync(user);
         }
+
+        // Refresh Users
+        await GetUsers();
+    }
+
+    // Search
+
+    async Task Search(string value, string name)
+    {
+        // Update search value
+        strSearch = value;
+
+        // Switch to page 1
+        CurrentPage = 1;
 
         // Refresh Users
         await GetUsers();

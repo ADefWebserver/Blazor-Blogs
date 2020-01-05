@@ -8,18 +8,8 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
-@*
-    Using OwningComponentBase ensures that the service and related services
-    that share its scope are disposed with the component.
-    Otherwise DbContext will live for the life of the
-    connection, which may be problematic if clients stay
-    connected for a long time.
-
-    We access BlogsService using @Service
-*@
 @inherits OwningComponentBase<BlogsService>
 <!-- Show the blogs -->
-
 @foreach (var blog in colBlogs.Blogs)
 {
     <a href="/ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
@@ -29,10 +19,13 @@
     <hr />
 }
 <br />
-<button class="btn btn-warning"
-        @onclick="Previous">
-    <b>&#x3C;</b>
-</button>
+@if (ShowPreviousButton)
+{
+    <button class="btn btn-warning"
+            @onclick="Previous">
+        <b>&#x3C;</b>
+    </button>
+}
 @if (ShowNextButton)
 {
     <button class="btn btn-warning"
@@ -53,6 +46,14 @@
             Blogs = new List<Blogs>(),
             BlogCount = 0
         };
+
+    bool ShowPreviousButton 
+    { 
+        get 
+        { 
+            return (CurrentPage > 1); 
+        } 
+    }
 
     bool ShowNextButton
     {
