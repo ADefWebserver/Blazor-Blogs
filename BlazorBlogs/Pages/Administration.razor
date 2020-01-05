@@ -1,10 +1,12 @@
 ﻿@page "/administration"
+@using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Identity;
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
+@inherits OwningComponentBase<BlogsService>
 
 <h3>Administration</h3>
 <AuthorizeView>
@@ -20,7 +22,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in ColUsers)
+                    @foreach (var user in ColUsers.ApplicationUsers)
                     {
                         <tr>
                             <td>@user.UserName</td>
@@ -128,6 +130,17 @@
                 </div>
             }
             <button class="btn btn-success" @onclick="AddNewUser">Add User</button>
+            <button class="btn btn-warning"
+                    @onclick="Previous">
+                <b>&#x3C;</b>
+            </button>
+            @if (ShowNextButton)
+            {
+                <button class="btn btn-warning"
+                        @onclick="Next">
+                    <b>&#x3E;</b>
+                </button>
+            }
         }
         else
         {
@@ -144,7 +157,7 @@
 
     string ADMINISTRATION_ROLE = "Administrators";
     ApplicationUser objUser = new ApplicationUser();
-    List<ApplicationUser> ColUsers = new List<ApplicationUser>();
+    ApplicationUserPaged ColUsers = new ApplicationUserPaged() { ApplicationUsers = new List<ApplicationUser>(), ApplicationUserCount = 0 };
 
     List<string> Options = new List<string>() { "Users", "Administrators" };
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
@@ -154,6 +167,8 @@
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     bool ShowPopup = false;
+    int CurrentPage = 1;
+    bool ShowNextButton { get { return ((ColUsers.ApplicationUserCount > (CurrentPage * 5))); } }
 
     protected override async Task OnInitializedAsync()
     {
@@ -161,7 +176,7 @@
         CurrentUser = (await authenticationStateTask).User;
 
         // Get the users
-        GetUsers();
+        await GetUsers();
     }
 
     void ClosePopup()
@@ -170,29 +185,12 @@
         ShowPopup = false;
     }
 
-    public void GetUsers()
+    public async Task GetUsers()
     {
         // clear any error messages
         strError = "";
 
-        // Collection to hold users
-        ColUsers = new List<ApplicationUser>();
-
-        // get users from _UserManager
-        var user = _UserManager.Users.Select(x => new ApplicationUser
-        {
-            Id = x.Id,
-            UserName = x.UserName,
-            DisplayName = x.DisplayName,
-            Email = x.Email,
-            NewsletterSubscriber = x.NewsletterSubscriber,
-            PasswordHash = "*****"
-        });
-
-        foreach (var item in user)
-        {
-            ColUsers.Add(item);
-        }
+        ColUsers = await @Service.GetUsersAsync("", CurrentPage);
     }
 
     void AddNewUser()
@@ -323,7 +321,7 @@
             ShowPopup = false;
 
             // Refresh Users
-            GetUsers();
+            await GetUsers();
         }
         catch (Exception ex)
         {
@@ -391,6 +389,25 @@
         }
 
         // Refresh Users
-        GetUsers();
+        await GetUsers();
+    }
+
+    // Paging
+
+    async Task Previous()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = CurrentPage - 1;
+            // Refresh Users
+            await GetUsers();
+        }
+    }
+
+    async Task Next()
+    {
+        CurrentPage = CurrentPage + 1;
+        // Refresh Users
+        await GetUsers();
     }
 }

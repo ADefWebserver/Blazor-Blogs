@@ -8,15 +8,6 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IHttpContextAccessor httpContextAccessor
 @inject IConfiguration _configuration
-@*
-    Using OwningComponentBase ensures that the service and related services
-    that share its scope are disposed with the component.
-    Otherwise DbContext in ForecastService will live for the life of the
-    connection, which may be problematic if clients stay
-    connected for a long time.
-
-    We access WeatherForecastService using @Service
-*@
 @inherits OwningComponentBase<BlogsService>
 
 <h3>Blog Administration</h3>

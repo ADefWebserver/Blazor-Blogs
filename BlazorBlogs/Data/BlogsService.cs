@@ -50,9 +50,9 @@ namespace BlazorBlogs.Data
                 .Where(x => x.Email.ToLower() == objBlog.BlogUserName).AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            if(objUser != null)
+            if (objUser != null)
             {
-                if(objUser.DisplayName != null)
+                if (objUser.DisplayName != null)
                 {
                     objBlog.BlogUserName = objUser.DisplayName;
                 }
@@ -177,5 +177,47 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        // Users
+
+        #region public async Task<ApplicationUserPaged> GetUsersAsync(string paramSearch, int page)
+        public async Task<ApplicationUserPaged> GetUsersAsync(string paramSearch, int page)
+        {
+            page = page - 1;
+            ApplicationUserPaged objApplicationUserPaged = new ApplicationUserPaged();
+            objApplicationUserPaged.ApplicationUsers = new List<ApplicationUser>();
+
+            objApplicationUserPaged.ApplicationUserCount = await _context.AspNetUsers
+                .Where(x => x.UserName.ToLower().Contains(paramSearch)
+                || x.Email.ToLower().Contains(paramSearch)
+                || x.DisplayName.ToLower().Contains(paramSearch))
+                .CountAsync();
+
+            var users = await _context.AspNetUsers
+                .Where(x => x.UserName.ToLower().Contains(paramSearch)
+                || x.Email.ToLower().Contains(paramSearch)
+                || x.DisplayName.ToLower().Contains(paramSearch))
+                .OrderByDescending(x => x.Id)
+                .Skip(page * 5)
+                .Take(5).ToListAsync();
+
+            foreach (var item in users)
+            {
+                ApplicationUser objApplicationUser = new ApplicationUser();
+
+                objApplicationUser.Id = item.Id;
+                objApplicationUser.UserName = item.UserName;
+                objApplicationUser.Email = item.Email;
+                objApplicationUser.DisplayName = item.DisplayName;
+                objApplicationUser.EmailConfirmed = item.EmailConfirmed;
+                objApplicationUser.NewsletterSubscriber = (item.NewsletterSubscriber.HasValue) ? item.NewsletterSubscriber.Value : false;
+                objApplicationUser.PhoneNumber = item.PhoneNumber;
+                objApplicationUser.PasswordHash = "*****";
+
+                objApplicationUserPaged.ApplicationUsers.Add(objApplicationUser);
+            }
+
+            return objApplicationUserPaged;
+        }
+        #endregion
     }
 }
