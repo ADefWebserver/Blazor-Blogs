@@ -89,6 +89,17 @@
                                     <input class="form-control" type="date"
                                            @bind="SelectedBlog.BlogDate" />
                                 </div>
+                                <h5>Categories</h5>
+                                <div class="form-group">
+                                    <RadzenDropDown AllowClear="true"
+                                                    AllowFiltering="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    @bind-Value="selectedBlogCategorys" Multiple="true"
+                                                    Placeholder="Select..."
+                                                    Data="@colCategorys" TextProperty="Title"
+                                                    ValueProperty="CategoryId"
+                                                    Style="width:400px;" />
+                                </div>
                                 <h5>Title</h5>
                                 <div class="form-group">
                                     <input class="form-control" type="text"
@@ -241,7 +252,7 @@
     </NotAuthorized>
 </AuthorizeView>
 @code {
-    // AuthenticationState is available as a CascadingParameter
+        // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -262,6 +273,8 @@
     bool ShowPopup = false;
     bool ShowPreviousButton { get { return (CurrentPage > 1); } }
     bool ShowNextButton { get { return ((colBlogs.BlogCount > (CurrentPage * 5))); } }
+    List<CategoryDTO> colCategorys = new List<CategoryDTO>();
+    IEnumerable<string> selectedBlogCategorys = new string[] { };
     string strError;
 
     protected override async Task OnInitializedAsync()
@@ -269,8 +282,8 @@
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
-        // We access BlogsService using @Service
         colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
+        colCategorys = await @Service.GetCategorysAsync();
     }
 
     void ClosePopup()
@@ -287,6 +300,8 @@
         SelectedBlog.BlogDate = DateTime.Now;
         // Set Id to 0 so we know it is a new record
         SelectedBlog.BlogId = 0;
+        // Set the selected Blog Categorys
+        selectedBlogCategorys = new string[] { };
         // Clear any error messages
         strError = "";
         // Open the Popup
@@ -298,6 +313,10 @@
         // Set the selected Blog
         // as the current Blog
         SelectedBlog = Blog;
+
+        // Set the selected Blog Categorys
+        List<string> BlogCatagories = SelectedBlog.BlogCategory.Select(x => x.CategoryId.ToString()).ToList();
+        selectedBlogCategorys = BlogCatagories.ToArray<string>();
 
         // Clear any error messages
         strError = "";
@@ -349,7 +368,7 @@
 
                 // Save the result
                 var result =
-                @Service.CreateBlogAsync(objNewBlog);
+                @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
 
                 // Log
                 await LogAction($"Create Blog #{objNewBlog.BlogId}");
@@ -371,7 +390,7 @@
                 }
 
                 var result =
-                @Service.UpdateBlogAsync(SelectedBlog);
+                @Service.UpdateBlogAsync(SelectedBlog, selectedBlogCategorys);
 
                 // Log
                 await LogAction($"Update Blog #{SelectedBlog.BlogId}");
@@ -415,7 +434,7 @@
             await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
 
             // Close the Popup
-            ShowPopup = false;            
+            ShowPopup = false;
         }
         catch (Exception ex)
         {

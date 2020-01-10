@@ -30,6 +30,7 @@ namespace BlazorBlogs.Data
                 .CountAsync();
 
             objBlogsPaged.Blogs = await _context.Blogs
+                .Include(x => x.BlogCategory)
                 .OrderBy(x => x.BlogDate)
                 .Skip(page * 5)
                 .Take(5).ToListAsync();
@@ -42,6 +43,7 @@ namespace BlazorBlogs.Data
         public async Task<Blogs> GetBlogAsync(int BlogId)
         {
             var objBlog = await _context.Blogs
+                .Include(x => x.BlogCategory)
                 .Where(x => x.BlogId == BlogId).AsNoTracking()
                 .FirstOrDefaultAsync();
 
@@ -74,6 +76,7 @@ namespace BlazorBlogs.Data
                 .CountAsync();
 
             objBlogsPaged.Blogs = await _context.Blogs
+                .Include(x => x.BlogCategory)
                 .Where(x => x.BlogUserName == strUserName)
                 .OrderBy(x => x.BlogDate)
                 .Skip(page * 5)
@@ -83,13 +86,30 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<Blogs> CreateBlogAsync(Blogs objBlogs)
-        public Task<Blogs> CreateBlogAsync(Blogs objBlogs)
+        #region public Task<Blogs> CreateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
+        public Task<Blogs> CreateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
         {
-            _context.Blogs.Add(objBlogs);
-            _context.SaveChanges();
+            try
+            {
+                if (BlogCatagories == null)
+                {
+                    objBlogs.BlogCategory = null;
+                }
+                else
+                {
+                    objBlogs.BlogCategory =
+                        GetSelectedBlogCategories(objBlogs, BlogCatagories);
+                }
+                _context.Blogs.Add(objBlogs);
+                _context.SaveChanges();
 
-            return Task.FromResult(objBlogs);
+                return Task.FromResult(objBlogs);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
         }
         #endregion
 
@@ -115,36 +135,70 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs)
-        public Task<bool> UpdateBlogAsync(Blogs objBlogs)
+        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
+        public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
         {
-            var ExistingBlogs =
-                _context.Blogs
-                .Where(x => x.BlogId == objBlogs.BlogId)
-                .FirstOrDefault();
-
-            if (ExistingBlogs != null)
+            try
             {
-                ExistingBlogs.BlogDate =
-                    objBlogs.BlogDate;
+                var ExistingBlogs =
+                    _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogId == objBlogs.BlogId)
+                    .FirstOrDefault();
 
-                ExistingBlogs.BlogTitle =
-                    objBlogs.BlogTitle;
+                if (ExistingBlogs != null)
+                {
+                    ExistingBlogs.BlogDate =
+                        objBlogs.BlogDate;
 
-                ExistingBlogs.BlogSummary =
-                    objBlogs.BlogSummary;
+                    ExistingBlogs.BlogTitle =
+                        objBlogs.BlogTitle;
 
-                ExistingBlogs.BlogContent =
-                    objBlogs.BlogContent;
+                    ExistingBlogs.BlogSummary =
+                        objBlogs.BlogSummary;
 
-                _context.SaveChanges();
+                    ExistingBlogs.BlogContent =
+                        objBlogs.BlogContent;
+
+                    if (BlogCatagories == null)
+                    {
+                        ExistingBlogs.BlogCategory = null;
+                    }
+                    else
+                    {
+                        ExistingBlogs.BlogCategory =
+                            GetSelectedBlogCategories(objBlogs, BlogCatagories);
+                    }
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
             }
-            else
+            catch (Exception ex)
             {
-                return Task.FromResult(false);
+                DetachAllEntities();
+                throw ex;
             }
+        }
+        #endregion
 
-            return Task.FromResult(true);
+        // Category
+
+        #region public async Task<CategoryDTO> GetCategorysAsync()
+        public async Task<List<CategoryDTO>> GetCategorysAsync()
+        {
+            return await (from category in _context.Categorys
+                          select new CategoryDTO
+                          {
+                              CategoryId = category.CategoryId.ToString(),
+                              Description = category.Description,
+                              Title = category.Title
+                          }).AsNoTracking().ToListAsync();
         }
         #endregion
 
@@ -225,6 +279,49 @@ namespace BlazorBlogs.Data
             }
 
             return objApplicationUserPaged;
+        }
+        #endregion
+
+        // Utility
+
+        #region private List<BlogCategory> GetSelectedBlogCategories(Blogs objBlogs, IEnumerable<string> blogCatagories)
+        private List<BlogCategory> GetSelectedBlogCategories(Blogs objBlogs, IEnumerable<string> blogCatagories)
+        {
+            List<BlogCategory> colBlogCategory = new List<BlogCategory>();
+
+            foreach (var item in blogCatagories)
+            {
+                int intBlogCatagoryId = Convert.ToInt32(item);
+
+                // Get the Category
+                var Category = _context.Categorys
+                    .Where(x => x.CategoryId == intBlogCatagoryId)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                // Create a new BlogCategory
+                BlogCategory NewBlogCategory = new BlogCategory();
+                NewBlogCategory.BlogId = objBlogs.BlogId;
+                NewBlogCategory.CategoryId = Category.CategoryId;
+
+                // Add it to the list
+                colBlogCategory.Add(NewBlogCategory);
+            }
+
+            return colBlogCategory;
+        }
+        #endregion
+
+        #region public void DetachAllEntities()
+        public void DetachAllEntities()
+        {
+            var changedEntriesCopy = _context.ChangeTracker.Entries()
+                .Where(e => e.State == EntityState.Added ||
+                            e.State == EntityState.Modified ||
+                            e.State == EntityState.Deleted)
+                .ToList();
+            foreach (var entry in changedEntriesCopy)
+                entry.State = EntityState.Detached;
         }
         #endregion
     }
