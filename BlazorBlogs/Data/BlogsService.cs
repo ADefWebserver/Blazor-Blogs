@@ -135,8 +135,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
-        public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
+        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCategories)
+        public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCategories)
         {
             try
             {
@@ -160,14 +160,14 @@ namespace BlazorBlogs.Data
                     ExistingBlogs.BlogContent =
                         objBlogs.BlogContent;
 
-                    if (BlogCatagories == null)
+                    if (BlogCategories == null)
                     {
                         ExistingBlogs.BlogCategory = null;
                     }
                     else
                     {
                         ExistingBlogs.BlogCategory =
-                            GetSelectedBlogCategories(objBlogs, BlogCatagories);
+                            GetSelectedBlogCategories(objBlogs, BlogCategories);
                     }
 
                     _context.SaveChanges();
@@ -199,6 +199,88 @@ namespace BlazorBlogs.Data
                               Description = category.Description,
                               Title = category.Title
                           }).AsNoTracking().ToListAsync();
+        }
+        #endregion
+
+        #region public Task<bool> CreateCategorysAsync(CategoryDTO objCategoryDTO)
+        public Task<bool> CreateCategorysAsync(CategoryDTO objCategoryDTO)
+        {
+            try
+            {
+                Categorys objCategorys = new Categorys();
+                objCategorys.Title = objCategoryDTO.Title;
+                objCategorys.Description = objCategoryDTO.Description;
+
+                _context.Categorys.Add(objCategorys);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> UpdateCategoryAsync(CategoryDTO objCategoryDTO)
+        public Task<bool> UpdateCategoryAsync(CategoryDTO objCategoryDTO)
+        {
+            try
+            {
+                int intCategoryId = Convert.ToInt32(objCategoryDTO.CategoryId);
+
+                var ExistingCategory =
+                    _context.Categorys
+                    .Where(x => x.CategoryId == intCategoryId)
+                    .FirstOrDefault();
+
+                if (ExistingCategory != null)
+                {
+                    ExistingCategory.Title =
+                        objCategoryDTO.Title;
+
+                    ExistingCategory.Description =
+                        objCategoryDTO.Description;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> DeleteCategorysAsync(CategoryDTO objCategoryDTO)
+        public Task<bool> DeleteCategorysAsync(CategoryDTO objCategoryDTO)
+        {
+            int intCategoryId = Convert.ToInt32(objCategoryDTO.CategoryId);
+
+            var ExistingCategory =
+                _context.Categorys
+                .Where(x => x.CategoryId == intCategoryId)
+                .FirstOrDefault();
+
+            if (ExistingCategory != null)
+            {
+                _context.Categorys.Remove(ExistingCategory);
+                _context.SaveChanges();
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
         }
         #endregion
 

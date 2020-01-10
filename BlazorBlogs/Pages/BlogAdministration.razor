@@ -89,7 +89,9 @@
                                     <input class="form-control" type="date"
                                            @bind="SelectedBlog.BlogDate" />
                                 </div>
-                                <h5>Categories</h5>
+                                <div>
+                                    <h5>Categories <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit]</button></h5>
+                                </div>
                                 <div class="form-group">
                                     <RadzenDropDown AllowClear="true"
                                                     AllowFiltering="true"
@@ -98,7 +100,7 @@
                                                     Placeholder="Select..."
                                                     Data="@colCategorys" TextProperty="Title"
                                                     ValueProperty="CategoryId"
-                                                    Style="width:400px;" />
+                                                    Style="width:400px;" />                                    
                                 </div>
                                 <h5>Title</h5>
                                 <div class="form-group">
@@ -240,6 +242,9 @@
 
                 <FileManager @ref="FileManagerControl"
                              ImageSelected="InsertImage" />
+
+                <CategoryManager @ref="CategoryManagerControl"
+                                 CategoryUpdated="UpdateCategories"/>
             }
         }
         else
@@ -252,7 +257,7 @@
     </NotAuthorized>
 </AuthorizeView>
 @code {
-        // AuthenticationState is available as a CascadingParameter
+    // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -260,6 +265,8 @@
 
     private FileManager FileManagerControlSummary;
     private FileManager FileManagerControl;
+    private CategoryManager CategoryManagerControl;
+
     string ADMINISTRATION_ROLE = "Administrators";
     BlazoredTextEditor QuillHtmlSummary;
     BlazoredTextEditor QuillHtml;
@@ -284,6 +291,14 @@
 
         colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
         colCategorys = await @Service.GetCategorysAsync();
+    }
+
+    //CategoryManagerControl
+
+    void OpenCategoryManagerControl()
+    {
+        // Open CategoryManagerControl
+        CategoryManagerControl.SetShowManager(true);
     }
 
     void ClosePopup()
@@ -509,6 +524,11 @@
         await this.QuillHtml.InsertImage(paramImageURL);
 
         FileManagerControl.SetShowFileManager(false);
+    }
+
+    async Task UpdateCategories()
+    {
+        colCategorys = await @Service.GetCategorysAsync();
     }
 
     private async Task LogAction(string strAction)

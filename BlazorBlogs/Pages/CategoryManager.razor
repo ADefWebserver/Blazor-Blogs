@@ -1,0 +1,54 @@
+﻿@using System.IO
+@using BlazorBlogs.Data.Models;
+
+@if (ShowManager)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b class="modal-title">Category Manager</b>
+                    <!-- Close Button -->
+                    <button type="button" class="close"
+                            @onclick="() => { ClosePopup(); }">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        Category Manager
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter] public EventCallback<bool> CategoryUpdated { get; set; }
+
+    public bool ShowManager = false;
+
+    protected override void OnInitialized()
+    {
+
+    }
+
+    public void SetShowManager(bool paramSetting)
+    {
+        ShowManager = paramSetting;
+
+        // Update UI
+        StateHasChanged();
+    }
+
+    void ClosePopup()
+    {
+        // Refresh collection on parent
+        CategoryUpdated.InvokeAsync(true);
+
+        // Close Popup
+        ShowManager = false;
+    }
+}
