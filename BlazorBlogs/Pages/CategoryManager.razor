@@ -6,7 +6,7 @@
 
 @if (ShowManager)
 {
-    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -74,14 +74,14 @@
 
     @if (ShowPopup)
     {
-        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h3 class="modal-title">Edit Category</h3>
                         <!-- Button to close the popup -->
                         <button type="button" class="close"
-                                @onclick="ClosePopup">
+                                @onclick="CloseShowPopup">
                             <span aria-hidden="true">X</span>
                         </button>
                     </div>
@@ -114,7 +114,7 @@
                             </button>
                         }
                         <br />
-                        <span style="color:red">@strError</span>
+                        <span style="color: red">@strError</span>
                     </div>
                 </div>
             </div>
@@ -148,6 +148,12 @@
 
         // Update UI
         StateHasChanged();
+    }
+
+    void CloseShowPopup()
+    {
+        // Close Popup
+        ShowPopup = false;
     }
 
     void ClosePopup()
