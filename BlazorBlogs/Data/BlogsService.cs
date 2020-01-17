@@ -198,12 +198,38 @@ namespace BlazorBlogs.Data
                               CategoryId = category.CategoryId.ToString(),
                               Description = category.Description,
                               Title = category.Title
-                          }).AsNoTracking().ToListAsync();
+                          }).AsNoTracking().OrderBy(x => x.Title).ToListAsync();
         }
         #endregion
 
-        #region public Task<bool> CreateCategorysAsync(CategoryDTO objCategoryDTO)
-        public Task<bool> CreateCategorysAsync(CategoryDTO objCategoryDTO)
+        #region public async Task<CategorysPaged> GetCategorysAsync(int page)
+        public async Task<CategorysPaged> GetCategorysAsync(int page)
+        {
+            page = page - 1;
+            CategorysPaged objCategorysPaged = new CategorysPaged();
+
+            objCategorysPaged.CategoryCount = await _context.Categorys
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
+                .CountAsync();
+
+            objCategorysPaged.Categorys = await (from category in _context.Categorys
+                                                 select new CategoryDTO
+                                                 {
+                                                     CategoryId = category.CategoryId.ToString(),
+                                                     Description = category.Description,
+                                                     Title = category.Title
+                                                 }).AsNoTracking()
+                                                 .OrderBy(x => x.Title)
+                                                 .Skip(page * 5)
+                                                 .Take(5)
+                                                 .ToListAsync();
+            return objCategorysPaged;
+        }
+        #endregion
+
+        #region public Task<bool> CreateCategoryAsync(CategoryDTO objCategoryDTO)
+        public Task<bool> CreateCategoryAsync(CategoryDTO objCategoryDTO)
         {
             try
             {
@@ -260,8 +286,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<bool> DeleteCategorysAsync(CategoryDTO objCategoryDTO)
-        public Task<bool> DeleteCategorysAsync(CategoryDTO objCategoryDTO)
+        #region public Task<bool> DeleteCategoryAsync(CategoryDTO objCategoryDTO)
+        public Task<bool> DeleteCategoryAsync(CategoryDTO objCategoryDTO)
         {
             int intCategoryId = Convert.ToInt32(objCategoryDTO.CategoryId);
 

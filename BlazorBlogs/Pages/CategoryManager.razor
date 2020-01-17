@@ -1,5 +1,8 @@
 ﻿@using System.IO
 @using BlazorBlogs.Data.Models;
+@using BlazorBlogs.Data;
+@inject IConfiguration _configuration
+@inherits OwningComponentBase<BlogsService>
 
 @if (ShowManager)
 {
@@ -16,7 +19,53 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        Category Manager
+                        <!-- Show the Categorys -->
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var category in colCategorys.Categorys)
+                                {
+                                    <tr>
+                                        <td>@category.Title</td>
+                                        <td>@category.Description</td>
+                                        <td>
+                                            <!-- Edit the current Category -->
+                                            <button class="btn btn-primary"
+                                                    @onclick="(() => EditCategory(category))">
+                                                Edit
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <p>
+                            <!-- Add a new Category -->
+                            <button class="btn btn-success"
+                                    @onclick="AddNewCategory">
+                                Add New Category
+                            </button>
+                            @if (ShowPreviousButton)
+                            {
+                                <button class="btn btn-warning"
+                                        @onclick="Previous">
+                                    <b>&#x3C;</b>
+                                </button>
+                            }
+                            @if (ShowNextButton)
+                            {
+                                <button class="btn btn-warning"
+                                        @onclick="Next">
+                                    <b>&#x3E;</b>
+                                </button>
+                            }
+                        </p>
                     </div>
                 </div>
             </div>
@@ -29,10 +78,19 @@
     [Parameter] public EventCallback<bool> CategoryUpdated { get; set; }
 
     public bool ShowManager = false;
+    int CurrentPage = 1;
+    CategorysPaged colCategorys = new CategorysPaged() { Categorys = new List<CategoryDTO>(), CategoryCount = 0 };
 
-    protected override void OnInitialized()
+    CategoryDTO SelectedCategory;
+    bool ShowPopup = false;
+    bool ShowPreviousButton { get { return (CurrentPage > 1); } }
+    bool ShowNextButton { get { return ((colCategorys.CategoryCount > (CurrentPage * 5))); } }
+
+    string strError;
+
+    protected override async Task OnInitializedAsync()
     {
-
+        colCategorys = await @Service.GetCategorysAsync(CurrentPage);
     }
 
     public void SetShowManager(bool paramSetting)
@@ -50,5 +108,112 @@
 
         // Close Popup
         ShowManager = false;
+    }
+
+    void AddNewCategory()
+    {
+        // Make new Category
+        SelectedCategory = new CategoryDTO();
+
+        // Set Id to 0 so we know it is a new record
+        SelectedCategory.CategoryId = "0";
+
+        // Clear any error messages
+        strError = "";
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    void EditCategory(CategoryDTO Category)
+    {
+        // Set the selected Category
+        // as the current Category
+        SelectedCategory = Category;
+
+        // Clear any error messages
+        strError = "";
+
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    async Task SaveCategory()
+    {
+        try
+        {
+            // A new Category will have the Id set to 0
+            if (SelectedCategory.CategoryId == "0")
+            {
+                // Create new Category
+                CategoryDTO objNewCategory = new CategoryDTO();
+
+                objNewCategory.Title =
+                    SelectedCategory.Title;
+
+                objNewCategory.Description =
+                    SelectedCategory.Description;
+
+                // Save the result
+                var result =
+                @Service.CreateCategoryAsync(objNewCategory);
+            }
+            else
+            {
+                var result =
+                @Service.UpdateCategoryAsync(SelectedCategory);
+            }
+
+            // Get the Categorys
+            colCategorys = await @Service.GetCategorysAsync(CurrentPage);
+
+            // Close the Popup
+            ShowPopup = false;
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task DeleteCategory()
+    {
+        try
+        {
+            // Delete the Category
+            var result = @Service.DeleteCategoryAsync(SelectedCategory);
+
+            // If the current page has no records
+            // and not on page one go back a page
+            if ((CurrentPage > 1) &&
+                !((colCategorys.CategoryCount - 1) > (CurrentPage * 5)))
+            {
+                CurrentPage = CurrentPage - 1;
+            }
+
+            // Get the Categorys
+            colCategorys = await @Service.GetCategorysAsync(CurrentPage);
+
+            // Close the Popup
+            ShowPopup = false;
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+        }
+    }
+
+    async Task Previous()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = CurrentPage - 1;
+            colCategorys = await @Service.GetCategorysAsync(CurrentPage);
+        }
+    }
+
+    async Task Next()
+    {
+        CurrentPage = CurrentPage + 1;
+        colCategorys = await @Service.GetCategorysAsync(CurrentPage);
     }
 }
