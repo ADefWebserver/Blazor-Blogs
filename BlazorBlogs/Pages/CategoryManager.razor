@@ -71,6 +71,55 @@
             </div>
         </div>
     </div>
+
+    @if (ShowPopup)
+    {
+        <div class="modal" tabindex="-1" style="display:block" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Edit Category</h3>
+                        <!-- Button to close the popup -->
+                        <button type="button" class="close"
+                                @onclick="ClosePopup">
+                            <span aria-hidden="true">X</span>
+                        </button>
+                    </div>
+                    <!-- Edit form for the current Category -->
+                    <div class="modal-body">
+                        <h5>Title</h5>
+                        <div class="form-group">
+                            <input class="form-control" type="text"
+                                   @bind="SelectedCategory.Title" />
+                        </div>
+
+                        <h5>Description</h5>
+                        <div class="form-group">
+                            <input class="form-control" type="text"
+                                   @bind="SelectedCategory.Description" />
+                        </div>                       
+                        <br />
+                        <!-- Button to save -->
+                        <button class="btn btn-primary"
+                                @onclick="SaveCategory">
+                            Save
+                        </button>
+                        <!-- Only show delete button if not a new record -->
+                        @if (SelectedCategory.CategoryId.ToString() != "0")
+                        {
+                            <!-- Button to delete the forecast -->
+                            <button class="btn btn-danger"
+                                    @onclick="DeleteCategory">
+                                Delete
+                            </button>
+                        }
+                        <br />
+                        <span style="color:red">@strError</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code {
