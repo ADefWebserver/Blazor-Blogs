@@ -39,13 +39,34 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task<Blogs> GetBlogAsync(int BlogId)
-        public async Task<Blogs> GetBlogAsync(int BlogId)
+        #region public async Task<BlogDTO> GetBlogAsync(int BlogId)
+        public async Task<BlogDTO> GetBlogAsync(int BlogId)
         {
-            var objBlog = await _context.Blogs
-                .Include(x => x.BlogCategory)
-                .Where(x => x.BlogId == BlogId).AsNoTracking()
+            BlogDTO objBlog = await (from blog in _context.Blogs
+                                     .Where(x => x.BlogId == BlogId)
+                                     select new BlogDTO
+                                     {
+                                         BlogId = blog.BlogId,
+                                         BlogTitle = blog.BlogTitle,
+                                         BlogDate = blog.BlogDate,
+                                         BlogUserName = blog.BlogUserName,
+                                         BlogSummary = blog.BlogSummary,
+                                         BlogContent = blog.BlogContent,
+                                         BlogDisplayName = "",
+                                     }).AsNoTracking()
                 .FirstOrDefaultAsync();
+
+            // Add Blog Categories
+            objBlog.BlogCategory = new List<BlogCategory>();
+
+            var BlogCategories = await _context.BlogCategory
+                .Where(x => x.BlogId == objBlog.BlogId)
+                .AsNoTracking().ToListAsync();
+
+            foreach (var item in BlogCategories)
+            {
+                objBlog.BlogCategory.Add(item);
+            }
 
             // Try to get name
             var objUser = await _context.AspNetUsers
@@ -56,7 +77,7 @@ namespace BlazorBlogs.Data
             {
                 if (objUser.DisplayName != null)
                 {
-                    objBlog.BlogUserName = objUser.DisplayName;
+                    objBlog.BlogDisplayName = objUser.DisplayName;
                 }
             }
 
@@ -86,11 +107,21 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<Blogs> CreateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
-        public Task<Blogs> CreateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCatagories)
+        #region public Task<Blogs> CreateBlogAsync(BlogDTO newBlog, IEnumerable<String> BlogCatagories)
+        public Task<Blogs> CreateBlogAsync(BlogDTO newBlog, IEnumerable<String> BlogCatagories)
         {
             try
             {
+                Blogs objBlogs = new Blogs();
+
+                objBlogs.BlogId = 0;
+                objBlogs.BlogContent = newBlog.BlogContent;
+                objBlogs.BlogDate = newBlog.BlogDate;                
+                objBlogs.BlogSummary = newBlog.BlogSummary;
+                objBlogs.BlogTitle = newBlog.BlogTitle;
+                objBlogs.BlogUserName = newBlog.BlogUserName;
+                objBlogs.BlogContent = newBlog.BlogContent;
+
                 if (BlogCatagories == null)
                 {
                     objBlogs.BlogCategory = null;
@@ -98,8 +129,9 @@ namespace BlazorBlogs.Data
                 else
                 {
                     objBlogs.BlogCategory =
-                        GetSelectedBlogCategories(objBlogs, BlogCatagories);
+                        GetSelectedBlogCategories(newBlog, BlogCatagories);
                 }
+
                 _context.Blogs.Add(objBlogs);
                 _context.SaveChanges();
 
@@ -113,8 +145,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<bool> DeleteBlogAsync(Blogs objBlogs)
-        public Task<bool> DeleteBlogAsync(Blogs objBlogs)
+        #region public Task<bool> DeleteBlogAsync(BlogDTO objBlogs)
+        public Task<bool> DeleteBlogAsync(BlogDTO objBlogs)
         {
             var ExistingBlogs =
                 _context.Blogs
@@ -135,8 +167,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCategories)
-        public Task<bool> UpdateBlogAsync(Blogs objBlogs, IEnumerable<String> BlogCategories)
+        #region public Task<bool> UpdateBlogAsync(BlogDTO objBlogs, IEnumerable<String> BlogCategories)
+        public Task<bool> UpdateBlogAsync(BlogDTO objBlogs, IEnumerable<String> BlogCategories)
         {
             try
             {
@@ -392,8 +424,8 @@ namespace BlazorBlogs.Data
 
         // Utility
 
-        #region private List<BlogCategory> GetSelectedBlogCategories(Blogs objBlogs, IEnumerable<string> blogCatagories)
-        private List<BlogCategory> GetSelectedBlogCategories(Blogs objBlogs, IEnumerable<string> blogCatagories)
+        #region private List<BlogCategory> GetSelectedBlogCategories(BlogDTO objBlogs, IEnumerable<string> blogCatagories)
+        private List<BlogCategory> GetSelectedBlogCategories(BlogDTO objBlogs, IEnumerable<string> blogCatagories)
         {
             List<BlogCategory> colBlogCategory = new List<BlogCategory>();
 

@@ -1,5 +1,4 @@
-﻿@page "/blogadministration"
-@using Microsoft.AspNetCore.Http
+﻿@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
@@ -10,256 +9,192 @@
 @inject IConfiguration _configuration
 @inherits OwningComponentBase<BlogsService>
 
-<h3>Blog Administration</h3>
-<AuthorizeView>
-    <Authorized>
-        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
-        {
-            @if (colBlogs == null)
-            {
-                <p><em>Loading...</em></p>
-            }
-            else
-            {
-                <!-- Show the blogs -->
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Blog Title</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var blog in colBlogs.Blogs)
-                        {
-                            <tr>
-                                <td>@blog.BlogDate.ToShortDateString()</td>
-                                <td>@blog.BlogTitle</td>
-                                <td>
-                                    <!-- Edit the current blog -->
-                                    <button class="btn btn-primary"
-                                            @onclick="(() => EditBlog(blog))">
-                                        Edit
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-                <p>
-                    <!-- Add a new Blog -->
-                    <button class="btn btn-success"
-                            @onclick="AddNewBlog">
-                        Add New Blog
+@if (ShowAdmin)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Blog</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
                     </button>
-                    @if (ShowPreviousButton)
-                    {
-                        <button class="btn btn-warning"
-                                @onclick="Previous">
-                            <b>&#x3C;</b>
-                        </button>
-                    }
-                    @if (ShowNextButton)
-                    {
-                        <button class="btn btn-warning"
-                                @onclick="Next">
-                            <b>&#x3E;</b>
-                        </button>
-                    }
-                </p>
-            }
-            @if (ShowPopup)
-            {
-                <!-- This is the popup to create or edit a Blog -->
-                <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-                    <div class="modal-dialog-scrollable modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Edit Blog</h3>
-                                <!-- Button to close the popup -->
-                                <button type="button" class="close"
-                                        @onclick="ClosePopup">
-                                    <span aria-hidden="true">X</span>
-                                </button>
-                            </div>
-                            <!-- Edit form for the current Blog -->
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <input class="form-control" type="date"
-                                           @bind="SelectedBlog.BlogDate" />
-                                </div>
-                                <div>
-                                    <h5>Categories <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit]</button></h5>
-                                </div>
-                                <div class="form-group">
-                                    <RadzenDropDown AllowClear="true"
-                                                    AllowFiltering="true"
-                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    @bind-Value="selectedBlogCategorys" Multiple="true"
-                                                    Placeholder="Select..."
-                                                    Data="@colCategorys" TextProperty="Title"
-                                                    ValueProperty="CategoryId"
-                                                    Style="width:400px;" />                                    
-                                </div>
-                                <h5>Title</h5>
-                                <div class="form-group">
-                                    <input class="form-control" type="text"
-                                           @bind="SelectedBlog.BlogTitle" />
-                                </div>
-                                <h5>Summary</h5>
-                                <div class="form-group">
-                                    @if (!RichTextEditorModeSummary)
-                                    {
-                                        <textarea class="form-control" @bind="@SelectedBlog.BlogSummary" rows="2" />
-                                    }
-                                    else
-                                    {
-                                        <BlazoredTextEditor @ref="@QuillHtmlSummary">
-                                            <ToolbarContent>
-                                                <select class="ql-header">
-                                                    <option selected=""></option>
-                                                    <option value="1"></option>
-                                                    <option value="2"></option>
-                                                    <option value="3"></option>
-                                                    <option value="4"></option>
-                                                    <option value="5"></option>
-                                                </select>
-                                                <span class="ql-formats">
-                                                    <button class="ql-bold"></button>
-                                                    <button class="ql-italic"></button>
-                                                    <button class="ql-underline"></button>
-                                                    <button class="ql-strike"></button>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <select class="ql-color"></select>
-                                                    <select class="ql-background"></select>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <button class="ql-list" value="ordered"></button>
-                                                    <button class="ql-list" value="bullet"></button>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <button class="ql-link"></button>
-                                                    <button class="btn btn-link" id="custom-button"
-                                                            @onclick="InsertImageSummaryClick">
-                                                        <img src="imageIcon.png" style="border:hidden" />
-                                                    </button>
-                                                </span>
-                                            </ToolbarContent>
-                                            <EditorContent>
-                                                @((MarkupString)SelectedBlog.BlogSummary)
-                                            </EditorContent>
-                                        </BlazoredTextEditor>
-                                    }
-                                    @if (!RichTextEditorModeSummary)
-                                    {
-                                        <button type="button" class="btn btn-link" @onclick="RichTextEditorSummary"><h6>[Rich Text Editor]</h6></button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="btn btn-link" @onclick="RawHTMLEditorSummary"><h6>[Raw HTML Editor]</h6></button>
-                                    }
-                                </div>
-                                <h5>Content</h5>
-                                <div class="form-group">
-                                    @if (!RichTextEditorMode)
-                                    {
-                                        <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
-                                    }
-                                    else
-                                    {
-                                        <BlazoredTextEditor @ref="@QuillHtml">
-                                            <ToolbarContent>
-                                                <select class="ql-header">
-                                                    <option selected=""></option>
-                                                    <option value="1"></option>
-                                                    <option value="2"></option>
-                                                    <option value="3"></option>
-                                                    <option value="4"></option>
-                                                    <option value="5"></option>
-                                                </select>
-                                                <span class="ql-formats">
-                                                    <button class="ql-bold"></button>
-                                                    <button class="ql-italic"></button>
-                                                    <button class="ql-underline"></button>
-                                                    <button class="ql-strike"></button>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <select class="ql-color"></select>
-                                                    <select class="ql-background"></select>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <button class="ql-list" value="ordered"></button>
-                                                    <button class="ql-list" value="bullet"></button>
-                                                </span>
-                                                <span class="ql-formats">
-                                                    <button class="ql-link"></button>
-                                                    <button class="btn btn-link" id="custom-button"
-                                                            @onclick="InsertImageClick">
-                                                        <img src="imageIcon.png" style="border:hidden" />
-                                                    </button>
-                                                </span>
-                                            </ToolbarContent>
-                                            <EditorContent>
-                                                @((MarkupString)SelectedBlog.BlogContent)
-                                            </EditorContent>
-                                        </BlazoredTextEditor>
-                                    }
-                                    @if (!RichTextEditorMode)
-                                    {
-                                        <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
-                                    }
-                                    else
-                                    {
-                                        <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
-                                    }
-                                </div>
-                                <br />
-                                <!-- Button to save the user -->
-                                <button class="btn btn-primary"
-                                        @onclick="SaveBlog">
-                                    Save
-                                </button>
-                                <!-- Only show delete button if not a new record -->
-                                @if (SelectedBlog.BlogId.ToString() != "0")
-                                {
-                                    <!-- Button to delete the forecast -->
-                                    <button class="btn btn-danger"
-                                            @onclick="DeleteBlog">
-                                        Delete
-                                    </button>
-                                }
-                                <br />
-                                <span style="color:red">@strError</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
+                <!-- Edit form for the current Blog -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input class="form-control" type="date"
+                               @bind="SelectedBlog.BlogDate" />
+                    </div>
+                    <div>
+                        <h5>Categories <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit]</button></h5>
+                    </div>
+                    <div class="form-group">
+                        <RadzenDropDown AllowClear="true"
+                                        AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        @bind-Value="selectedBlogCategorys" Multiple="true"
+                                        Placeholder="Select..."
+                                        Data="@colCategorys" TextProperty="Title"
+                                        ValueProperty="CategoryId"
+                                        Style="width:400px;" />
+                    </div>
+                    <h5>Title</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               @bind="SelectedBlog.BlogTitle" />
+                    </div>
+                    <h5>Summary</h5>
+                    <div class="form-group">
+                        @if (!RichTextEditorModeSummary)
+                        {
+                            <textarea class="form-control" @bind="@SelectedBlog.BlogSummary" rows="2" />
+                        }
+                        else
+                        {
+                            <BlazoredTextEditor @ref="@QuillHtmlSummary">
+                                <ToolbarContent>
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="1"></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button class="btn btn-link" id="custom-button"
+                                                @onclick="InsertImageSummaryClick">
+                                            <img src="imageIcon.png" style="border:hidden" />
+                                        </button>
+                                    </span>
+                                </ToolbarContent>
+                                <EditorContent>
+                                    @((MarkupString)SelectedBlog.BlogSummary)
+                                </EditorContent>
+                            </BlazoredTextEditor>
+                        }
+                        @if (!RichTextEditorModeSummary)
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RichTextEditorSummary"><h6>[Rich Text Editor]</h6></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditorSummary"><h6>[Raw HTML Editor]</h6></button>
+                        }
+                    </div>
+                    <h5>Content</h5>
+                    <div class="form-group">
+                        @if (!RichTextEditorMode)
+                        {
+                            <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
+                        }
+                        else
+                        {
+                            <BlazoredTextEditor @ref="@QuillHtml">
+                                <ToolbarContent>
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="1"></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button class="btn btn-link" id="custom-button"
+                                                @onclick="InsertImageClick">
+                                            <img src="imageIcon.png" style="border:hidden" />
+                                        </button>
+                                    </span>
+                                </ToolbarContent>
+                                <EditorContent>
+                                    @((MarkupString)SelectedBlog.BlogContent)
+                                </EditorContent>
+                            </BlazoredTextEditor>
+                        }
+                        @if (!RichTextEditorMode)
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
+                        }
+                    </div>
+                    <br />
+                    <!-- Button to save the user -->
+                    <button class="btn btn-primary"
+                            @onclick="SaveBlog">
+                        Save
+                    </button>
+                    <!-- Only show delete button if not a new record -->
+                    @if (SelectedBlog.BlogId.ToString() != "0")
+                    {
+                        <!-- Button to delete the forecast -->
+                        <button class="btn btn-danger"
+                                @onclick="DeleteBlog">
+                            Delete
+                        </button>
+                    }
+                    <br />
+                    <span style="color:red">@strError</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <FileManager @ref="FileManagerControlSummary"
-                             ImageSelected="InsertImageSummary" />
+    <FileManager @ref="FileManagerControlSummary"
+                 ImageSelected="InsertImageSummary" />
 
-                <FileManager @ref="FileManagerControl"
-                             ImageSelected="InsertImage" />
+    <FileManager @ref="FileManagerControl"
+                 ImageSelected="InsertImage" />
 
-                <CategoryManager @ref="CategoryManagerControl"
-                                 CategoryUpdated="UpdateCategories"/>
-            }
-        }
-        else
-        {
-            <p>You are not signed in as a user in @ADMINISTRATION_ROLE.</p>
-        }
-    </Authorized>
-    <NotAuthorized>
-        <p>You are not logged in.</p>
-    </NotAuthorized>
-</AuthorizeView>
+    <CategoryManager @ref="CategoryManagerControl"
+                     CategoryUpdated="UpdateCategories" />
+}
+
 @code {
     // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public EventCallback<bool> BlogUpdated { get; set; }
+
+    BlogDTO SelectedBlog;
+    public bool ShowAdmin = false;
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
@@ -267,19 +202,11 @@
     private FileManager FileManagerControl;
     private CategoryManager CategoryManagerControl;
 
-    string ADMINISTRATION_ROLE = "Administrators";
     BlazoredTextEditor QuillHtmlSummary;
     BlazoredTextEditor QuillHtml;
     bool RichTextEditorMode = true;
     bool RichTextEditorModeSummary = true;
 
-    int CurrentPage = 1;
-    BlogsPaged colBlogs = new BlogsPaged() { Blogs = new List<Blogs>(), BlogCount = 0 };
-
-    Blogs SelectedBlog;
-    bool ShowPopup = false;
-    bool ShowPreviousButton { get { return (CurrentPage > 1); } }
-    bool ShowNextButton { get { return ((colBlogs.BlogCount > (CurrentPage * 5))); } }
     List<CategoryDTO> colCategorys = new List<CategoryDTO>();
     IEnumerable<string> selectedBlogCategorys = new string[] { };
     string strError;
@@ -289,7 +216,6 @@
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
-        colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
         colCategorys = await @Service.GetCategorysAsync();
     }
 
@@ -304,13 +230,16 @@
     void ClosePopup()
     {
         // Close the Popup
-        ShowPopup = false;
+        ShowAdmin = false;
+
+        // Refresh collection on parent
+        BlogUpdated.InvokeAsync(true);
     }
 
-    void AddNewBlog()
+    public void AddNewBlog()
     {
         // Make new Blog
-        SelectedBlog = new Blogs();
+        SelectedBlog = new BlogDTO();
         // Set the default date
         SelectedBlog.BlogDate = DateTime.Now;
         // Set Id to 0 so we know it is a new record
@@ -320,10 +249,10 @@
         // Clear any error messages
         strError = "";
         // Open the Popup
-        ShowPopup = true;
+        ShowAdmin = true;
     }
 
-    void EditBlog(Blogs Blog)
+    public void EditBlog(BlogDTO Blog)
     {
         // Set the selected Blog
         // as the current Blog
@@ -337,7 +266,7 @@
         strError = "";
 
         // Open the Popup
-        ShowPopup = true;
+        ShowAdmin = true;
     }
 
     async Task SaveBlog()
@@ -348,7 +277,7 @@
             if (SelectedBlog.BlogId == 0)
             {
                 // Create new Blog
-                Blogs objNewBlog = new Blogs();
+                BlogDTO objNewBlog = new BlogDTO();
 
                 objNewBlog.BlogDate =
                     SelectedBlog.BlogDate;
@@ -411,12 +340,7 @@
                 await LogAction($"Update Blog #{SelectedBlog.BlogId}");
             }
 
-            // Get the Blogs
-            colBlogs =
-            await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
-
-            // Close the Popup
-            ShowPopup = false;
+            ClosePopup();
         }
         catch (Exception ex)
         {
@@ -436,40 +360,12 @@
             // Log
             await LogAction($"Delete Blog #{BlogId}");
 
-            // If the current page has no records
-            // and not on page one go back a page
-            if ((CurrentPage > 1) &&
-                !((colBlogs.BlogCount - 1) > (CurrentPage * 5)))
-            {
-                CurrentPage = CurrentPage - 1;
-            }
-
-            // Get the Blogs
-            colBlogs =
-            await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
-
-            // Close the Popup
-            ShowPopup = false;
+            ClosePopup();
         }
         catch (Exception ex)
         {
             strError = ex.GetBaseException().Message;
         }
-    }
-
-    async Task Previous()
-    {
-        if (CurrentPage > 1)
-        {
-            CurrentPage = CurrentPage - 1;
-            colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
-        }
-    }
-
-    async Task Next()
-    {
-        CurrentPage = CurrentPage + 1;
-        colBlogs = await @Service.GetBlogsAdminAsync(CurrentUser.Identity.Name, CurrentPage);
     }
 
     //Summary

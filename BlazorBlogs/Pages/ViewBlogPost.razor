@@ -7,7 +7,14 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase<BlogsService>
 
-<a href="/"><h4>[Back]</h4></a>
+<h4>
+    <a href="/">[Back]</a>
+    @if (UserIsAdminOfBlogPost)
+    {
+        <button type="button" class="btn btn-link" @onclick="EditBlog">[Edit Blog]</button>
+        <button type="button" class="btn btn-link" @onclick="NewBlog">[New Blog]</button>
+    }
+</h4>
 <br />
 <i>@SelectedBlog.BlogDate.ToShortDateString()</i>
 <span><b>@SelectedBlog.BlogUserName</b></span>
@@ -20,6 +27,7 @@
         @((MarkupString)SelectedBlog.BlogContent)
     </div>
 </div>
+<BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 
 @code {
     [CascadingParameter]
@@ -27,7 +35,11 @@
 
     [Parameter] public string BlogPostId { get; set; }
 
-    Blogs SelectedBlog = new Blogs();
+    BlogDTO SelectedBlog = new BlogDTO();
+
+    BlogAdministration BlogAdministrationControl;
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    bool UserIsAdminOfBlogPost = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,12 +47,38 @@
         {
             SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
             await LogAction($"View Blog #{SelectedBlog.BlogId}");
+
+            // Get the current user
+            CurrentUser = (await authenticationStateTask).User;
+
+            if (CurrentUser != null)
+            {
+                if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
+                {
+                    UserIsAdminOfBlogPost = true;
+                }
+            }
         }
         catch
         {
             await LogAction($"Error Viewing Blog #{BlogPostId}");
-            SelectedBlog = new Blogs() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
         }
+    }
+
+    void EditBlog()
+    {
+        BlogAdministrationControl.EditBlog(SelectedBlog);
+    }
+
+    void NewBlog()
+    {
+        BlogAdministrationControl.AddNewBlog();
+    }
+
+    async Task BlogUpdatedEvent()
+    {
+        SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
     }
 
     private async Task LogAction(string strAction)
