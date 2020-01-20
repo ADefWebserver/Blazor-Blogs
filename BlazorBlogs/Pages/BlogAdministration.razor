@@ -176,6 +176,31 @@
         </div>
     </div>
 
+    @if (ConFirmDeletePopup)
+    {
+        <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Delete Blog Post?</h3>
+                    </div>
+                    <div class="modal-body">
+                        <button class="btn btn-primary"
+                                @onclick="DeleteYes">
+                            Yes
+                        </button>
+                        <button class="btn btn-danger"
+                                @onclick="DeleteNo">
+                            No
+                        </button>
+                        <br />
+                        <span style="color: red">@strError</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
     <FileManager @ref="FileManagerControlSummary"
                  ImageSelected="InsertImageSummary" />
 
@@ -187,7 +212,7 @@
 }
 
 @code {
-    // AuthenticationState is available as a CascadingParameter
+        // AuthenticationState is available as a CascadingParameter
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -195,6 +220,7 @@
 
     BlogDTO SelectedBlog;
     public bool ShowAdmin = false;
+    public bool ConFirmDeletePopup = false;
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
@@ -348,7 +374,17 @@
         }
     }
 
-    async Task DeleteBlog()
+    void DeleteBlog()
+    {
+        ConFirmDeletePopup = true;
+    }
+
+    void DeleteNo()
+    {
+        ConFirmDeletePopup = false;
+    }
+
+    async Task DeleteYes()
     {
         try
         {
