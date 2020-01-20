@@ -10,6 +10,10 @@
 @inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase<BlogsService>
 <!-- Show the blogs -->
+@if (UserIsAnAdmin)
+{
+<button type="button" class="btn btn-primary" @onclick="NewBlog">[New Blog]</button><br /><br />
+}
 @foreach (var blog in colBlogs.Blogs)
 {
     <a href="/ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
@@ -19,6 +23,7 @@
     <hr />
 }
 <br />
+<BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 @if (ShowPreviousButton)
 {
     <button class="btn btn-warning"
@@ -37,9 +42,11 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+    BlogAdministration BlogAdministrationControl;
 
     string ADMINISTRATION_ROLE = "Administrators";
     int CurrentPage = 1;
+
     BlogsPaged colBlogs =
         new BlogsPaged()
         {
@@ -47,12 +54,12 @@
             BlogCount = 0
         };
 
-    bool ShowPreviousButton 
-    { 
-        get 
-        { 
-            return (CurrentPage > 1); 
-        } 
+    bool ShowPreviousButton
+    {
+        get
+        {
+            return (CurrentPage > 1);
+        }
     }
 
     bool ShowNextButton
@@ -64,6 +71,9 @@
                 );
         }
     }
+
+    bool UserIsAnAdmin = false;
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,7 +101,26 @@
             }
         }
 
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            // Is user an administrator?
+            UserIsAnAdmin = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
+        }
+
         // We access BlogsService using @Service
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+    }
+
+    void NewBlog()
+    {
+        BlogAdministrationControl.AddNewBlog();
+    }
+
+    async Task BlogUpdatedEvent()
+    {
         colBlogs = await @Service.GetBlogsAsync(CurrentPage);
     }
 

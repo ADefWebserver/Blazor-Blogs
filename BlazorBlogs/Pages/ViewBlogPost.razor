@@ -5,14 +5,14 @@
 @using BlazorBlogs.Data.Models;
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IHttpContextAccessor httpContextAccessor
+@inject NavigationManager NavigationManager
 @inherits OwningComponentBase<BlogsService>
 
 <h4>
-    <a href="/">[Back]</a>
+    <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
     @if (UserIsAdminOfBlogPost)
     {
-        <button type="button" class="btn btn-link" @onclick="EditBlog">[Edit Blog]</button>
-        <button type="button" class="btn btn-link" @onclick="NewBlog">[New Blog]</button>
+        <button type="button" class="btn btn-secondary" @onclick="EditBlog">[Edit Blog]</button>
     }
 </h4>
 <br />
@@ -71,14 +71,22 @@
         BlogAdministrationControl.EditBlog(SelectedBlog);
     }
 
-    void NewBlog()
+    void Back()
     {
-        BlogAdministrationControl.AddNewBlog();
+        NavigationManager.NavigateTo("/");
     }
 
     async Task BlogUpdatedEvent()
     {
-        SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+        try
+        {
+            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+        }
+        catch
+        {
+            // Blog was deleted
+            Back();
+        }
     }
 
     private async Task LogAction(string strAction)
