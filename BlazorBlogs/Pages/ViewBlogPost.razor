@@ -51,7 +51,7 @@
             // Get the current user
             CurrentUser = (await authenticationStateTask).User;
 
-            if (CurrentUser != null)
+            if (CurrentUser.Identity.IsAuthenticated)
             {
                 if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
                 {
