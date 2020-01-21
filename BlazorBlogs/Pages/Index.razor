@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/CategorySearch/{CategoryId}"
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
@@ -9,18 +10,38 @@
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase<BlogsService>
+<RadzenDropDown AllowClear="true"
+                AllowFiltering="true"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                @bind-Value="selectedBlogCategory" Multiple="false"
+                Placeholder="Search Category..."
+                Data="@colCategorys" TextProperty="Title"
+                ValueProperty="CategoryId"
+                Style="width:400px;"
+                Change="@(args => ChangeCategory(args, "DropDown"))" />
+<br />
+<br />
 <!-- Show the blogs -->
 @if (UserIsAnAdmin)
 {
-<button type="button" class="btn btn-primary" @onclick="NewBlog">[New Blog]</button><br /><br />
+    <button type="button" class="btn btn-primary" @onclick="NewBlog">[New Blog]</button>
+    <br />
+    <br />
 }
-@foreach (var blog in colBlogs.Blogs)
+@if (colBlogs.Blogs.Count == 0)
 {
-    <a href="/ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
-    <div class="form-group">
-        @((MarkupString)blog.BlogSummary)
-    </div>
-    <hr />
+    <h2>No items returned</h2>
+}
+else
+{
+    @foreach (var blog in colBlogs.Blogs)
+    {
+        <a href="/ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
+        <div class="form-group">
+            @((MarkupString)blog.BlogSummary)
+        </div>
+        <hr />
+    }
 }
 <br />
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
@@ -42,9 +63,15 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public string CategoryId { get; set; }
+
     BlogAdministration BlogAdministrationControl;
 
     string ADMINISTRATION_ROLE = "Administrators";
+    string selectedBlogCategory = "";
+    List<CategoryDTO> colCategorys = new List<CategoryDTO>();
+
     int CurrentPage = 1;
 
     BlogsPaged colBlogs =
@@ -110,8 +137,10 @@
             UserIsAnAdmin = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
         }
 
+        colCategorys = await @Service.GetCategorysAsync();
+
         // We access BlogsService using @Service
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
     }
 
     void NewBlog()
@@ -121,7 +150,13 @@
 
     async Task BlogUpdatedEvent()
     {
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
+    }
+
+    async Task ChangeCategory(object value, string name)
+    {
+        int intCategoryID = Convert.ToInt32(value);
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage, intCategoryID);
     }
 
     async Task Previous()
@@ -129,13 +164,13 @@
         if (CurrentPage > 1)
         {
             CurrentPage = CurrentPage - 1;
-            colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+            colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
         }
     }
 
     async Task Next()
     {
         CurrentPage = CurrentPage + 1;
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage);
+        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
     }
 }

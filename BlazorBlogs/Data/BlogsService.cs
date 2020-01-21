@@ -20,20 +20,37 @@ namespace BlazorBlogs.Data
 
         // Blogs
 
-        #region public async Task<BlogsPaged> GetBlogsAsync(int page)
-        public async Task<BlogsPaged> GetBlogsAsync(int page)
+        #region public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
+        public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
         {
             page = page - 1;
             BlogsPaged objBlogsPaged = new BlogsPaged();
 
-            objBlogsPaged.BlogCount = await _context.Blogs
-                .CountAsync();
+            if (CategoryID == 0)
+            {
+                objBlogsPaged.BlogCount = await _context.Blogs
+                    .CountAsync();
 
-            objBlogsPaged.Blogs = await _context.Blogs
-                .Include(x => x.BlogCategory)
-                .OrderBy(x => x.BlogDate)
-                .Skip(page * 5)
-                .Take(5).ToListAsync();
+                objBlogsPaged.Blogs = await _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .OrderBy(x => x.BlogDate)
+                    .Skip(page * 5)
+                    .Take(5).ToListAsync();
+            }
+            else
+            {
+                objBlogsPaged.BlogCount = await _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
+                    .CountAsync();
+
+                objBlogsPaged.Blogs = await _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
+                    .OrderBy(x => x.BlogDate)
+                    .Skip(page * 5)
+                    .Take(5).ToListAsync();
+            }
 
             return objBlogsPaged;
         }
