@@ -1,5 +1,4 @@
 ﻿@page "/"
-@page "/CategorySearch/{CategoryId}"
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
@@ -7,18 +6,19 @@
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject SearchState SearchState
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
 @inherits OwningComponentBase<BlogsService>
-<RadzenDropDown AllowClear="true"
-                AllowFiltering="true"
-                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                @bind-Value="selectedBlogCategory" Multiple="false"
-                Placeholder="Search Category..."
-                Data="@colCategorys" TextProperty="Title"
-                ValueProperty="CategoryId"
-                Style="width:400px;"
-                Change="@(args => ChangeCategory(args, "DropDown"))" />
+    <RadzenDropDown AllowClear="true"
+                    AllowFiltering="true"
+                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    @bind-Value="SearchState.CurrentCategoryID" Multiple="false"
+                    Placeholder="Search Category..."
+                    Data="@colCategorys" TextProperty="Title"
+                    ValueProperty="CategoryId"
+                    Style="width:400px;"
+                    Change="@(args => ChangeCategory(args, "DropDown"))" />
 <br />
 <br />
 <!-- Show the blogs -->
@@ -64,15 +64,10 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    [Parameter] public string CategoryId { get; set; }
-
     BlogAdministration BlogAdministrationControl;
 
     string ADMINISTRATION_ROLE = "Administrators";
-    string selectedBlogCategory = "";
     List<CategoryDTO> colCategorys = new List<CategoryDTO>();
-
-    int CurrentPage = 1;
 
     BlogsPaged colBlogs =
         new BlogsPaged()
@@ -85,7 +80,7 @@ else
     {
         get
         {
-            return (CurrentPage > 1);
+            return (SearchState.CurrentPage > 1);
         }
     }
 
@@ -94,7 +89,7 @@ else
         get
         {
             return (
-                (colBlogs.BlogCount > (CurrentPage * 5))
+                (colBlogs.BlogCount > (SearchState.CurrentPage * 5))
                 );
         }
     }
@@ -104,6 +99,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        if(SearchState.CurrentPage == 0)
+        {
+            SearchState.CurrentPage = 1;
+        }
+
+        if(SearchState.CurrentCategoryID == null)
+        {
+            SearchState.CurrentCategoryID = "0";
+        }
+
         // ensure there is a ADMINISTRATION_ROLE
         var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
         if (RoleResult == null)
@@ -140,7 +145,7 @@ else
         colCategorys = await @Service.GetCategorysAsync();
 
         // We access BlogsService using @Service
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
+        colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
     }
 
     void NewBlog()
@@ -150,28 +155,29 @@ else
 
     async Task BlogUpdatedEvent()
     {
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
+        colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
     }
 
     async Task ChangeCategory(object value, string name)
     {
-        CurrentPage = 1;
-        int intCategoryID = Convert.ToInt32(value);
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage, intCategoryID);
+        SearchState.CurrentPage = 1;        
+        SearchState.CurrentCategoryID = (value == null) ? "0" : value.ToString();
+
+        colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
     }
 
     async Task Previous()
     {
-        if (CurrentPage > 1)
+        if (SearchState.CurrentPage > 1)
         {
-            CurrentPage = CurrentPage - 1;
-            colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
+            SearchState.CurrentPage = SearchState.CurrentPage - 1;
+            colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
         }
     }
 
     async Task Next()
     {
-        CurrentPage = CurrentPage + 1;
-        colBlogs = await @Service.GetBlogsAsync(CurrentPage, 0);
+        SearchState.CurrentPage = SearchState.CurrentPage + 1;
+        colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
     }
 }
