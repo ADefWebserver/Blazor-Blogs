@@ -155,6 +155,7 @@ else
 
     async Task ChangeCategory(object value, string name)
     {
+        CurrentPage = 1;
         int intCategoryID = Convert.ToInt32(value);
         colBlogs = await @Service.GetBlogsAsync(CurrentPage, intCategoryID);
     }
