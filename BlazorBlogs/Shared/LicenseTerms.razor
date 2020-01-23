@@ -1,0 +1,205 @@
+﻿@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject GeneralSettingsService _GeneralSettingsService
+@inherits OwningComponentBase
+
+@if (ShowTermsOfUse)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Terms Of Use</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="CloseTermsOfUsePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <br><br><h4>AGREEMENT BETWEEN USER AND @objGeneralSettings.ApplicationName</h4>
+                    The @objGeneralSettings.ApplicationName Web Site is comprised of various Web pages operated by @objGeneralSettings.ApplicationName.
+                    <br><br>
+                    The @objGeneralSettings.ApplicationName Web Site is offered to you conditioned on your acceptance without modification of the terms, conditions, and notices contained herein. Your use of the @objGeneralSettings.ApplicationName Web Site constitutes your agreement to all such terms, conditions, and notices.
+                    <br>
+                    <br><br><h4>MODIFICATION OF THESE TERMS OF USE</h4>
+                    @objGeneralSettings.ApplicationName reserves the right to change the terms, conditions, and notices under which the @objGeneralSettings.ApplicationName Web Site is offered, including but not limited to the charges associated with the use of the @objGeneralSettings.ApplicationName Web Site.
+                    <br>
+                    <br><br><h4>LINKS TO THIRD PARTY SITES</h4>
+                    The @objGeneralSettings.ApplicationName Web Site may contain links to other Web Sites ("Linked Sites"). The Linked Sites are not under the control of @objGeneralSettings.ApplicationName and @objGeneralSettings.ApplicationName is not responsible for the contents of any Linked Site, including without limitation any link contained in a Linked Site, or any changes or updates to a Linked Site. @objGeneralSettings.ApplicationName is not responsible for webcasting or any other form of transmission received from any Linked Site. @objGeneralSettings.ApplicationName is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement by @objGeneralSettings.ApplicationName of the site or any association with its operators.
+                    <br>
+                    <br><br><h4>NO UNLAWFUL OR PROHIBITED USE</h4>
+                    As a condition of your use of the @objGeneralSettings.ApplicationName Web Site, you warrant to @objGeneralSettings.ApplicationName that you will not use the @objGeneralSettings.ApplicationName Web Site for any purpose that is unlawful or prohibited by these terms, conditions, and notices. You may not use the @objGeneralSettings.ApplicationName Web Site in any manner which could damage, disable, overburden, or impair the @objGeneralSettings.ApplicationName Web Site or interfere with any other party's use and enjoyment of the @objGeneralSettings.ApplicationName Web Site. You may not obtain or attempt to obtain any materials or information through any means not intentionally made available or provided for through the @objGeneralSettings.ApplicationName Web Sites.
+                    <br>
+                    <br><br><h4>USE OF COMMUNICATION SERVICES</h4>
+                    The @objGeneralSettings.ApplicationName Web Site may contain bulletin board services, chat areas, news groups, forums, communities, personal web pages, calendars, and/or other message or communication facilities designed to enable you to communicate with the public at large or with a group (collectively, "Communication Services"), you agree to use the Communication Services only to post, send and receive messages and material that are proper and related to the particular Communication Service. By way of example, and not as a limitation, you agree that when using a Communication Service, you will not:
+                    <br><br>
+                    <ul style="list-style-type:circle">
+                        <li>Defame, abuse, harass, stalk, threaten or otherwise violate the legal rights (such as rights of privacy and publicity) of others.</li>
+                        <li>Publish, post, upload, distribute or disseminate any inappropriate, profane, defamatory, infringing, obscene, indecent or unlawful topic, name, material or information.</li>
+                        <li>Upload files that contain software or other material protected by intellectual property laws (or by rights of privacy of publicity) unless you own or control the rights thereto or have received all necessary consents.</li>
+                        <li>Upload files that contain viruses, corrupted files, or any other similar software or programs that may damage the operation of another's computer.</li>
+                        <li>Advertise or offer to sell or buy any goods or services for any business purpose, unless such Communication Service specifically allows such messages.</li>
+                        <li>Conduct or forward surveys, contests, pyramid schemes or chain letters.</li>
+                        <li>Download any file posted by another user of a Communication Service that you know, or reasonably should know, cannot be legally distributed in such manner.</li>
+                        <li>Falsify or delete any author attributions, legal or other proper notices or proprietary designations or labels of the origin or source of software or other material contained in a file that is uploaded.</li>
+                        <li>Restrict or inhibit any other user from using and enjoying the Communication Services.</li>
+                        <li>Violate any code of conduct or other guidelines which may be applicable for any particular Communication Service.</li>
+                        <li>Harvest or otherwise collect information about others, including e-mail addresses, without their consent.</li>
+                        <li>Violate any applicable laws or regulations.</li>
+                    </ul>
+                    <br>
+                    @objGeneralSettings.ApplicationName has no obligation to monitor the Communication Services. However, @objGeneralSettings.ApplicationName reserves the right to review materials posted to a Communication Service and to remove any materials in its sole discretion. @objGeneralSettings.ApplicationName reserves the right to terminate your access to any or all of the Communication Services at any time without notice for any reason whatsoever.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName reserves the right at all times to disclose any information as necessary to satisfy any applicable law, regulation, legal process or governmental request, or to edit, refuse to post or to remove any information or materials, in whole or in part, in @objGeneralSettings.ApplicationName's sole discretion.
+                    <br><br>
+                    Always use caution when giving out any personally identifying information about yourself or your children in any Communication Service. @objGeneralSettings.ApplicationName does not control or endorse the content, messages or information found in any Communication Service and, therefore, @objGeneralSettings.ApplicationName specifically disclaims any liability with regard to the Communication Services and any actions resulting from your participation in any Communication Service. Managers and hosts are not authorized @objGeneralSettings.ApplicationName spokespersons, and their views do not necessarily reflect those of @objGeneralSettings.ApplicationName.
+                    <br><br>
+                    Materials uploaded to a Communication Service may be subject to posted limitations on usage, reproduction and/or dissemination. You are responsible for adhering to such limitations if you download the materials.
+                    <br>
+                    <br><br><h4>MATERIALS PROVIDED TO @objGeneralSettings.ApplicationName OR POSTED AT ANY @objGeneralSettings.ApplicationName WEB SITE</h4>
+                    @objGeneralSettings.ApplicationName does not claim ownership of the materials you provide to @objGeneralSettings.ApplicationName (including feedback and suggestions) or post, upload, input or submit to any @objGeneralSettings.ApplicationName Web Site or its associated services (collectively "Submissions"). However, by posting, uploading, inputting, providing or submitting your Submission you are granting @objGeneralSettings.ApplicationName, its affiliated companies and necessary sublicensees permission to use your Submission in connection with the operation of their Internet businesses including, without limitation, the rights to: copy, distribute, transmit, publicly display, publicly perform, reproduce, edit, translate and reformat your Submission; and to publish your name in connection with your Submission.
+                    <br><br>
+                    No compensation will be paid with respect to the use of your Submission, as provided herein. @objGeneralSettings.ApplicationName is under no obligation to post or use any Submission you may provide and may remove any Submission at any time in @objGeneralSettings.ApplicationName's sole discretion.
+                    <br><br>
+                    By posting, uploading, inputting, providing or submitting your Submission you warrant and represent that you own or otherwise control all of the rights to your Submission as described in this section including, without limitation, all the rights necessary for you to provide, post, upload, input or submit the Submissions.
+                    <br>
+                    <br><br><h4>LIABILITY DISCLAIMER</h4>
+                    THE INFORMATION, SOFTWARE, PRODUCTS, AND SERVICES INCLUDED IN OR AVAILABLE THROUGH THE @objGeneralSettings.ApplicationName WEB SITE MAY INCLUDE INACCURACIES OR TYPOGRAPHICAL ERRORS. CHANGES ARE PERIODICALLY ADDED TO THE INFORMATION HEREIN. @objGeneralSettings.ApplicationName AND/OR ITS SUPPLIERS MAY MAKE IMPROVEMENTS AND/OR CHANGES IN THE @objGeneralSettings.ApplicationName WEB SITE AT ANY TIME. ADVICE RECEIVED VIA THE @objGeneralSettings.ApplicationName WEB SITE SHOULD NOT BE RELIED UPON FOR PERSONAL, MEDICAL, LEGAL OR FINANCIAL DECISIONS AND YOU SHOULD CONSULT AN APPROPRIATE PROFESSIONAL FOR SPECIFIC ADVICE TAILORED TO YOUR SITUATION.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName AND/OR ITS SUPPLIERS MAKE NO REPRESENTATIONS ABOUT THE SUITABILITY, RELIABILITY, AVAILABILITY, TIMELINESS, AND ACCURACY OF THE INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS CONTAINED ON THE @objGeneralSettings.ApplicationName WEB SITE FOR ANY PURPOSE. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ALL SUCH INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS ARE PROVIDED "AS IS" WITHOUT WARRANTY OR CONDITION OF ANY KIND. @objGeneralSettings.ApplicationName AND/OR ITS SUPPLIERS HEREBY DISCLAIM ALL WARRANTIES AND CONDITIONS WITH REGARD TO THIS INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS, INCLUDING ALL IMPLIED WARRANTIES OR CONDITIONS OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT.
+                    <br><br>
+                    TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL @objGeneralSettings.ApplicationName AND/OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF USE, DATA OR PROFITS, ARISING OUT OF OR IN ANY WAY CONNECTED WITH THE USE OR PERFORMANCE OF THE @objGeneralSettings.ApplicationName WEB SITE, WITH THE DELAY OR INABILITY TO USE THE @objGeneralSettings.ApplicationName WEB SITE OR RELATED SERVICES, THE PROVISION OF OR FAILURE TO PROVIDE SERVICES, OR FOR ANY INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS OBTAINED THROUGH THE @objGeneralSettings.ApplicationName WEB SITE, OR OTHERWISE ARISING OUT OF THE USE OF THE @objGeneralSettings.ApplicationName WEB SITE, WHETHER BASED ON CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY OR OTHERWISE, EVEN IF @objGeneralSettings.ApplicationName OR ANY OF ITS SUPPLIERS HAS BEEN ADVISED OF THE POSSIBILITY OF DAMAGES. BECAUSE SOME STATES/JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE ABOVE LIMITATION MAY NOT APPLY TO YOU. IF YOU ARE DISSATISFIED WITH ANY PORTION OF THE @objGeneralSettings.ApplicationName WEB SITE, OR WITH ANY OF THESE TERMS OF USE, YOUR SOLE AND EXCLUSIVE REMEDY IS TO DISCONTINUE USING THE @objGeneralSettings.ApplicationName WEB SITE.
+                    <br><br>
+                    SERVICE CONTACT : @objGeneralSettings.SMTPFromEmail
+                    <br><br>
+                    <br><br><h4>TERMINATION/ACCESS RESTRICTION</h4>
+                    @objGeneralSettings.ApplicationName reserves the right, in its sole discretion, to terminate your access to the @objGeneralSettings.ApplicationName Web Site and the related services or any portion thereof at any time, without notice. GENERAL To the maximum extent permitted by law, this agreement is governed by the laws of the State of Washington, U.S.A. and you hereby consent to the exclusive jurisdiction and venue of courts in San Mateo County, California, U.S.A. in all disputes arising out of or relating to the use of the @objGeneralSettings.ApplicationName Web Site. Use of the @objGeneralSettings.ApplicationName Web Site is unauthorized in any jurisdiction that does not give effect to all provisions of these terms and conditions, including without limitation this paragraph. You agree that no joint venture, partnership, employment, or agency relationship exists between you and @objGeneralSettings.ApplicationName as a result of this agreement or use of the @objGeneralSettings.ApplicationName Web Site. @objGeneralSettings.ApplicationName's performance of this agreement is subject to existing laws and legal process, and nothing contained in this agreement is in derogation of @objGeneralSettings.ApplicationName's right to comply with governmental, court and law enforcement requests or requirements relating to your use of the @objGeneralSettings.ApplicationName Web Site or information provided to or gathered by @objGeneralSettings.ApplicationName with respect to such use. If any part of this agreement is determined to be invalid or unenforceable pursuant to applicable law including, but not limited to, the warranty disclaimers and liability limitations set forth above, then the invalid or unenforceable provision will be deemed superseded by a valid, enforceable provision that most closely matches the intent of the original provision and the remainder of the agreement shall continue in effect. Unless otherwise specified herein, this agreement constitutes the entire agreement between the user and @objGeneralSettings.ApplicationName with respect to the @objGeneralSettings.ApplicationName Web Site and it supersedes all prior or contemporaneous communications and proposals, whether electronic, oral or written, between the user and @objGeneralSettings.ApplicationName with respect to the @objGeneralSettings.ApplicationName Web Site. A printed version of this agreement and of any notice given in electronic form shall be admissible in judicial or administrative proceedings based upon or relating to this agreement to the same extent an d subject to the same conditions as other business documents and records originally generated and maintained in printed form. It is the express wish to the parties that this agreement and all related documents be drawn up in English.
+                    <br>
+                    <br><br><h4>COPYRIGHT AND TRADEMARK NOTICES:</h4>
+                    All contents of the @objGeneralSettings.ApplicationName Web Site are: Copyright @DateTime.Now.Year by @objGeneralSettings.ApplicationName and/or its suppliers. All rights reserved.
+                    <br>
+                    <br><br><h4>TRADEMARKS</h4>
+                    The names of actual companies and products mentioned herein may be the trademarks of their respective owners.
+                    <br><br>
+                    The example companies, organizations, products, people and events depicted herein are fictitious. No association with any real company, organization, product, person, or event is intended or should be inferred.
+                    <br><br>
+                    Any rights not expressly granted herein are reserved.
+                    <br>
+                    <br><br><h4>NOTICES AND PROCEDURE FOR MAKING CLAIMS OF COPYRIGHT INFRINGEMENT</h4>
+                    Pursuant to Title 17, United States Code, Section 512(c)(2), notifications of claimed copyright infringement under United States copyright law should be sent to Service Provider's Designated Agent. ALL INQUIRIES NOT RELEVANT TO THE FOLLOWING PROCEDURE WILL RECEIVE NO RESPONSE. See Notice and Procedure for Making Claims of Copyright Infringement.
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowPrivacyStatement)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Privacy Statement</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePrivacyStatementPopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @objGeneralSettings.ApplicationName is committed to protecting your privacy and developing technology that gives you the most powerful and safe online experience. This Statement of Privacy applies to the @objGeneralSettings.ApplicationName Web site and governs data collection and usage. By using the @objGeneralSettings.ApplicationName website, you consent to the data practices described in this statement.
+                    <br>
+                    <br><br><h4>Collection of your Personal Information</h4>
+
+                    @objGeneralSettings.ApplicationName collects personally identifiable information, such as your e-mail address, name, home or work address or telephone number. @objGeneralSettings.ApplicationName also collects anonymous demographic information, which is not unique to you, such as your ZIP code, age, gender, preferences, interests and favorites.
+                    <br><br>
+                    There is also information about your computer hardware and software that is automatically collected by @objGeneralSettings.ApplicationName. This information can include: your IP address, browser type, domain names, access times and referring Web site addresses. This information is used by @objGeneralSettings.ApplicationName for the operation of the service, to maintain quality of the service, and to provide general statistics regarding use of the @objGeneralSettings.ApplicationName Web site.
+                    <br><br>
+                    Please keep in mind that if you directly disclose personally identifiable information or personally sensitive data through @objGeneralSettings.ApplicationName public message boards, this information may be collected and used by others. Note: @objGeneralSettings.ApplicationName does not read any of your private online communications.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName encourages you to review the privacy statements of Web sites you choose to link to from @objGeneralSettings.ApplicationName so that you can understand how those Web sites collect, use and share your information. @objGeneralSettings.ApplicationName is not responsible for the privacy statements or other content on Web sites outside of the @objGeneralSettings.ApplicationName and @objGeneralSettings.ApplicationName family of Web sites.
+                    <br>
+                    <br><br><h4>Use of your Personal Information</h4>
+
+                    @objGeneralSettings.ApplicationName collects and uses your personal information to operate the @objGeneralSettings.ApplicationName Web site and deliver the services you have requested. @objGeneralSettings.ApplicationName also uses your personally identifiable information to inform you of other products or services available from @objGeneralSettings.ApplicationName and its affiliates. @objGeneralSettings.ApplicationName may also contact you via surveys to conduct research about your opinion of current services or of potential new services that may be offered.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName does not sell, rent or lease its customer lists to third parties. @objGeneralSettings.ApplicationName may, from time to time, contact you on behalf of external business partners about a particular offering that may be of interest to you. In those cases, your unique personally identifiable information (e-mail, name, address, telephone number) is not transferred to the third party. In addition, @objGeneralSettings.ApplicationName may share data with trusted partners to help us perform statistical analysis, send you email or postal mail, provide customer support, or arrange for deliveries. All such third parties are prohibited from using your personal information except to provide these services to @objGeneralSettings.ApplicationName, and they are required to maintain the confidentiality of your information.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName does not use or disclose sensitive personal information, such as race, religion, or political affiliations, without your explicit consent.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName keeps track of the Web sites and pages our customers visit within @objGeneralSettings.ApplicationName, in order to determine what @objGeneralSettings.ApplicationName services are the most popular. This data is used to deliver customized content and advertising within @objGeneralSettings.ApplicationName to customers whose behavior indicates that they are interested in a particular subject area.
+                    <br><br>
+                    @objGeneralSettings.ApplicationName Web sites will disclose your personal information, without notice, only if required to do so by law or in the good faith belief that such action is necessary to: (a) conform to the edicts of the law or comply with legal process served on @objGeneralSettings.ApplicationName or the site; (b) protect and defend the rights or property of @objGeneralSettings.ApplicationName; and, (c) act under exigent circumstances to protect the personal safety of users of @objGeneralSettings.ApplicationName, or the public.
+                    <br>
+                    <br><br><h4>Use of Cookies</h4>
+
+                    The @objGeneralSettings.ApplicationName Web site use "cookies" to help you personalize your online experience. A cookie is a text file that is placed on your hard disk by a Web page server. Cookies cannot be used to run programs or deliver viruses to your computer. Cookies are uniquely assigned to you, and can only be read by a web server in the domain that issued the cookie to you.
+                    <br><br>
+                    One of the primary purposes of cookies is to provide a convenience feature to save you time. The purpose of a cookie is to tell the Web server that you have returned to a specific page. For example, if you personalize @objGeneralSettings.ApplicationName pages, or register with @objGeneralSettings.ApplicationName site or services, a cookie helps @objGeneralSettings.ApplicationName to recall your specific information on subsequent visits. This simplifies the process of recording your personal information, such as billing addresses, shipping addresses, and so on. When you return to the same @objGeneralSettings.ApplicationName Web site, the information you previously provided can be retrieved, so you can easily use the @objGeneralSettings.ApplicationName features that you customized.
+                    <br><br>
+                    You have the ability to accept or decline cookies. Most Web browsers automatically accept cookies, but you can usually modify your browser setting to decline cookies if you prefer. If you choose to decline cookies, you may not be able to fully experience the interactive features of the @objGeneralSettings.ApplicationName services or Web sites you visit.
+                    <br>
+                    <br><br><h4>Security of your Personal Information</h4>
+
+                    @objGeneralSettings.ApplicationName secures your personal information from unauthorized access, use or disclosure. @objGeneralSettings.ApplicationName secures the personally identifiable information you provide on computer servers in a controlled, secure environment, protected from unauthorized access, use or disclosure. When personal information (such as a credit card number) is transmitted to other Web sites, it is protected through the use of encryption, such as the Secure Socket Layer (SSL) protocol.
+                    <br>
+                    <br><br><h4>Changes to this Statement</h4>
+
+                    @objGeneralSettings.ApplicationName will occasionally update this Statement of Privacy to reflect company and customer feedback. @objGeneralSettings.ApplicationName encourages you to periodically review this Statement to be informed of how @objGeneralSettings.ApplicationName is protecting your information.
+                    <br>
+                    <br><br><h4>Contact Information</h4>
+
+                    @objGeneralSettings.ApplicationName welcomes your comments regarding this Statement of Privacy. If you believe that @objGeneralSettings.ApplicationName has not adhered to this Statement, please contact @objGeneralSettings.ApplicationName at @objGeneralSettings.SMTPFromEmail. We will use commercially reasonable efforts to promptly determine and remedy the problem.
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    public bool ShowTermsOfUse = false;
+    public bool ShowPrivacyStatement = false;
+
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+    public string DisplayType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        await LoadGeneralSettingsAsync();
+    }
+
+    protected async Task LoadGeneralSettingsAsync()
+    {
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+    }
+
+    public void OpenPopup(string strDisplayType)
+    {
+        if (strDisplayType == "TermsOfUse")
+        {
+            ShowTermsOfUse = true;
+        }
+
+        if (strDisplayType == "PrivacyStatement")
+        {
+            ShowPrivacyStatement = true;
+        }
+
+        StateHasChanged();
+    }
+
+    void CloseTermsOfUsePopup()
+    {
+        // Close the Popup
+        ShowTermsOfUse = false;
+    }
+
+    void ClosePrivacyStatementPopup()
+    {
+        // Close the Popup
+        ShowPrivacyStatement = false;
+    }
+}
