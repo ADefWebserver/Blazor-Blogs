@@ -135,11 +135,32 @@ else
         string strAdministratorPassword = _configuration["AdministratorPassword"];
 
         var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+
         if (user != null)
         {
             // Is user in administrator role?
             var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
             if (!UserResult)
+            {
+                // Put admin in Administrator role
+                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+            }
+        }
+        else
+        {
+            // Administrator does not exist
+            // Create the user
+            ApplicationUser objApplicationUser = new ApplicationUser();
+            objApplicationUser.UserName = strAdministratorUserName;
+            objApplicationUser.DisplayName = strAdministratorUserName;
+            objApplicationUser.Email = strAdministratorUserName;
+            objApplicationUser.EmailConfirmed = true;
+
+            var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+
+            user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+
+            if (user != null)
             {
                 // Put admin in Administrator role
                 await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
@@ -177,7 +198,7 @@ else
         SearchState.CurrentCategoryID = (value == null) ? "0" : value.ToString();
 
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
-    }   
+    }
 
     void showTermsOfUse()
     {

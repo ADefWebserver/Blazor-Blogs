@@ -146,7 +146,7 @@ SET IDENTITY_INSERT [dbo].[Settings] ON
 GO
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (1, N'AllowRegistration', N'True')
 GO
-INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (2, N'VerifiedRegistration', N'True')
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (2, N'VerifiedRegistration', N'False')
 GO
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (3, N'ApplicationName', N'')
 GO
