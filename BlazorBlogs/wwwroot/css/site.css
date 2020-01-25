@@ -26,6 +26,13 @@ app {
     align-items: center;
 }
 
+.header-centered {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    align-items: center;
+}
+
 .main {
     flex: 1;
 }
