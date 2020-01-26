@@ -3,11 +3,17 @@
 @using Microsoft.AspNetCore.Http
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using static Toolbelt.Blazor.HeadElement.MetaElement
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
+@inject IHeadElementHelper HeadElementHelper
 @inherits OwningComponentBase<BlogsService>
 
+<Title>@SelectedBlog.BlogTitle</Title>
+<Meta Name="twitter:card" Content="summary_large_image" />
+<Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
+<Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
 <h4>
     <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
     @if (UserIsAdminOfBlogPost)
@@ -40,6 +46,7 @@
     BlogAdministration BlogAdministrationControl;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     bool UserIsAdminOfBlogPost = false;
+    string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"/ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,6 +65,11 @@
                     UserIsAdminOfBlogPost = true;
                 }
             }
+
+            await HeadElementHelper.SetMetaElementsAsync(
+            ByProp("og:description", SelectedBlog.BlogTitle),
+            ByName("description", SelectedBlog.BlogTitle)
+        );
         }
         catch
         {

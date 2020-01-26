@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Toolbelt.Blazor.Extensions.DependencyInjection;
 
 namespace BlazorBlogs
 {
@@ -54,6 +55,7 @@ namespace BlazorBlogs
             services.AddScoped<SearchState>();
             services.AddHttpContextAccessor();
             services.AddBlazoredToast();
+            services.AddHeadElementHelper();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -71,6 +73,7 @@ namespace BlazorBlogs
                 app.UseHsts();
             }
 
+            app.UseHeadElementServerPrerendering();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

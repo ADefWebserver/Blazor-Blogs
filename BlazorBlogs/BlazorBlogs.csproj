@@ -18,9 +18,11 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
-    <PackageReference Include="Radzen.Blazor" Version="2.1.10" />
+    <PackageReference Include="Radzen.Blazor" Version="2.1.11" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="4.7.0" />
+    <PackageReference Include="Toolbelt.Blazor.HeadElement" Version="1.1.0.1" />
+    <PackageReference Include="Toolbelt.Blazor.HeadElement.ServerPrerendering" Version="1.1.0.1" />
   </ItemGroup>
 
 </Project>
