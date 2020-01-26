@@ -10,10 +10,12 @@
 @inject IHeadElementHelper HeadElementHelper
 @inherits OwningComponentBase<BlogsService>
 
-<Title>@SelectedBlog.BlogTitle</Title>
-<Meta Name="twitter:card" Content="summary_large_image" />
-<Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
-<Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
+@if (SelectedBlog != null)
+{
+    <Title>@SelectedBlog.BlogTitle</Title>
+    <Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
+    <Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
+}
 <h4>
     <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
     @if (UserIsAdminOfBlogPost)

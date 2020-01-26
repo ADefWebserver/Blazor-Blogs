@@ -16,5 +16,7 @@ namespace BlazorBlogs.Data.Models
         public bool AllowRegistration { get; set; }
         public bool VerifiedRegistration { get; set; }
         public string ApplicationName { get; set; }
+        public string ApplicationLogo { get; set; }
+        public string ApplicationHeader { get; set; }
     }
 }

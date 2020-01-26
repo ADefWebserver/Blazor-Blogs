@@ -1,4 +1,8 @@
 ﻿@inherits LayoutComponentBase
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject GeneralSettingsService _GeneralSettingsService
+
 <BlazoredToasts />
 <div class="sidebar">
     <NavMenu />
@@ -11,9 +15,22 @@
         <a href="/api/RSSFeed/Rss" target="_blank"><RadzenIcon Icon="rss_feed" /></a>
     </div>
     <div class="header-centered">
-        <span>The Ultimate Blogging Platform...</span>
+        @((MarkupString)objGeneralSettings.ApplicationHeader)
     </div>
     <div class="content px-4">
         @Body
     </div>
 </div>
+@code {
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGeneralSettingsAsync();
+    }
+
+    protected async Task LoadGeneralSettingsAsync()
+    {
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+    }
+}

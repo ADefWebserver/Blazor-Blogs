@@ -1,8 +1,12 @@
 ﻿@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
 @inherits OwningComponentBase<GeneralSettingsService>
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">
-        <img src="uploads/logo.png" />
+        @if (objGeneralSettings != null)
+        {
+            <img src="@objGeneralSettings.ApplicationLogo" />
+        }
     </a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -64,6 +68,7 @@
 </div>
 
 @code {
+    GeneralSettings objGeneralSettings;
     string ADMINISTRATION_ROLE = "Administrators";
     bool collapseNavMenu = true;
     bool AllowRegistration = false;
@@ -72,7 +77,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var objGeneralSettings = await @Service.GetGeneralSettingsAsync();
+        objGeneralSettings = await @Service.GetGeneralSettingsAsync();
         AllowRegistration = objGeneralSettings.AllowRegistration;
     }
 

@@ -34,6 +34,8 @@ namespace BlazorBlogs.Data
             objGeneralSettings.VerifiedRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "VerifiedRegistration").SettingValue);
 
             objGeneralSettings.ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
+            objGeneralSettings.ApplicationLogo = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationLogo").SettingValue);
+            objGeneralSettings.ApplicationHeader = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationHeader").SettingValue);
 
             return objGeneralSettings;
         }
@@ -160,6 +162,34 @@ namespace BlazorBlogs.Data
                          select Settings;
 
             resuts.FirstOrDefault().SettingValue = Convert.ToString(ApplicationName);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateApplicationLogo
+        public Task<bool> UpdateApplicationLogoAsync(string ApplicationLogo)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "ApplicationLogo"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(ApplicationLogo);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateApplicationHeader
+        public Task<bool> UpdateApplicationHeaderAsync(string ApplicationHeader)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "ApplicationHeader"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(ApplicationHeader);
             _context.SaveChanges();
 
             return Task.FromResult(true);
