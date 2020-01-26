@@ -162,5 +162,9 @@ INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (8, 
 GO
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (9, N'SMTPFromEmail', N'')
 GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (10, N'ApplicationLogo', N'uploads\logo.png')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (11, N'ApplicationHeader', N'<span>The Ultimate Blogging Platform...</span>')
+GO
 SET IDENTITY_INSERT [dbo].[Settings] OFF
 GO
