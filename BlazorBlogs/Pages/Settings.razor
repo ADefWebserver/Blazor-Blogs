@@ -31,6 +31,13 @@
                         </td>
                     </tr>
                     <tr>
+                        <td>Application Logo</td>
+                        <td>
+                            <img src="@objGeneralSettings.ApplicationLogo" />
+                            <button type="button" class="btn btn-link" @onclick="SelectLogo">[Select]</button>
+                        </td>
+                    </tr>
+                    <tr>
                         <td>Allow Registration</td>
                         <td>
                             <select class="form-control"
@@ -119,6 +126,8 @@
             <br />
             <button class="btn btn-primary" @onclick="Save">Save</button>
             <button class="btn btn-success" @onclick="SendTestEmail">Send Test Email</button>
+            <FileManager @ref="FileManagerControl"
+                         ImageSelected="InsertImage" />
         }
     </Authorized>
     <!-- Show this section if the user is not logged in -->
@@ -136,6 +145,7 @@
     string ADMINISTRATION_ROLE = "Administrators";
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
+    private FileManager FileManagerControl;
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     List<string> OptionsSMTP = new List<string>() { "Anonymous", "Basic", "NTLM" };
     string AllowRegistration = "";
@@ -176,6 +186,18 @@
         }
     }
 
+    void SelectLogo()
+    {
+        FileManagerControl.SetShowFileManager(true);
+    }
+
+    void InsertImage(string paramImageURL)
+    {
+        objGeneralSettings.ApplicationLogo = paramImageURL;
+
+        FileManagerControl.SetShowFileManager(false);
+    }
+
     public async Task Save()
     {
         try
@@ -196,6 +218,8 @@
         var SMTPSecureResult = _GeneralSettingsService.UpdateSMTPSecureAsync(Convert.ToBoolean(SMTPSecure));
 
         var UpdateApplicationNameResult = _GeneralSettingsService.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
+        var UpdateApplicationLogoResult = _GeneralSettingsService.UpdateApplicationLogoAsync(objGeneralSettings.ApplicationLogo);
+        var UpdateApplicationHeaderResult = _GeneralSettingsService.UpdateApplicationHeaderAsync(objGeneralSettings.ApplicationHeader);
         var UpdateSMTPServerResult = _GeneralSettingsService.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
         var UpdateSMTPUserNameResult = _GeneralSettingsService.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
         var UpdateSMTPPasswordResult = _GeneralSettingsService.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
