@@ -3,13 +3,17 @@
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using static Toolbelt.Blazor.HeadElement.MetaElement
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SearchState SearchState
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
+@inject IHeadElementHelper HeadElementHelper
 @inherits OwningComponentBase<BlogsService>
+<Title>Blazor-Blogs</Title>
+<Meta Property="og:title" Content="Blazor-Blogs" />
 <RadzenDropDown AllowClear="true"
                 AllowFiltering="true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
