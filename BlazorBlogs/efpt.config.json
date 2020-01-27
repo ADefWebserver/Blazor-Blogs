@@ -34,6 +34,10 @@
       },
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[Files]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[Logs]"
       },
       {

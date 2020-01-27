@@ -22,6 +22,7 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Blogs> Blogs { get; set; }
         public virtual DbSet<Categorys> Categorys { get; set; }
         public virtual DbSet<Comment> Comment { get; set; }
+        public virtual DbSet<Files> Files { get; set; }
         public virtual DbSet<Logs> Logs { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
 
@@ -134,6 +135,21 @@ namespace BlazorBlogs.Data
                     .HasConstraintName("FK_Comment_Comment");
             });
 
+            modelBuilder.Entity<Files>(entity =>
+            {
+                entity.HasKey(e => e.FileId);
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.FileName)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.FilePath)
+                    .IsRequired()
+                    .HasMaxLength(4000);
+            });
+
             modelBuilder.Entity<Logs>(entity =>
             {
                 entity.HasKey(e => e.LogId);
@@ -165,7 +181,7 @@ namespace BlazorBlogs.Data
 
                 entity.Property(e => e.SettingValue)
                     .IsRequired()
-                    .HasMaxLength(250);
+                    .HasMaxLength(4000);
             });
 
             OnModelCreatingPartial(modelBuilder);
