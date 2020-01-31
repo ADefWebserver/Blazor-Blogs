@@ -1,0 +1,46 @@
+﻿@page "/filedownloads"
+@using BlazorBlogs.Data;
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inherits OwningComponentBase<BlogsService>
+
+<h3>File Downloads</h3>
+<p>@strError</p>
+<AuthorizeView>
+    <Authorized>
+        <button @onclick="DownloadFile">Download</button>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+    private string strError = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current logged in user
+        CurrentUser = (await authenticationStateTask).User;
+
+        // Get the users
+        await GetFiles();
+    }
+
+    public async Task GetFiles()
+    {
+        // clear any error messages
+        strError = "";
+
+        //ColUsers = await @Service.GetUsersAsync(strSearch, CurrentPage);
+    }
+
+    public void DownloadFile()
+    {
+        NavigationManager.NavigateTo($"/api/Download/DownloadFile?FileName=BlazorHelpWebsite.zip", true);
+    }
+}
