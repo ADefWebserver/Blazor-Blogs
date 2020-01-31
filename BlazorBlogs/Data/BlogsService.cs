@@ -133,7 +133,7 @@ namespace BlazorBlogs.Data
 
                 objBlogs.BlogId = 0;
                 objBlogs.BlogContent = newBlog.BlogContent;
-                objBlogs.BlogDate = newBlog.BlogDate;                
+                objBlogs.BlogDate = newBlog.BlogDate;
                 objBlogs.BlogSummary = newBlog.BlogSummary;
                 objBlogs.BlogTitle = newBlog.BlogTitle;
                 objBlogs.BlogUserName = newBlog.BlogUserName;
@@ -348,6 +348,138 @@ namespace BlazorBlogs.Data
             if (ExistingCategory != null)
             {
                 _context.Categorys.Remove(ExistingCategory);
+                _context.SaveChanges();
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        // Files
+
+        #region public async Task<FilesDTO> GetFilesAsync()
+        public async Task<List<FilesDTO>> GetFilesAsync()
+        {
+            return await (from Files in _context.Files
+                          select new FilesDTO
+                          {
+                              FileId = Files.FileId.ToString(),
+                              CreateDate = Files.CreateDate,
+                              DownloadCount = Files.DownloadCount,
+                              FileName = Files.FileName,
+                              FilePath = Files.FilePath,
+                          }).AsNoTracking().OrderBy(x => x.FileName).ToListAsync();
+        }
+        #endregion
+
+        #region public async Task<FilesPaged> GetFilesAsync(int page)
+        public async Task<FilesPaged> GetFilesAsync(int page)
+        {
+            page = page - 1;
+            FilesPaged objFilesPaged = new FilesPaged();
+
+            objFilesPaged.FilesCount = await _context.Files
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
+                .CountAsync();
+
+            objFilesPaged.Files = await (from Files in _context.Files
+                                         select new FilesDTO
+                                         {
+                                             FileId = Files.FileId.ToString(),
+                                             CreateDate = Files.CreateDate,
+                                             DownloadCount = Files.DownloadCount,
+                                             FileName = Files.FileName,
+                                             FilePath = Files.FilePath,
+                                         }).AsNoTracking()
+                                                 .OrderBy(x => x.FileName)
+                                                 .Skip(page * 10)
+                                                 .Take(10)
+                                                 .ToListAsync();
+            return objFilesPaged;
+        }
+        #endregion
+
+        #region public Task<bool> CreateFilesAsync(FilesDTO objFilesDTO)
+        public Task<bool> CreateFilesAsync(FilesDTO objFilesDTO)
+        {
+            try
+            {
+                Files objFiles = new Files();
+                objFiles.CreateDate = DateTime.Now;
+                objFiles.DownloadCount = 0;
+                objFiles.FileName = objFilesDTO.FileName;
+                objFiles.FilePath = objFilesDTO.FilePath;
+
+                _context.Files.Add(objFiles);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> UpdateFilesAsync(FilesDTO objFilesDTO)
+        public Task<bool> UpdateFilesAsync(FilesDTO objFilesDTO)
+        {
+            try
+            {
+                int intFilesId = Convert.ToInt32(objFilesDTO.FileId);
+
+                var ExistingFiles =
+                    _context.Files
+                    .Where(x => x.FileId == intFilesId)
+                    .FirstOrDefault();
+
+                if (ExistingFiles != null)
+                {
+                    ExistingFiles.DownloadCount =
+                        objFilesDTO.DownloadCount;
+
+                    ExistingFiles.FileName =
+                        objFilesDTO.FileName;
+
+                    ExistingFiles.FilePath =
+                        objFilesDTO.FilePath;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> DeleteFilesAsync(FilesDTO objFilesDTO)
+        public Task<bool> DeleteFilesAsync(FilesDTO objFilesDTO)
+        {
+            int intFilesId = Convert.ToInt32(objFilesDTO.FileId);
+
+            var ExistingFiles =
+                _context.Files
+                .Where(x => x.FileId == intFilesId)
+                .FirstOrDefault();
+
+            if (ExistingFiles != null)
+            {
+                _context.Files.Remove(ExistingFiles);
                 _context.SaveChanges();
             }
             else
