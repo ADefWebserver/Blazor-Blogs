@@ -1,46 +1,156 @@
 ﻿@page "/filedownloads"
+@using Microsoft.AspNetCore.Http
 @using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject IHttpContextAccessor httpContextAccessor
+@inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
-@inherits OwningComponentBase<BlogsService>
+@inherits OwningComponentBase
 
-<h3>File Downloads</h3>
-<p>@strError</p>
+<h1>Downloads</h1>
+<hr />
 <AuthorizeView>
     <Authorized>
-        <button @onclick="DownloadFile">Download</button>
+        @if (colFiles.FilesCount == 0)
+        {
+            <h2>No items returned</h2>
+        }
+        else
+        {
+            @foreach (var file in colFiles.Files)
+            {
+                <button class="btn btn-link oi oi-cloud-download" @onclick="@( x => DownloadFile(file))"> @file.FileName</button>
+                <br />
+            }
+        }
+        <br />
+        @if (ShowPreviousButton)
+        {
+            <button class="btn btn-warning"
+                    @onclick="Previous">
+                <b>&#x3C;</b>
+            </button>
+        }
+        @if (ShowNextButton)
+        {
+            <button class="btn btn-warning"
+                    @onclick="Next">
+                <b>&#x3E;</b>
+            </button>
+        }
     </Authorized>
     <NotAuthorized>
         <p>You are not logged in.</p>
+        @if (AllowRegistration)
+        {
+            <a href="Identity/Account/Login">[Login]</a>
+        }
     </NotAuthorized>
 </AuthorizeView>
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+    bool AllowRegistration = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
-    private string strError = "";
+    private int CurrentPage = 1;
+
+    FilesPaged colFiles =
+    new FilesPaged()
+    {
+        Files = new List<FilesDTO>(),
+        FilesCount = 0
+    };
+
+    bool ShowPreviousButton
+    {
+        get
+        {
+            return (CurrentPage > 1);
+        }
+    }
+
+    bool ShowNextButton
+    {
+        get
+        {
+            return (
+                (colFiles.FilesCount > (CurrentPage * 10))
+                );
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         // Get the current logged in user
         CurrentUser = (await authenticationStateTask).User;
 
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+        await LoadGeneralSettingsAsync();
+
         // Get the users
         await GetFiles();
     }
 
-    public async Task GetFiles()
+    protected async Task LoadGeneralSettingsAsync()
     {
-        // clear any error messages
-        strError = "";
-
-        //ColUsers = await @Service.GetUsersAsync(strSearch, CurrentPage);
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        AllowRegistration = objGeneralSettings.AllowRegistration;
     }
 
-    public void DownloadFile()
+    public async Task GetFiles()
     {
-        NavigationManager.NavigateTo($"/api/Download/DownloadFile?FileName=BlazorHelpWebsite.zip", true);
+        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+    }
+
+    async Task DownloadFile(FilesDTO paramFile)
+    {
+        // Log
+        await LogAction($"Download File #{paramFile.FilePath}");
+
+        // Update Download count
+        paramFile.DownloadCount = (paramFile.DownloadCount + 1);
+        await _BlogsService.UpdateFilesAsync(paramFile);
+
+        // Download file
+        NavigationManager.NavigateTo($"/api/Download/DownloadFile?FileName={paramFile.FilePath}", true);
+    }
+
+    // Paging
+
+    async Task Previous()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage = CurrentPage - 1;
+            colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+        }
+    }
+
+    async Task Next()
+    {
+        CurrentPage = CurrentPage + 1;
+        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+    }
+
+    // Logging
+
+    private async Task LogAction(string strAction)
+    {
+        // Get the current user
+        var CurrentUser = (await authenticationStateTask).User;
+
+        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
+        objLog.LogDate = DateTime.Now;
+        objLog.LogAction = strAction;
+        objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";
+        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+
+        var result = await _BlogsService.CreateLogAsync(objLog);
     }
 }
