@@ -2,7 +2,9 @@
 @using Microsoft.AspNetCore.Http
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using Microsoft.AspNetCore.Identity;
 @inject IHttpContextAccessor httpContextAccessor
+@inject UserManager<ApplicationUser> _UserManager
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -21,7 +23,11 @@
         {
             @foreach (var file in colFiles.Files)
             {
-                <button class="btn btn-link oi oi-cloud-download" @onclick="@( x => DownloadFile(file))"> @file.FileName</button>
+                @if (UserIsAnAdmin)
+                {
+                    <button type="button" class="btn btn-link" @onclick="(() => EditFile(file))">[Edit]</button>
+                }
+                <button class="btn btn-link oi oi-cloud-download" @onclick="@(() => DownloadFile(file))"> @file.FileName</button>
                 <br />
             }
         }
@@ -40,6 +46,64 @@
                 <b>&#x3E;</b>
             </button>
         }
+
+        @if (FileEditPopup)
+        {
+            <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Edit File</h3>
+                            <!-- Button to close the popup -->
+                            <button type="button" class="close"
+                                    @onclick="ClosePopup">
+                                <span aria-hidden="true">X</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h5>File Name</h5>
+                            <div class="form-group">
+                                <input class="form-control" type="text"
+                                       @bind="SelectedFile.FileName" />
+                            </div>
+                            <div class="modal-body">
+                                <button class="btn btn-primary"
+                                        @onclick="SaveFile">
+                                    Save
+                                </button>
+                                <button class="btn btn-danger"
+                                        @onclick="DeleteFile">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (ConFirmDeletePopup)
+        {
+            <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Delete File?</h3>
+                        </div>
+                        <div class="modal-body">
+                            <button class="btn btn-primary"
+                                    @onclick="DeleteYes">
+                                Yes
+                            </button>
+                            <button class="btn btn-danger"
+                                    @onclick="DeleteNo">
+                                No
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </Authorized>
     <NotAuthorized>
         <p>You are not logged in.</p>
@@ -53,9 +117,16 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    bool UserIsAnAdmin = false;
+
+    public bool FileEditPopup = false;
+    public bool ConFirmDeletePopup = false;
     GeneralSettings objGeneralSettings = new GeneralSettings();
     bool AllowRegistration = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
+    FilesDTO SelectedFile = new FilesDTO();
     private int CurrentPage = 1;
 
     FilesPaged colFiles =
@@ -88,6 +159,11 @@
         // Get the current logged in user
         CurrentUser = (await authenticationStateTask).User;
 
+        if (CurrentUser != null)
+        {
+            UserIsAnAdmin = CurrentUser.IsInRole(ADMINISTRATION_ROLE);
+        }
+
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
@@ -107,6 +183,59 @@
     {
         colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
     }
+
+    // Edit File
+
+    void EditFile(FilesDTO paramFile)
+    {
+        SelectedFile = paramFile;
+        FileEditPopup = true;
+    }
+
+    async Task SaveFile()
+    {
+        await _BlogsService.UpdateFilesAsync(SelectedFile);
+
+        // Refresh collection
+        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+
+        // Close popup
+        FileEditPopup = false;
+    }
+
+    void DeleteFile()
+    {
+        ConFirmDeletePopup = true;
+    }
+
+    void DeleteNo()
+    {
+        ConFirmDeletePopup = false;
+    }
+
+    async Task ClosePopup()
+    {
+        // Close the Popup
+        FileEditPopup = false;
+
+        // Refresh collection
+        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+    }
+
+    async Task DeleteYes()
+    {
+        //int BlogId = SelectedBlog.BlogId;
+
+        //// Delete the Blog
+        //var result = @Service.DeleteBlogAsync(SelectedBlog);
+
+        //// Log
+        //await LogAction($"Delete File #{BlogId}");
+
+        //ClosePopup();
+    }
+
+    // Download File
 
     async Task DownloadFile(FilesDTO paramFile)
     {
