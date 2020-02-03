@@ -12,10 +12,10 @@ namespace BlazorBlogs
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DownloadController : Controller
+    public class FileController : Controller
     {
         private readonly IWebHostEnvironment environment;
-        public DownloadController(IWebHostEnvironment environment)
+        public FileController(IWebHostEnvironment environment)
         {
             this.environment = environment;
         }
@@ -33,6 +33,20 @@ namespace BlazorBlogs
             var result = new FileStreamResult(stream, "text/plain");
             result.FileDownloadName = FileName;
             return result;
+        }
+
+        public void DeleteFile(string FileName)
+        {
+            string path = Path.Combine(
+                                environment.WebRootPath,
+                                "files",
+                                FileName);
+
+            if (System.IO.File.Exists(path))
+            {
+                // If file found, delete it    
+                System.IO.File.Delete(path);
+            }
         }
     }
 }

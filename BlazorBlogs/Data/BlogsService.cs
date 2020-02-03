@@ -6,16 +6,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
 using System.Net.Http;
 using System;
+using Microsoft.AspNetCore.Hosting;
 
 namespace BlazorBlogs.Data
 {
     public class BlogsService
     {
         private readonly BlazorBlogsContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public BlogsService(BlazorBlogsContext context)
+        public BlogsService(BlazorBlogsContext context,
+            IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
         // Blogs
@@ -481,6 +485,10 @@ namespace BlazorBlogs.Data
             {
                 _context.Files.Remove(ExistingFiles);
                 _context.SaveChanges();
+
+                // Delete the file
+                FileController objFileController = new FileController(_environment);
+                objFileController.DeleteFile(objFilesDTO.FilePath);
             }
             else
             {

@@ -82,7 +82,7 @@
             </div>
         }
 
-        @if (ConFirmDeletePopup)
+        @if (ConfirmDeletePopup)
         {
             <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
                 <div class="modal-dialog">
@@ -122,7 +122,7 @@
     bool UserIsAnAdmin = false;
 
     public bool FileEditPopup = false;
-    public bool ConFirmDeletePopup = false;
+    public bool ConfirmDeletePopup = false;
     GeneralSettings objGeneralSettings = new GeneralSettings();
     bool AllowRegistration = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
@@ -205,34 +205,34 @@
 
     void DeleteFile()
     {
-        ConFirmDeletePopup = true;
+        ConfirmDeletePopup = true;
     }
 
     void DeleteNo()
     {
-        ConFirmDeletePopup = false;
+        ConfirmDeletePopup = false;
     }
 
-    async Task ClosePopup()
+    void ClosePopup()
     {
         // Close the Popup
         FileEditPopup = false;
-
-        // Refresh collection
-        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
     }
 
     async Task DeleteYes()
     {
-        //int BlogId = SelectedBlog.BlogId;
+        // Delete File
+        await _BlogsService.DeleteFilesAsync(SelectedFile);
 
-        //// Delete the Blog
-        //var result = @Service.DeleteBlogAsync(SelectedBlog);
+        // Log
+        await LogAction($"{CurrentUser.Identity.Name} deleted file {SelectedFile.FilePath}");
 
-        //// Log
-        //await LogAction($"Delete File #{BlogId}");
+        // Refresh collection
+        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
 
-        //ClosePopup();
+        // Close popup
+        ConfirmDeletePopup = false;
+        FileEditPopup = false;
     }
 
     // Download File
@@ -247,7 +247,7 @@
         await _BlogsService.UpdateFilesAsync(paramFile);
 
         // Download file
-        NavigationManager.NavigateTo($"/api/Download/DownloadFile?FileName={paramFile.FilePath}", true);
+        NavigationManager.NavigateTo($"/api/File/DownloadFile?FileName={paramFile.FilePath}", true);
     }
 
     // Paging
