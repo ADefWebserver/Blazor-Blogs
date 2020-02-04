@@ -12,6 +12,10 @@
 @inherits OwningComponentBase
 
 <h1>Downloads</h1>
+@if (UserIsAnAdmin)
+{
+    <button type="button" class="btn btn-link oi oi-cloud-upload" @onclick="(() => UploadFile())"> Upload</button>
+}
 <hr />
 <AuthorizeView>
     <Authorized>
@@ -45,6 +49,36 @@
                     @onclick="Next">
                 <b>&#x3E;</b>
             </button>
+        }
+
+        @if (FileUploadPopup)
+        {
+            <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Upload File</h3>
+                            <!-- Button to close the popup -->
+                            <button type="button" class="close"
+                                    @onclick="CloseUploadPopup">
+                                <span aria-hidden="true">X</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h5>File Name</h5>
+                            <div class="form-group">
+                                <input class="form-control" type="text"
+                                       @bind="SelectedFile.FileName" />
+                            </div>
+                            <RadzenUpload ChooseText="Upload And Save" Multiple="false"
+                                          Accept="application/x-zip-compressed"
+                                          Url=@($"/api/upload/single?FileTitle={SelectedFile.FileName}")
+                                          Style="margin-bottom: 20px;height: 45px"
+                                          Progress="@((args) => OnProgress(args))" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
 
         @if (FileEditPopup)
@@ -104,6 +138,25 @@
                 </div>
             </div>
         }
+
+        @if (ShowProgressBarPopup)
+        {
+            <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Upload Status</h4>
+                        </div>
+                        <div align="center">
+                            <RadzenProgressBar Value="@progress"
+                                               Unit="@info"
+                                               Visible="@(progress > 0)"
+                                               Style="margin-bottom: 20px" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </Authorized>
     <NotAuthorized>
         <p>You are not logged in.</p>
@@ -121,8 +174,12 @@
     string ADMINISTRATION_ROLE = "Administrators";
     bool UserIsAnAdmin = false;
 
+    public bool FileUploadPopup = false;
     public bool FileEditPopup = false;
     public bool ConfirmDeletePopup = false;
+    private bool ShowProgressBarPopup = false;
+    private int progress;
+    private string info;
     GeneralSettings objGeneralSettings = new GeneralSettings();
     bool AllowRegistration = false;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
@@ -184,7 +241,19 @@
         colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
     }
 
-    // Edit File
+    // File
+
+    void UploadFile()
+    {
+        SelectedFile = new FilesDTO();
+        SelectedFile.FileName = "";
+        FileUploadPopup = true;
+    }
+
+    void CloseUploadPopup()
+    {
+        FileUploadPopup = false;
+    }
 
     void EditFile(FilesDTO paramFile)
     {
@@ -215,7 +284,6 @@
 
     void ClosePopup()
     {
-        // Close the Popup
         FileEditPopup = false;
     }
 
@@ -248,6 +316,25 @@
 
         // Download file
         NavigationManager.NavigateTo($"/api/File/DownloadFile?FileName={paramFile.FilePath}", true);
+    }
+
+    // Upload File
+
+    private async void OnProgress(UploadProgressArgs args)
+    {
+        ShowProgressBarPopup = true;
+        this.info = $"{args.Loaded} of {args.Total} bytes.";
+        this.progress = args.Progress;
+
+        StateHasChanged();
+
+        if (args.Loaded == args.Total)
+        {
+            ShowProgressBarPopup = false;
+            FileUploadPopup = false;
+
+            NavigationManager.NavigateTo("FileDownloads", true);
+        }
     }
 
     // Paging

@@ -35,6 +35,7 @@ namespace BlazorBlogs
             return result;
         }
 
+        // This cannot be called by an API call
         public void DeleteFile(string FileName)
         {
             string path = Path.Combine(
