@@ -1,7 +1,7 @@
 # Blazor-Blogs
 Simple blogging application written in Microsoft Server Side Blazor
 
-![Screenshot](Animation.gif)
+![Screenshot](https://user-images.githubusercontent.com/1857799/74042561-a0c10c80-497c-11ea-9c34-0ee73aa5683b.gif)
 
 ![Screenshot](BlazorBlogsMainPage.png)
 
