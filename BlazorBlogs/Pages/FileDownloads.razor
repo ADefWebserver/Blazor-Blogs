@@ -323,7 +323,7 @@
 
     // Upload File
 
-    private async void OnProgress(UploadProgressArgs args)
+    private void OnProgress(UploadProgressArgs args)
     {
         ShowProgressBarPopup = true;
         this.info = $"{args.Loaded} of {args.Total} bytes.";

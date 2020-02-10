@@ -1,5 +1,7 @@
 # Blazor-Blogs
-Simple blogging application written in Microsoft Server Side Blazor
+#### Simple blogging application written in Microsoft Server Side Blazor
+
+##### Live example site: https://blazorblogs.azurewebsites.net/
 
 ![Screenshot](Animation.gif)
 
