@@ -9,6 +9,7 @@
 @inject BlogsService _BlogsService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject DisqusState DisqusState
 @inherits OwningComponentBase
 
 <h1>Downloads</h1>
@@ -228,6 +229,8 @@
 
         // Get the users
         await GetFiles();
+
+        DisqusState.SetDisplayDisqus(false);
     }
 
     protected async Task LoadGeneralSettingsAsync()

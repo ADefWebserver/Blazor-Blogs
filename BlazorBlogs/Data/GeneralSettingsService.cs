@@ -37,6 +37,9 @@ namespace BlazorBlogs.Data
             objGeneralSettings.ApplicationLogo = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationLogo").SettingValue);
             objGeneralSettings.ApplicationHeader = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationHeader").SettingValue);
 
+            objGeneralSettings.DisqusEnabled = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
+            objGeneralSettings.DisqusShortName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusShortName").SettingValue);
+            
             return objGeneralSettings;
         }
         #endregion
@@ -190,6 +193,34 @@ namespace BlazorBlogs.Data
                          select Settings;
 
             resuts.FirstOrDefault().SettingValue = Convert.ToString(ApplicationHeader);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateDisqusEnabled
+        public Task<bool> UpdateDisqusEnabledAsync(bool DisqusEnabled)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "DisqusEnabled"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(DisqusEnabled);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateDisqusShortName
+        public Task<bool> UpdateDisqusShortNameAsync(string DisqusShortName)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "DisqusShortName"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(DisqusShortName);
             _context.SaveChanges();
 
             return Task.FromResult(true);

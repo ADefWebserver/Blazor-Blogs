@@ -6,6 +6,7 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
+@inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 
 <AuthorizeView>
@@ -203,6 +204,8 @@
 
         // Get the users
         await GetUsers();
+
+        DisqusState.SetDisplayDisqus(false);
     }
 
     public async Task GetUsers()

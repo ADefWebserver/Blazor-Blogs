@@ -11,6 +11,7 @@
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
 @inject IHeadElementHelper HeadElementHelper
+@inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 <Title>Blazor-Blogs</Title>
 <Meta Property="og:title" Content="Blazor-Blogs" />
@@ -184,6 +185,8 @@ else
 
         // We access BlogsService using @Service
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+
+        DisqusState.SetDisplayDisqus(false);
     }
 
     void NewBlog()

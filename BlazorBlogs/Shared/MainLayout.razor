@@ -1,7 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@inject IJSRuntime JSRuntime
 @inject GeneralSettingsService _GeneralSettingsService
+@inject DisqusState DisqusState
 
 <BlazoredToasts />
 <div class="sidebar">
@@ -17,20 +20,60 @@
     <div class="header-centered">
         @((MarkupString)objGeneralSettings.ApplicationHeader)
     </div>
-    <div class="content px-4">
+    <div @ref="@disqusBody" class="content px-4">
         @Body
+        @if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+        {
+            <div id="disqus_thread" style="@((!DisqusState.getDisplayDisqus()) ? "display: none;" : "")"></div>
+        }
     </div>
 </div>
 @code {
     GeneralSettings objGeneralSettings = new GeneralSettings();
+    private ElementReference disqusBody;
 
     protected override async Task OnInitializedAsync()
     {
+        // Subscribe to the StateChanged EventHandler
+        DisqusState.StateChanged +=
+        OnDisqusStateStateChanged;
+
         await LoadGeneralSettingsAsync();
+    }
+
+    protected override async Task
+         OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if(Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+            {
+                await DisqusInterop.CreateDisqus(
+                    JSRuntime,
+                    disqusBody,
+                    @$"https://{objGeneralSettings.DisqusShortName.Trim()}.disqus.com/embed.js");
+            }
+        }
     }
 
     protected async Task LoadGeneralSettingsAsync()
     {
         objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+    }
+
+    // This method is fired when the DisqusState object
+    // invokes its StateHasChanged() method
+    // This will cause this control to invoke its own
+    // StateHasChanged() method refreshing the page
+    // and displaying the updated counter value
+    void OnDisqusStateStateChanged(
+        object sender, EventArgs e) => StateHasChanged();
+
+    void IDisposable.Dispose()
+    {
+        // When this control is disposed of
+        // unsubscribe from the StateChanged EventHandler
+        DisqusState.StateChanged -=
+        OnDisqusStateStateChanged;
     }
 }

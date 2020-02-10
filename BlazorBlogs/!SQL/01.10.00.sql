@@ -186,5 +186,9 @@ INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (10,
 GO
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (11, N'ApplicationHeader', N'')
 GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (12, N'DisqusEnabled', N'False')
+GO
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (14, N'DisqusShortName', N'')
+GO
 SET IDENTITY_INSERT [dbo].[Settings] OFF
 GO

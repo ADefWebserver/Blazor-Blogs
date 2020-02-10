@@ -6,7 +6,7 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
-
+@inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 
 <h1>Logs</h1>
@@ -99,6 +99,7 @@
         CurrentUser = (await authenticationStateTask).User;
 
         colLogs = await @Service.GetLogsAsync(CurrentPage);
+        DisqusState.SetDisplayDisqus(false);
     }
 
     async Task Previous()

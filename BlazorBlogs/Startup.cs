@@ -53,6 +53,7 @@ namespace BlazorBlogs
             services.AddScoped<EmailService>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<SearchState>();
+            services.AddScoped<DisqusState>();
             services.AddHttpContextAccessor();
             services.AddBlazoredToast();
             services.AddHeadElementHelper();

@@ -11,6 +11,7 @@
 @inject EmailService _EmailService
 @inject GeneralSettingsService _GeneralSettingsService
 @inject IHttpContextAccessor httpContextAccessor
+@inject DisqusState DisqusState
 @inherits OwningComponentBase
 
 <h1>Settings</h1>
@@ -39,10 +40,10 @@
                     </tr>
                     <tr>
                         <td>Application Header</td>
-                        <td>                            
+                        <td>
                             @if (!RichTextEditorMode)
                             {
-                            <textarea class="form-control" @bind="@objGeneralSettings.ApplicationHeader" rows="5" />
+                                <textarea class="form-control" @bind="@objGeneralSettings.ApplicationHeader" rows="5" />
                             }
                             <div style="@((!RichTextEditorMode) ? "display: none;":"")">
                                 <BlazoredTextEditor @ref="@QuillHtml">
@@ -176,6 +177,27 @@
                                    @bind="objGeneralSettings.SMTPFromEmail" />
                         </td>
                     </tr>
+                    <tr>
+                        <td>Enable Disqus Comments</td>
+                        <td>
+                            <select class="form-control"
+                                    @bind="@DisqusEnabled">
+                                @foreach (var option in OptionsTrueFalse)
+                                {
+                                    <option value="@option">
+                                        @option
+                                    </option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Disqus ShortName</td>
+                        <td>
+                            <input class="form-control" type="text"
+                                   @bind="objGeneralSettings.DisqusShortName" />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <br />
@@ -215,6 +237,7 @@
     string VerifiedRegistration = "";
     string SMTPSecure = "";
     string SMTPAuthentication = "";
+    string DisqusEnabled = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -225,6 +248,7 @@
         _EmailService = (EmailService)ScopedServices.GetService(typeof(EmailService));
 
         await LoadGeneralSettingsAsync();
+        DisqusState.SetDisplayDisqus(false);
     }
 
     protected override async Task
@@ -243,6 +267,7 @@
         AllowRegistration = objGeneralSettings.AllowRegistration.ToString();
         VerifiedRegistration = objGeneralSettings.VerifiedRegistration.ToString();
         SMTPSecure = objGeneralSettings.SMTPSecure.ToString();
+        DisqusEnabled = objGeneralSettings.DisqusEnabled.ToString();
 
         switch (objGeneralSettings.SMTPAuthendication.Trim())
         {
@@ -322,10 +347,19 @@
         var UpdateSMTPPasswordResult = _GeneralSettingsService.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
         var UpdateSMTPFromEmailResult = _GeneralSettingsService.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
 
+        var UpdateDisqusEnabledResult = _GeneralSettingsService.UpdateDisqusEnabledAsync(Convert.ToBoolean(DisqusEnabled));
+        var UpdateDisqusShortNameResult = _GeneralSettingsService.UpdateDisqusShortNameAsync(objGeneralSettings.DisqusShortName);
+
         if (RichTextEditorMode)
         {
             objGeneralSettings.ApplicationHeader =
                 await this.QuillHtml.GetHTML();
+        }
+
+        // If ApplicationHeader is essentially blank - - clear it
+        if (objGeneralSettings.ApplicationHeader == @"<p><br></p>")
+        {
+            objGeneralSettings.ApplicationHeader = "";
         }
 
         var UpdateApplicationHeaderResult =

@@ -4,10 +4,13 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using static Toolbelt.Blazor.HeadElement.MetaElement
+@inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject GeneralSettingsService _GeneralSettingsService
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
 @inject IHeadElementHelper HeadElementHelper
+@inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 
 @if (SelectedBlog != null)
@@ -44,6 +47,7 @@
     [Parameter] public string BlogPostId { get; set; }
 
     BlogDTO SelectedBlog = new BlogDTO();
+    GeneralSettings objGeneralSettings = new GeneralSettings();
 
     BlogAdministration BlogAdministrationControl;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
@@ -71,12 +75,34 @@
             await HeadElementHelper.SetMetaElementsAsync(
             ByProp("og:description", SelectedBlog.BlogTitle),
             ByName("description", SelectedBlog.BlogTitle)
-        );
+            );
         }
         catch
         {
             await LogAction($"Error Viewing Blog #{BlogPostId}");
             SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+        }
+    }
+
+    protected override async Task
+        OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+
+            if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+            {
+                string url = NavigationManager.ToAbsoluteUri($"/ViewBlogPost/{BlogPostId}").AbsoluteUri;
+
+                await DisqusInterop.ResetDisqus(
+                    JSRuntime,
+                    BlogPostId.ToString(),
+                    url,
+                    SelectedBlog.BlogTitle);
+
+                DisqusState.SetDisplayDisqus(true);
+            }
         }
     }
 
