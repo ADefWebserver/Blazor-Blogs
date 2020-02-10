@@ -5,13 +5,26 @@ Simple blogging application written in Microsoft Server Side Blazor
 
 ![Screenshot](Screenshot001.png)
 
-![Screenshot](Screenshot002.png)
+![Screenshot](Screenshot006.png)
 
 ![Screenshot](Screenshot003.png)
 
 ![Screenshot](Screenshot004.png)
 
 ![Screenshot](Screenshot005.png)
+
+### Features
+
+* Supports unlimited Bloggers
+* Rich Text Editor with image uploads 
+* Disqus integration for Blog post comments
+* User Administration and role management
+* User Registration with Email Verification and Password Resets
+* File Download Page
+* Custom Privacy Statement and Terms Of Use
+* Dynamic Header and Logo
+* Unlimited Tags for Blog Posts
+* RSS Feeds
 
 ### Installing
 
