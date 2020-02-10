@@ -7,11 +7,12 @@
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
 @inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
-@inherits OwningComponentBase<BlogsService>
+@inherits OwningComponentBase
 
 @if (SelectedBlog.BlogId != 0)
 {
@@ -62,7 +63,11 @@ else
     {
         try
         {
-            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
             await LogAction($"View Blog #{SelectedBlog.BlogId}");
 
             // Get the current user
@@ -92,9 +97,7 @@ else
         OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {
-            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-
+        {        
             if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
                 string url = NavigationManager.ToAbsoluteUri($"/ViewBlogPost/{BlogPostId}").AbsoluteUri;
@@ -124,7 +127,7 @@ else
     {
         try
         {
-            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
         }
         catch
         {
@@ -144,6 +147,6 @@ else
         objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";
         objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
 
-        var result = await @Service.CreateLogAsync(objLog);
+        var result = await _BlogsService.CreateLogAsync(objLog);
     }
 }

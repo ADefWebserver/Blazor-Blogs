@@ -21,7 +21,7 @@ namespace BlazorBlogs.Data
         {
             GeneralSettings objGeneralSettings = new GeneralSettings();
 
-            var resuts = await _context.Settings.ToListAsync();
+            var resuts = await _context.Settings.AsNoTracking().ToListAsync();
 
             objGeneralSettings.SMTPServer = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPServer").SettingValue);
             objGeneralSettings.SMTPAuthendication = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPAuthendication").SettingValue);
