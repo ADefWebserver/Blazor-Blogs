@@ -32,26 +32,26 @@
                     <thead>
                         <tr>
                             <th>User Name</th>
-                            <th>Display Name</th>
                             <th>Email</th>
+                            <th>Confirmed</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var user in ColUsers.ApplicationUsers)
                         {
-                            <tr>
-                                <td>@user.UserName</td>
-                                <td>@user.DisplayName</td>
-                                <td>@user.Email</td>
-                                <td>
-                                    <!-- Edit the current forecast -->
-                                    <button class="btn btn-primary"
-                                            @onclick="(() => EditUser(user))">
-                                        Edit
-                                    </button>
-                                </td>
-                            </tr>
+                        <tr>
+                            <td>@user.UserName</td>
+                            <td>@user.Email</td>
+                            <td>@user.EmailConfirmed</td>
+                            <td>
+                                <!-- Edit the current forecast -->
+                                <button class="btn btn-primary"
+                                        @onclick="(() => EditUser(user))">
+                                    Edit
+                                </button>
+                            </td>
+                        </tr>
                         }
                     </tbody>
                 </table>
