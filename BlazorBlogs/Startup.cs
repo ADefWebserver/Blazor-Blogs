@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
+using WilderMinds.MetaWeblog;
 
 namespace BlazorBlogs
 {
@@ -54,6 +55,7 @@ namespace BlazorBlogs
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<SearchState>();
             services.AddScoped<DisqusState>();
+            services.AddMetaWeblog<MetaWeblogService>();
             services.AddHttpContextAccessor();
             services.AddBlazoredToast();
             services.AddHeadElementHelper();
@@ -82,6 +84,9 @@ namespace BlazorBlogs
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Support MetaWeblog API
+            app.UseMetaWeblog("/livewriter");
 
             app.UseEndpoints(endpoints =>
             {
