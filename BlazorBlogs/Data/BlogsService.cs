@@ -74,8 +74,7 @@ namespace BlazorBlogs.Data
                                          BlogSummary = blog.BlogSummary,
                                          BlogContent = blog.BlogContent,
                                          BlogDisplayName = "",
-                                     }).AsNoTracking()
-                .FirstOrDefaultAsync();
+                                     }).AsNoTracking().FirstOrDefaultAsync();
 
             // Add Blog Categories
             objBlog.BlogCategory = new List<BlogCategory>();

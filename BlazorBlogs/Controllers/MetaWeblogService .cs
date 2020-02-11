@@ -1,4 +1,8 @@
-﻿using System;
+﻿using BlazorBlogs.Data;
+using BlazorBlogs.Data.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +12,23 @@ namespace BlazorBlogs
 {
     public class MetaWeblogService : IMetaWeblogProvider
     {
+        private IHttpContextAccessor _httpContextAccessor;
+        private readonly BlazorBlogsContext _BlazorBlogsContext;
+        private readonly GeneralSettingsService _GeneralSettingsService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public MetaWeblogService(
+            IHttpContextAccessor httpContextAccessor,
+            BlazorBlogsContext blazorBlogsContext,
+            GeneralSettingsService generalSettingsService,
+            UserManager<ApplicationUser> userManager)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _BlazorBlogsContext = blazorBlogsContext;
+            _GeneralSettingsService = generalSettingsService;
+            _userManager = userManager;
+        }
+
         public async Task<UserInfo> GetUserInfoAsync(string key, string username, string password)
         {
             throw new NotImplementedException();
@@ -15,9 +36,29 @@ namespace BlazorBlogs
 
         public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         {
-            throw new NotImplementedException();
-        }
+            BlogInfo[] colBlogInfo = new BlogInfo[1];
 
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+                var Bloggers = _BlazorBlogsContext.AspNetUsers
+                    .Where(x => x.UserName == username)
+                    .FirstOrDefault();
+
+                if (Bloggers != null)
+                {
+                    colBlogInfo[0] = new BlogInfo();
+                    colBlogInfo[0].blogid = Bloggers.Id;
+                    colBlogInfo[0].blogName= Bloggers.DisplayName;
+                    colBlogInfo[0].url = GetBaseUrl();
+                }
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            return colBlogInfo;
+        }
 
         public async Task<Post> GetPostAsync(string postid, string username, string password)
         {
@@ -26,9 +67,24 @@ namespace BlazorBlogs
 
         public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
         {
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+                var BlogPosts = _BlazorBlogsContext.Blogs
+                    .Where(x => x.BlogUserName == username)
+                    .OrderByDescending(x => x.BlogDate).ToList();
+
+                foreach (var item in BlogPosts)
+                {
+
+                }
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
             throw new NotImplementedException();
         }
-
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
@@ -44,7 +100,6 @@ namespace BlazorBlogs
         {
             throw new NotImplementedException();
         }
-
 
         public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         {
@@ -120,5 +175,28 @@ namespace BlazorBlogs
         {
             throw new NotImplementedException();
         }
+
+        // Utility
+
+        #region private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
+        private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
+        {
+            var objApplicationUser = await _userManager.FindByEmailAsync(username);
+            return await _userManager.CheckPasswordAsync(objApplicationUser, password);
+        }
+        #endregion
+
+        #region public string GetBaseUrl()
+        public string GetBaseUrl()
+        {
+            var request = _httpContextAccessor.HttpContext.Request;
+
+            var host = request.Host.ToUriComponent();
+
+            var pathBase = request.PathBase.ToUriComponent();
+
+            return $"{request.Scheme}://{host}{pathBase}";
+        } 
+        #endregion
     }
 }

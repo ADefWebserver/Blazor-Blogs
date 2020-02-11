@@ -85,8 +85,7 @@ namespace BlazorBlogs
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Support MetaWeblog API
-            app.UseMetaWeblog("/livewriter");
+            app.UseMetaWeblog("/MetaWeblog");
 
             app.UseEndpoints(endpoints =>
             {
