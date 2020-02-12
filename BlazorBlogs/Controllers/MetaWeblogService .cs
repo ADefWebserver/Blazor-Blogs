@@ -37,6 +37,7 @@ namespace BlazorBlogs
         public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         {
             BlogInfo[] colBlogInfo = new BlogInfo[1];
+            colBlogInfo[0] = new BlogInfo();
 
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
@@ -45,8 +46,7 @@ namespace BlazorBlogs
                     .FirstOrDefault();
 
                 if (Bloggers != null)
-                {
-                    colBlogInfo[0] = new BlogInfo();
+                {                    
                     colBlogInfo[0].blogid = Bloggers.Id;
                     colBlogInfo[0].blogName= Bloggers.DisplayName;
                     colBlogInfo[0].url = GetBaseUrl();
@@ -67,15 +67,21 @@ namespace BlazorBlogs
 
         public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
         {
+            List<Post> Posts = new List<Post>();
+
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
                 var BlogPosts = _BlazorBlogsContext.Blogs
                     .Where(x => x.BlogUserName == username)
+                    .Take(numberOfPosts)
                     .OrderByDescending(x => x.BlogDate).ToList();
 
                 foreach (var item in BlogPosts)
                 {
+                    Post objPost = new Post();
+                    objPost.title = item.BlogTitle;
 
+                    Posts.Add(objPost);
                 }
             }
             else
@@ -83,7 +89,7 @@ namespace BlazorBlogs
                 throw new Exception("Bad user name or password");
             }
 
-            throw new NotImplementedException();
+            return Posts.ToArray();
         }
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
