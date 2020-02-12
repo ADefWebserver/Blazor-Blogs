@@ -177,8 +177,9 @@ else
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
+            var Current_User = await _UserManager.FindByNameAsync(CurrentUser.Identity.Name);
             // Is user an administrator?
-            UserIsAnAdmin = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
+            UserIsAnAdmin = await _UserManager.IsInRoleAsync(Current_User, ADMINISTRATION_ROLE);
         }
 
         colCategorys = await @Service.GetCategorysAsync();
