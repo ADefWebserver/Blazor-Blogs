@@ -33,7 +33,16 @@ namespace BlazorBlogs
 
         public async Task<UserInfo> GetUserInfoAsync(string key, string username, string password)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         #region public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
@@ -158,92 +167,254 @@ namespace BlazorBlogs
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public async Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public async Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public async Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category)
         {
-            throw new NotImplementedException();
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Page GetPage(string blogid, string pageid, string username, string password)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Page[] GetPages(string blogid, string username, string password, int numPages)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Author[] GetAuthors(string blogid, string username, string password)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public string AddPage(string blogid, string username, string password, Page page, bool publish)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public bool EditPage(string blogid, string pageid, string username, string password, Page page, bool publish)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public bool DeletePage(string blogid, string username, string password, string pageid)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<bool> EditPageAsync(string blogid, string pageid, string username, string password, Page page, bool publish)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid)
         {
-            throw new NotImplementedException();
+            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            {
+
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            throw new Exception("Bad user name or password");
         }
 
         // Utility
