@@ -36,6 +36,7 @@ namespace BlazorBlogs
             throw new NotImplementedException();
         }
 
+        #region public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         {
             BlogInfo[] colBlogInfo = new BlogInfo[1];
@@ -61,11 +62,50 @@ namespace BlazorBlogs
 
             return colBlogInfo;
         }
+        #endregion
 
+        #region public async Task<Post> GetPostAsync(string postid, string username, string password)
         public async Task<Post> GetPostAsync(string postid, string username, string password)
         {
-            throw new NotImplementedException();
-        }
+            Post objPost = new Post();
+
+            if (await IsValidMetaWeblogUserAsync(username, password))
+            {
+                var Blogger = await _BlazorBlogsContext.AspNetUsers
+                    .Where(x => x.UserName == username)
+                    .FirstOrDefaultAsync();
+
+                var BlogPost = await _BlazorBlogsContext.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogUserName == username)
+                    .Where(x => x.BlogId.ToString() == postid)
+                    .OrderBy(x => x.BlogDate).FirstOrDefaultAsync();
+
+                objPost.title = BlogPost.BlogTitle;
+
+                objPost.categories = _BlazorBlogsContext.Categorys
+                    .Where(x => BlogPost.BlogCategory
+                    .Select(x => x.CategoryId)
+                    .Contains(x.CategoryId))
+                    .Select(c => c.Title.ToString()).ToArray();
+
+                objPost.postid = BlogPost.BlogId;
+                objPost.dateCreated = BlogPost.BlogDate;
+                objPost.userid = Blogger.Id;
+                objPost.description = BlogPost.BlogSummary;
+                objPost.wp_slug = BlogPost.BlogSummary;
+                objPost.link = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
+                objPost.permalink = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
+                objPost.mt_excerpt = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
+            }
+            else
+            {
+                throw new Exception("Bad user name or password");
+            }
+
+            return objPost;
+        } 
+        #endregion
 
         #region public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
         public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
@@ -74,9 +114,9 @@ namespace BlazorBlogs
 
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
-                var Blogger = _BlazorBlogsContext.AspNetUsers
+                var Blogger = await _BlazorBlogsContext.AspNetUsers
                     .Where(x => x.UserName == username)
-                    .FirstOrDefault();
+                    .FirstOrDefaultAsync();
 
                 var BlogPosts = await _BlazorBlogsContext.Blogs
                     .Include(x => x.BlogCategory)
@@ -113,7 +153,7 @@ namespace BlazorBlogs
             }
 
             return Posts.ToArray();
-        } 
+        }
         #endregion
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
