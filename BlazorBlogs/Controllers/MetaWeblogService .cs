@@ -118,7 +118,7 @@ namespace BlazorBlogs
                 objPost.wp_slug = BlogPost.BlogSummary;
                 objPost.link = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
                 objPost.permalink = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
-                objPost.mt_excerpt = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
+                objPost.mt_excerpt = BlogPost.BlogSummary;
             }
             else
             {
