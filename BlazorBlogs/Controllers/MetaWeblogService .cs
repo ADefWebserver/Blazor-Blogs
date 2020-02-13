@@ -31,19 +31,32 @@ namespace BlazorBlogs
             _userManager = userManager;
         }
 
+        #region public async Task<UserInfo> GetUserInfoAsync(string key, string username, string password)
         public async Task<UserInfo> GetUserInfoAsync(string key, string username, string password)
         {
+            UserInfo objUserInfo = new UserInfo();
+
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                var Blogger = await _BlazorBlogsContext.AspNetUsers
+                    .Where(x => x.UserName == username)
+                    .FirstOrDefaultAsync();
 
+                objUserInfo.userid = Blogger.Id;
+                objUserInfo.email = Blogger.Email;                              
+                objUserInfo.lastname = Blogger.DisplayName;
+                objUserInfo.nickname = Blogger.DisplayName;
+                objUserInfo.firstname = "";
+                objUserInfo.url = GetBaseUrl();                
             }
             else
             {
                 throw new Exception("Bad user name or password");
             }
 
-            throw new Exception("Bad user name or password");
-        }
+            return objUserInfo;
+        } 
+        #endregion
 
         #region public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
         public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
