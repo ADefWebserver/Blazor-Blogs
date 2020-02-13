@@ -220,19 +220,36 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
+        #region public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         {
+            List<CategoryInfo> colCategoryInfo = new List<CategoryInfo>();
+
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                var Categorys = await _BlazorBlogsContext.Categorys.ToListAsync();
 
+                foreach (var item in Categorys)
+                {
+                    CategoryInfo objCategoryInfo = new CategoryInfo();
+
+                    objCategoryInfo.categoryid = item.CategoryId.ToString();
+                    objCategoryInfo.description = item.Description;
+                    objCategoryInfo.title = item.Title;
+                    objCategoryInfo.htmlUrl = GetBaseUrl();
+                    objCategoryInfo.rssUrl = GetBaseUrl();
+
+                    colCategoryInfo.Add(objCategoryInfo);
+                }
             }
             else
             {
                 throw new Exception("Bad user name or password");
             }
 
-            throw new Exception("Bad user name or password");
-        }
+            return colCategoryInfo.ToArray();
+        } 
+        #endregion
 
         public async Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject)
         {
