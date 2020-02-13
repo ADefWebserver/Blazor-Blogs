@@ -1,17 +1,19 @@
-﻿using BlazorBlogs.Data;
-using BlazorBlogs.Data.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BlazorBlogs.Data;
+using BlazorBlogs.Data.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using WilderMinds.MetaWeblog;
 
 namespace BlazorBlogs
 {
     public class MetaWeblogService : IMetaWeblogProvider
     {
+        string ADMINISTRATION_ROLE = "Administrators";
         private IHttpContextAccessor _httpContextAccessor;
         private readonly BlazorBlogsContext _BlazorBlogsContext;
         private readonly GeneralSettingsService _GeneralSettingsService;
@@ -41,14 +43,14 @@ namespace BlazorBlogs
 
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
-                var Bloggers = _BlazorBlogsContext.AspNetUsers
+                var Blogger = _BlazorBlogsContext.AspNetUsers
                     .Where(x => x.UserName == username)
                     .FirstOrDefault();
 
-                if (Bloggers != null)
-                {                    
-                    colBlogInfo[0].blogid = Bloggers.Id;
-                    colBlogInfo[0].blogName= Bloggers.DisplayName;
+                if (Blogger != null)
+                {
+                    colBlogInfo[0].blogid = Blogger.Id;
+                    colBlogInfo[0].blogName = Blogger.DisplayName;
                     colBlogInfo[0].url = GetBaseUrl();
                 }
             }
@@ -65,21 +67,42 @@ namespace BlazorBlogs
             throw new NotImplementedException();
         }
 
+        #region public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
         public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
         {
             List<Post> Posts = new List<Post>();
 
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
-                var BlogPosts = _BlazorBlogsContext.Blogs
+                var Blogger = _BlazorBlogsContext.AspNetUsers
+                    .Where(x => x.UserName == username)
+                    .FirstOrDefault();
+
+                var BlogPosts = await _BlazorBlogsContext.Blogs
+                    .Include(x => x.BlogCategory)
                     .Where(x => x.BlogUserName == username)
                     .Take(numberOfPosts)
-                    .OrderByDescending(x => x.BlogDate).ToList();
+                    .OrderBy(x => x.BlogDate).ToListAsync();
 
                 foreach (var item in BlogPosts)
                 {
                     Post objPost = new Post();
                     objPost.title = item.BlogTitle;
+
+                    objPost.categories = _BlazorBlogsContext.Categorys
+                        .Where(x => item.BlogCategory
+                        .Select(x => x.CategoryId)
+                        .Contains(x.CategoryId))
+                        .Select(c => c.Title.ToString()).ToArray();
+
+                    objPost.postid = item.BlogId;
+                    objPost.dateCreated = item.BlogDate;
+                    objPost.userid = Blogger.Id;
+                    objPost.description = item.BlogSummary;
+                    objPost.wp_slug = item.BlogSummary;
+                    objPost.link = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
+                    objPost.permalink = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
+                    objPost.mt_excerpt = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
 
                     Posts.Add(objPost);
                 }
@@ -90,7 +113,8 @@ namespace BlazorBlogs
             }
 
             return Posts.ToArray();
-        }
+        } 
+        #endregion
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
@@ -187,8 +211,18 @@ namespace BlazorBlogs
         #region private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
         private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
         {
+            // Get user
             var objApplicationUser = await _userManager.FindByEmailAsync(username);
-            return await _userManager.CheckPasswordAsync(objApplicationUser, password);
+
+            // MUst be an Administrator
+            if (await _userManager.IsInRoleAsync(objApplicationUser, ADMINISTRATION_ROLE))
+            {
+                return await _userManager.CheckPasswordAsync(objApplicationUser, password);
+            }
+            else
+            {
+                return false;
+            }
         }
         #endregion
 
@@ -202,7 +236,7 @@ namespace BlazorBlogs
             var pathBase = request.PathBase.ToUriComponent();
 
             return $"{request.Scheme}://{host}{pathBase}";
-        } 
+        }
         #endregion
     }
 }
