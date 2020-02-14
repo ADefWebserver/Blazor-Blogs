@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +17,20 @@ namespace BlazorBlogs
     public class MetaWeblogService : IMetaWeblogProvider
     {
         string ADMINISTRATION_ROLE = "Administrators";
+        private readonly IWebHostEnvironment _environment;
         private IHttpContextAccessor _httpContextAccessor;
         private readonly BlazorBlogsContext _BlazorBlogsContext;
         private readonly GeneralSettingsService _GeneralSettingsService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public MetaWeblogService(
+            IWebHostEnvironment environment,
             IHttpContextAccessor httpContextAccessor,
             BlazorBlogsContext blazorBlogsContext,
             GeneralSettingsService generalSettingsService,
             UserManager<ApplicationUser> userManager)
         {
+            _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _BlazorBlogsContext = blazorBlogsContext;
             _GeneralSettingsService = generalSettingsService;
@@ -43,11 +49,11 @@ namespace BlazorBlogs
                     .FirstOrDefaultAsync();
 
                 objUserInfo.userid = Blogger.Id;
-                objUserInfo.email = Blogger.Email;                              
+                objUserInfo.email = Blogger.Email;
                 objUserInfo.lastname = Blogger.DisplayName;
                 objUserInfo.nickname = Blogger.DisplayName;
                 objUserInfo.firstname = "";
-                objUserInfo.url = GetBaseUrl();                
+                objUserInfo.url = GetBaseUrl();
             }
             else
             {
@@ -55,7 +61,7 @@ namespace BlazorBlogs
             }
 
             return objUserInfo;
-        } 
+        }
         #endregion
 
         #region public async Task<BlogInfo[]> GetUsersBlogsAsync(string key, string username, string password)
@@ -126,7 +132,7 @@ namespace BlazorBlogs
             }
 
             return objPost;
-        } 
+        }
         #endregion
 
         #region public async Task<Post[]> GetRecentPostsAsync(string blogid, string username, string password, int numberOfPosts)
@@ -248,21 +254,50 @@ namespace BlazorBlogs
             }
 
             return colCategoryInfo.ToArray();
-        } 
+        }
         #endregion
 
         public async Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject)
         {
+            MediaObjectInfo mediaInfo = new MediaObjectInfo();
+
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                string fileName = Path.GetFileName(mediaObject.name);
 
+                string PathOnly = Path.Combine(
+                    _environment.WebRootPath,
+                    "blogs",
+                    $"{blogid}",
+                    Path.GetDirectoryName(mediaObject.name));
+                
+                if (!Directory.Exists(PathOnly))
+                {
+                    Directory.CreateDirectory(PathOnly);
+                }
+
+                string FilePath = Path.Combine(PathOnly, fileName);
+
+                var fileBytes = Convert.FromBase64String(mediaObject.bits);
+
+                if (fileBytes != null)
+                {
+                    using (MemoryStream ms = new MemoryStream(fileBytes))
+                    {
+                        Bitmap bitmap = new Bitmap(ms);
+
+                        bitmap.Save(FilePath); 
+                    }
+                }
+                
+                mediaInfo.url = $@"{GetBaseUrl()}/blogs/{blogid}/{Path.GetDirectoryName(mediaObject.name).Replace("\\",@"/")}/{fileName}";                
             }
             else
             {
                 throw new Exception("Bad user name or password");
             }
 
-            throw new Exception("Bad user name or password");
+            return mediaInfo;
         }
 
         public async Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category)
