@@ -216,14 +216,52 @@ namespace BlazorBlogs
         {
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                var ExistingBlogs = await
+                                    _BlazorBlogsContext.Blogs
+                                    .Include(x => x.BlogCategory)
+                                    .Where(x => x.BlogId == Convert.ToInt32(postid))
+                                    .FirstOrDefaultAsync();
 
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
+                if (ExistingBlogs != null)
+                {
+                    try
+                    {
+                        if (post.dateCreated > Convert.ToDateTime("1/1/1900"))
+                        {
+                            ExistingBlogs.BlogDate =
+                                post.dateCreated;
+                        }
+
+                        ExistingBlogs.BlogTitle =
+                            post.title;
+
+                        ExistingBlogs.BlogContent =
+                            post.description;
+
+                        if (post.categories == null)
+                        {
+                            ExistingBlogs.BlogCategory = null;
+                        }
+                        else
+                        {
+                            //ExistingBlogs.BlogCategory =
+                            //    GetSelectedBlogCategories(objBlogs, BlogCategories);
+                        }
+
+                        _BlazorBlogsContext.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.GetBaseException().Message);
+                    }
+                }
+                else
+                {
+                    throw new Exception("Bad user name or password");
+                }
             }
 
-            throw new Exception("Bad user name or password");
+            return true;
         }
 
         #region public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
@@ -257,6 +295,7 @@ namespace BlazorBlogs
         }
         #endregion
 
+        #region public async Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject)
         public async Task<MediaObjectInfo> NewMediaObjectAsync(string blogid, string username, string password, MediaObject mediaObject)
         {
             MediaObjectInfo mediaInfo = new MediaObjectInfo();
@@ -270,7 +309,7 @@ namespace BlazorBlogs
                     "blogs",
                     $"{blogid}",
                     Path.GetDirectoryName(mediaObject.name));
-                
+
                 if (!Directory.Exists(PathOnly))
                 {
                     Directory.CreateDirectory(PathOnly);
@@ -286,11 +325,11 @@ namespace BlazorBlogs
                     {
                         Bitmap bitmap = new Bitmap(ms);
 
-                        bitmap.Save(FilePath); 
+                        bitmap.Save(FilePath);
                     }
                 }
-                
-                mediaInfo.url = $@"{GetBaseUrl()}/blogs/{blogid}/{Path.GetDirectoryName(mediaObject.name).Replace("\\",@"/")}/{fileName}";                
+
+                mediaInfo.url = $@"{GetBaseUrl()}/blogs/{blogid}/{Path.GetDirectoryName(mediaObject.name).Replace("\\", @"/")}/{fileName}";
             }
             else
             {
@@ -299,7 +338,9 @@ namespace BlazorBlogs
 
             return mediaInfo;
         }
+        #endregion
 
+        #region ** Not Implemented **
         public async Task<int> AddCategoryAsync(string key, string username, string password, NewCategory category)
         {
             if (await IsValidMetaWeblogUserAsync(username, password))
@@ -481,6 +522,7 @@ namespace BlazorBlogs
 
             throw new Exception("Bad user name or password");
         }
+        #endregion
 
         // Utility
 
