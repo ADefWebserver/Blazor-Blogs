@@ -79,7 +79,7 @@ namespace BlazorBlogs
                 if (Blogger != null)
                 {
                     colBlogInfo[0].blogid = Blogger.Id;
-                    colBlogInfo[0].blogName = Blogger.DisplayName;
+                    colBlogInfo[0].blogName = Blogger.DisplayName ?? "";
                     colBlogInfo[0].url = GetBaseUrl();
                 }
             }
