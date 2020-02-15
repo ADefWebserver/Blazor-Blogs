@@ -36,7 +36,7 @@ namespace BlazorBlogs.Data
 
                 objBlogsPaged.Blogs = await _context.Blogs
                     .Include(x => x.BlogCategory)
-                    .OrderBy(x => x.BlogDate)
+                    .OrderByDescending(x => x.BlogDate)
                     .Skip(page * 5)
                     .Take(5).ToListAsync();
             }
@@ -50,7 +50,7 @@ namespace BlazorBlogs.Data
                 objBlogsPaged.Blogs = await _context.Blogs
                     .Include(x => x.BlogCategory)
                     .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
-                    .OrderBy(x => x.BlogDate)
+                    .OrderByDescending(x => x.BlogDate)
                     .Skip(page * 5)
                     .Take(5).ToListAsync();
             }
@@ -118,7 +118,7 @@ namespace BlazorBlogs.Data
             objBlogsPaged.Blogs = await _context.Blogs
                 .Include(x => x.BlogCategory)
                 .Where(x => x.BlogUserName == strUserName)
-                .OrderBy(x => x.BlogDate)
+                .OrderByDescending(x => x.BlogDate)
                 .Skip(page * 5)
                 .Take(5).ToListAsync();
 
