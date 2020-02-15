@@ -1,11 +1,9 @@
-﻿using BlazorBlogs.Data.Models;
+﻿using System;
+using BlazorBlogs.Data.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using System.Net.Http;
-using System;
 using Microsoft.AspNetCore.Hosting;
 
 namespace BlazorBlogs.Data
@@ -74,8 +72,7 @@ namespace BlazorBlogs.Data
                                          BlogSummary = blog.BlogSummary,
                                          BlogContent = blog.BlogContent,
                                          BlogDisplayName = "",
-                                     }).AsNoTracking()
-                .FirstOrDefaultAsync();
+                                     }).AsNoTracking().FirstOrDefaultAsync();
 
             // Add Blog Categories
             objBlog.BlogCategory = new List<BlogCategory>();
