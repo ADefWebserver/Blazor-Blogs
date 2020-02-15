@@ -36,7 +36,7 @@ namespace BlazorBlogs.Controllers
         {
 
            var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-           var feed = new SyndicationFeed("Title", "Description", new Uri(GetBaseUrl()), "RSSUrl", DateTime.Now);
+           var feed = new SyndicationFeed(objGeneralSettings.ApplicationName, objGeneralSettings.ApplicationName, new Uri(GetBaseUrl()), "RSSUrl", DateTime.Now);
 
             feed.Copyright = new TextSyndicationContent($"{DateTime.Now.Year} {objGeneralSettings.ApplicationName}");
             var items = new List<SyndicationItem>();
