@@ -150,7 +150,7 @@ namespace BlazorBlogs
                     .Include(x => x.BlogCategory)
                     .Where(x => x.BlogUserName == username)
                     .Take(numberOfPosts)
-                    .OrderBy(x => x.BlogDate).ToListAsync();
+                    .OrderByDescending(x => x.BlogDate).ToListAsync();
 
                 foreach (var item in BlogPosts)
                 {
@@ -184,6 +184,7 @@ namespace BlazorBlogs
         }
         #endregion
 
+        #region public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
             string BlogPostID = "";
@@ -248,8 +249,10 @@ namespace BlazorBlogs
             }
 
             return BlogPostID;
-        }
+        } 
+        #endregion
 
+        #region public async Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish)
         public async Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish)
         {
             if (await IsValidMetaWeblogUserAsync(username, password))
@@ -275,7 +278,8 @@ namespace BlazorBlogs
             }
 
             return true;
-        }
+        } 
+        #endregion
 
         #region public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
         public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
