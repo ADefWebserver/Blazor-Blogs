@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
+using Z.EntityFramework.Plus;
 
 namespace BlazorBlogs.Data
 {
@@ -529,6 +530,23 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public async Task<bool> DelteLogsAsync(string UserName)
+        public async Task<bool> DelteLogsAsync(string UserName)
+        {
+            await _context.Logs.AsNoTracking().DeleteAsync();
+
+            Logs objLog = new Logs();
+            objLog.LogDate = DateTime.Now;
+            objLog.LogAction = "Logs cleared";
+            objLog.LogUserName = UserName;
+            objLog.LogIpaddress = "127.0.0.1";
+
+            _context.Logs.Add(objLog);
+            _context.SaveChanges();
+            return true;
+        }
+        #endregion
+
         // Users
 
         #region public async Task<ApplicationUserPaged> GetUsersAsync(string paramSearch, int page)
@@ -541,20 +559,20 @@ namespace BlazorBlogs.Data
             objApplicationUserPaged.ApplicationUserCount = await _context.AspNetUsers
                  // Use AsNoTracking to disable EF change tracking
                  .AsNoTracking()
-                .Where(x => x.UserName.ToLower().Contains(paramSearch)
-                || x.Email.ToLower().Contains(paramSearch)
-                || x.DisplayName.ToLower().Contains(paramSearch))
-                .CountAsync();
+                 .Where(x => x.UserName.ToLower().Contains(paramSearch)
+                 || x.Email.ToLower().Contains(paramSearch)
+                 || x.DisplayName.ToLower().Contains(paramSearch))
+                 .CountAsync();
 
             var users = await _context.AspNetUsers
                  // Use AsNoTracking to disable EF change tracking
                  .AsNoTracking()
-                .Where(x => x.UserName.ToLower().Contains(paramSearch)
-                || x.Email.ToLower().Contains(paramSearch)
-                || x.DisplayName.ToLower().Contains(paramSearch))
-                .OrderByDescending(x => x.Id)
-                .Skip(page * 5)
-                .Take(5).ToListAsync();
+                 .Where(x => x.UserName.ToLower().Contains(paramSearch)
+                 || x.Email.ToLower().Contains(paramSearch)
+                 || x.DisplayName.ToLower().Contains(paramSearch))
+                 .OrderByDescending(x => x.Id)
+                 .Skip(page * 5)
+                 .Take(5).ToListAsync();
 
             foreach (var item in users)
             {
