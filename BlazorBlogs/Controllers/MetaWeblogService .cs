@@ -120,7 +120,7 @@ namespace BlazorBlogs
                 objPost.postid = BlogPost.BlogId;
                 objPost.dateCreated = BlogPost.BlogDate;
                 objPost.userid = Blogger.Id;
-                objPost.description = BlogPost.BlogSummary;
+                objPost.description = BlogPost.BlogContent;
                 objPost.wp_slug = BlogPost.BlogSummary;
                 objPost.link = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
                 objPost.permalink = $"{GetBaseUrl()}/ViewBlogPost/{BlogPost.BlogId}";
@@ -166,11 +166,11 @@ namespace BlazorBlogs
                     objPost.postid = item.BlogId;
                     objPost.dateCreated = item.BlogDate;
                     objPost.userid = Blogger.Id;
-                    objPost.description = item.BlogSummary;
+                    objPost.description = item.BlogContent;
                     objPost.wp_slug = item.BlogSummary;
                     objPost.link = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
                     objPost.permalink = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
-                    objPost.mt_excerpt = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
+                    objPost.mt_excerpt = item.BlogSummary;
 
                     Posts.Add(objPost);
                 }
@@ -237,6 +237,18 @@ namespace BlazorBlogs
 
                         ExistingBlogs.BlogContent =
                             post.description;
+
+                        if (post.description != null)
+                        {
+                            string strSummary = ConvertToText(post.description);
+                            int intSummaryLength = strSummary.Length;
+                            if (intSummaryLength > 500)
+                            {
+                                intSummaryLength = 500;
+                            }
+
+                            ExistingBlogs.BlogSummary = strSummary.Substring(0, intSummaryLength);
+                        }
 
                         if (post.categories == null)
                         {
@@ -554,6 +566,46 @@ namespace BlazorBlogs
             var pathBase = request.PathBase.ToUriComponent();
 
             return $"{request.Scheme}://{host}{pathBase}";
+        }
+        #endregion
+
+        #region ConvertToText
+        public static string ConvertToText(string sHTML)
+        {
+            string sContent = sHTML;
+            sContent = sContent.Replace("<br />", Environment.NewLine);
+            sContent = sContent.Replace("<br>", Environment.NewLine);
+            sContent = FormatText(sContent, true);
+            return StripTags(sContent, true);
+        }
+        #endregion
+
+        #region FormatText
+        public static string FormatText(string HTML, bool RetainSpace)
+        {
+            //Match all variants of <br> tag (<br>, <BR>, <br/>, including embedded space
+            string brMatch = "\\s*<\\s*[bB][rR]\\s*/\\s*>\\s*";
+            //Replace Tags by replacement String and return mofified string
+            return System.Text.RegularExpressions.Regex.Replace(HTML, brMatch, Environment.NewLine);
+        }
+        #endregion
+
+        #region StripTags
+        public static string StripTags(string HTML, bool RetainSpace)
+        {
+            //Set up Replacement String
+            string RepString;
+            if (RetainSpace)
+            {
+                RepString = " ";
+            }
+            else
+            {
+                RepString = "";
+            }
+
+            //Replace Tags by replacement String and return mofified string
+            return System.Text.RegularExpressions.Regex.Replace(HTML, "<[^>]*>", RepString);
         }
         #endregion
     }
