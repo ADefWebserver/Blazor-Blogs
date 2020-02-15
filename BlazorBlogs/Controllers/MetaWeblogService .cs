@@ -186,32 +186,98 @@ namespace BlazorBlogs
 
         public async Task<string> AddPostAsync(string blogid, string username, string password, Post post, bool publish)
         {
+            string BlogPostID = "";
+
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                try
+                {
+                    Blogs objBlogs = new Blogs();
 
+                    objBlogs.BlogId = 0;
+                    objBlogs.BlogUserName = username;
+
+                    if (post.dateCreated > Convert.ToDateTime("1/1/1900"))
+                    {
+                        objBlogs.BlogDate =
+                            post.dateCreated;
+                    }
+                    else
+                    {
+                        objBlogs.BlogDate = DateTime.Now;
+                    }
+
+                    objBlogs.BlogTitle =
+                        post.title;
+
+                    objBlogs.BlogContent =
+                        post.description;
+
+                    if (post.description != null)
+                    {
+                        string strSummary = ConvertToText(post.description);
+                        int intSummaryLength = strSummary.Length;
+                        if (intSummaryLength > 500)
+                        {
+                            intSummaryLength = 500;
+                        }
+
+                        objBlogs.BlogSummary = strSummary.Substring(0, intSummaryLength);
+                    }
+
+                    _BlazorBlogsContext.Add(objBlogs);
+                    _BlazorBlogsContext.SaveChanges();
+                    BlogPostID = objBlogs.BlogId.ToString();
+
+                    if (post.categories != null)
+                    {
+                        objBlogs.BlogCategory =
+                            GetBlogCategories(objBlogs, post.categories);
+                    }
+
+                    _BlazorBlogsContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.GetBaseException().Message);
+                }
             }
             else
             {
                 throw new Exception("Bad user name or password");
             }
 
-            throw new Exception("Bad user name or password");
+            return BlogPostID;
         }
 
         public async Task<bool> DeletePostAsync(string key, string postid, string username, string password, bool publish)
         {
             if (await IsValidMetaWeblogUserAsync(username, password))
             {
+                var ExistingBlogs =
+                    _BlazorBlogsContext.Blogs
+                    .Where(x => x.BlogId == Convert.ToInt32(postid))
+                    .FirstOrDefault();
 
+                if (ExistingBlogs != null)
+                {
+                    _BlazorBlogsContext.Blogs.Remove(ExistingBlogs);
+                    _BlazorBlogsContext.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Blog not found");
+                }
             }
             else
             {
                 throw new Exception("Bad user name or password");
             }
 
-            throw new Exception("Bad user name or password");
+            return true;
         }
 
+        #region public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
         public async Task<bool> EditPostAsync(string postid, string username, string password, Post post, bool publish)
         {
             if (await IsValidMetaWeblogUserAsync(username, password))
@@ -256,8 +322,8 @@ namespace BlazorBlogs
                         }
                         else
                         {
-                            //ExistingBlogs.BlogCategory =
-                            //    GetSelectedBlogCategories(objBlogs, BlogCategories);
+                            ExistingBlogs.BlogCategory =
+                                GetBlogCategories(ExistingBlogs, post.categories);
                         }
 
                         _BlazorBlogsContext.SaveChanges();
@@ -274,7 +340,8 @@ namespace BlazorBlogs
             }
 
             return true;
-        }
+        } 
+        #endregion
 
         #region public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
         public async Task<CategoryInfo[]> GetCategoriesAsync(string blogid, string username, string password)
@@ -566,6 +633,32 @@ namespace BlazorBlogs
             var pathBase = request.PathBase.ToUriComponent();
 
             return $"{request.Scheme}://{host}{pathBase}";
+        }
+        #endregion
+
+        #region private List<BlogCategory> GetBlogCategories(BlogDTO objBlogs, IEnumerable<string> blogCatagories)
+        private List<BlogCategory> GetBlogCategories(Blogs objBlogs, IEnumerable<string> blogCatagories)
+        {
+            List<BlogCategory> colBlogCategory = new List<BlogCategory>();
+
+            foreach (var item in blogCatagories)
+            {
+                // Get the Category
+                var Category = _BlazorBlogsContext.Categorys
+                    .Where(x => x.Title == item)
+                    .AsNoTracking()
+                    .FirstOrDefault();
+
+                // Create a new BlogCategory
+                BlogCategory NewBlogCategory = new BlogCategory();
+                NewBlogCategory.BlogId = objBlogs.BlogId;
+                NewBlogCategory.CategoryId = Category.CategoryId;
+
+                // Add it to the list
+                colBlogCategory.Add(NewBlogCategory);
+            }
+
+            return colBlogCategory;
         }
         #endregion
 
