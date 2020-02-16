@@ -36,18 +36,22 @@ namespace BlazorBlogs.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+            [Display(Name = "Newsletter Subscriber")]
+            public bool NewsletterSubscriber { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var newsletterSubscriber = user.NewsletterSubscriber;
 
             Username = userName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                PhoneNumber = phoneNumber,
+                NewsletterSubscriber = newsletterSubscriber
             };
         }
 
@@ -87,6 +91,12 @@ namespace BlazorBlogs.Areas.Identity.Pages.Account.Manage
                     throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
                 }
             }
+
+            // Set NewsletterSubscriber
+            user.NewsletterSubscriber = Input.NewsletterSubscriber;
+
+            // Update the user
+            await _userManager.UpdateAsync(user);
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
