@@ -48,7 +48,7 @@ namespace BlazorBlogs.Controllers
                 string BlogURL = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
                 var postUrl = Url.Action("Article", "Blog", new { id = BlogURL }, HttpContext.Request.Scheme);
                 var title = item.BlogTitle;
-                var description = SyndicationContent.CreateHtmlContent(item.BlogSummary);
+                var description = SyndicationContent.CreateHtmlContent(item.BlogSummary.Replace("  ", " "));
                 items.Add(new SyndicationItem(title, description, new Uri(BlogURL), item.BlogId.ToString(), item.BlogDate));
             }
 
