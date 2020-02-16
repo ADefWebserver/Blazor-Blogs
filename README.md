@@ -1,7 +1,8 @@
 # Blazor-Blogs
 #### Simple blogging application written in Microsoft Server Side Blazor
 
-##### Live example site: https://blazorblogs.azurewebsites.net/
+## Live example site: https://blazorblogs.azurewebsites.net
+
 
 ![Screenshot](Animation.gif)
 
@@ -19,7 +20,8 @@
 
 * Supports unlimited Bloggers
 * Rich Text Editor with image uploads 
-* Disqus integration for Blog post comments
+* [Open Live Writer and Windows Live Writer support](https://blazorblogs.azurewebsites.net/ViewBlogPost/1005)
+* [Disqus integration for Blog post comments](https://blazorblogs.azurewebsites.net/ViewBlogPost/1004)
 * User Administration and role management
 * User Registration with Email Verification and Password Resets
 * File Download Page
