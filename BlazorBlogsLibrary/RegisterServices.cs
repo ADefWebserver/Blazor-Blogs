@@ -44,6 +44,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddMvc(options => options.EnableEndpointRouting = true);
+
             services.AddRazorPages();
             services.AddServerSideBlazor()
                 .AddCircuitOptions(options => { options.DetailedErrors = true; });

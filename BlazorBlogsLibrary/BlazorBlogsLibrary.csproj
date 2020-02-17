@@ -18,19 +18,18 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
-    <PackageReference Include="Radzen.Blazor" Version="2.1.11" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
+    <PackageReference Include="Radzen.Blazor" Version="2.1.23" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="4.7.0" />
     <PackageReference Include="Toolbelt.Blazor.HeadElement" Version="1.1.0.1" />
     <PackageReference Include="Toolbelt.Blazor.HeadElement.ServerPrerendering" Version="1.1.0.1" />
     <PackageReference Include="WilderMinds.MetaWeblog" Version="2.0.1" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.37" />
+    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.38" />
   </ItemGroup>
   
   <Target Name="CopyFiles" BeforeTargets="AfterBuild">
-    <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.dll"
-          DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
+    <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.dll" DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
   </Target>
 
 </Project>

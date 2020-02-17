@@ -32,10 +32,6 @@ namespace BlazorBlogs
                 BlazorBlogsAssembly
                 .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
 
-            // Add framework services.
-            services.AddMvc(options => options.EnableEndpointRouting = true)
-                .AddApplicationPart(BlazorBlogsAssembly);
-
             BlazorBlogsType.GetMethod("AddBlazorBlogsServices")
                 .Invoke(null, new object[] { services, Configuration });
         }
