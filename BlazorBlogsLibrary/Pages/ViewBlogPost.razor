@@ -141,7 +141,7 @@ else
         // Get the current user
         var CurrentUser = (await authenticationStateTask).User;
 
-        BlazorBlogs.Data.Models.Logs objLog = new Data.Models.Logs();
+        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
         objLog.LogDate = DateTime.Now;
         objLog.LogAction = strAction;
         objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";

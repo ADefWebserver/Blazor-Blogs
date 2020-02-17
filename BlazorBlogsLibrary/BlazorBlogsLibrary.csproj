@@ -1,11 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UserSecretsId>aspnet-BlazorBlogs-A4274235-47DB-4E99-B6E2-7037D91ED90A</UserSecretsId>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
     <PackageReference Include="Blazored.Toast" Version="2.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.1" />
@@ -26,13 +27,10 @@
     <PackageReference Include="WilderMinds.MetaWeblog" Version="2.0.1" />
     <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="3.0.37" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\BlazorBlogsLibrary\BlazorBlogsLibrary.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
+  
+  <Target Name="CopyFiles" BeforeTargets="AfterBuild">
+    <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.dll"
+          DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
+  </Target>
 
 </Project>
