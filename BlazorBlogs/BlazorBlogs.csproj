@@ -28,11 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazorBlogsLibrary\BlazorBlogsLibrary.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\BlazorBlogsLibrary\BlazorBlogsLibrary.csproj" />
   </ItemGroup>
 
 </Project>

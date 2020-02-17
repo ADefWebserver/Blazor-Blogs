@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+using System.Runtime.Loader;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +22,22 @@ namespace BlazorBlogs
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddBlazorBlogsServices(Configuration);
+            var path = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.dll");
+
+            var BlazorBlogsAssembly =
+                AssemblyLoadContext
+                .Default.LoadFromAssemblyPath(path);
+
+            Type BlazorBlogsType =
+                BlazorBlogsAssembly
+                .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
+
+            // Add framework services.
+            services.AddMvc(options => options.EnableEndpointRouting = true)
+                .AddApplicationPart(BlazorBlogsAssembly);
+
+            BlazorBlogsType.GetMethod("AddBlazorBlogsServices")
+                .Invoke(null, new object[] { services, Configuration });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -33,7 +51,9 @@ namespace BlazorBlogs
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days. 
+                // You may want to change this for production scenarios, 
+                // see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
