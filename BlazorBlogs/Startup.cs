@@ -13,9 +13,30 @@ namespace BlazorBlogs
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+
+            // Before we load the CustomClassLibrary.dll (and potentially lock it)
+            // Determine if we have files in the Upgrade directory and process it first
+            if (System.IO.File.Exists(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll"))
+            {
+                // Delete current 
+                System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.dll");
+                System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.Views.dll");
+
+                // Copy new 
+                System.IO.File.Copy(
+                    env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll",
+                    env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.dll");
+                System.IO.File.Copy(
+                    env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.Views.dll",
+                    env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.Views.dll");
+
+                // Delete Upgrade - so it wont be processed again
+                System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll");
+                System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.Views.dll");
+            }
         }
 
         public IConfiguration Configuration { get; }

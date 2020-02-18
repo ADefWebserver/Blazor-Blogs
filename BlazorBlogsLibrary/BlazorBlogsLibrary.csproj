@@ -31,7 +31,6 @@
   <Target Name="CopyFiles" BeforeTargets="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.dll" DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
     <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.Views.dll" DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
-    <Copy SourceFiles="$(ProjectDir)\bin\Debug\netcoreapp3.1\BlazorBlogsLibrary.StaticWebAssets.xml" DestinationFolder="$(ProjectDir)\..\BlazorBlogs\CustomModules" />
   </Target>
 
 </Project>
