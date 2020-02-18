@@ -1,21 +1,16 @@
-﻿using BlazorBlogs;
+﻿using System;
+using System.Net.Http;
+using BlazorBlogs;
 using BlazorBlogs.Areas.Identity;
 using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
 using Blazored.Toast;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Net.Http;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 using WilderMinds.MetaWeblog;
 
