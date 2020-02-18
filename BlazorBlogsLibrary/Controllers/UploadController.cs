@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -119,6 +120,41 @@ namespace BlazorBlogs
 
                         BlogsService objBlogsService = new BlogsService(blogsContext, environment);
                         await objBlogsService.CreateFilesAsync(objFilesDTO);
+                    }
+                }
+                return StatusCode(200);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> UpgradeAsync(
+            IFormFile file, string FileTitle)
+        {
+            try
+            {
+                if (HttpContext.Request.Form.Files.Any())
+                {
+                    // Only accept .zip files
+                    if (file.ContentType == "application/x-zip-compressed")
+                    {
+                        string path =
+                            Path.Combine(
+                                environment.ContentRootPath,
+                                "Uploads",
+                                "BlazorBlogsUpgrade.zip");
+
+                        using (var stream =
+                            new FileStream(path, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        // Unzip files to ProcessDirectory
+                        ZipFile.ExtractToDirectory(path, "Upgrade");                        
                     }
                 }
                 return StatusCode(200);

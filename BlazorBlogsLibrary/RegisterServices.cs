@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Net.Http;
 using Toolbelt.Blazor.Extensions.DependencyInjection;
 using WilderMinds.MetaWeblog;
 
@@ -60,6 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddMetaWeblog<BlazorBlogs.MetaWeblogService>();
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
+            services.AddScoped<HttpClient>();
             services.AddBlazoredToast();
             services.AddHeadElementHelper();
 

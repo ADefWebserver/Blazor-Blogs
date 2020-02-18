@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using System.Net.Http
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -12,6 +13,8 @@
 @inject GeneralSettingsService _GeneralSettingsService
 @inject IHttpContextAccessor httpContextAccessor
 @inject DisqusState DisqusState
+@inject HttpClient Http
+@inject NavigationManager UriHelper
 @inherits OwningComponentBase
 
 <h1>Settings</h1>
@@ -24,6 +27,15 @@
         {
             <table class="table">
                 <tbody>
+                    <tr>
+                        <td>Upgrade Application</td>
+                        <td>
+                            <RadzenUpload ChooseText="Upload Upgrade Package" Multiple="false"
+                                          Accept="application/x-zip-compressed"
+                                          Url=@($"/api/upload/upgrade?FileTitle=BlazorBlogsUpgrade.zip")
+                                          Progress="@((args) => OnProgress(args))" />
+                        </td>
+                    </tr>
                     <tr>
                         <td>Application Name</td>
                         <td>
@@ -208,6 +220,25 @@
                          ImageSelected="InsertImage" />
             <FileManager @ref="FileManagerApplicationHeaderControl"
                          ImageSelected="InsertApplicationHeaderImage" />
+
+            @if (ShowProgressBarPopup)
+            {
+                <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Upload Status</h4>
+                            </div>
+                            <div align="center">
+                                <RadzenProgressBar Value="@progress"
+                                                   Unit="@info"
+                                                   Visible="@(progress > 0)"
+                                                   Style="margin-bottom: 20px" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
     </Authorized>
     <!-- Show this section if the user is not logged in -->
@@ -227,6 +258,10 @@
     GeneralSettings objGeneralSettings = new GeneralSettings();
     private FileManager FileManagerControl;
     private FileManager FileManagerApplicationHeaderControl;
+
+    private bool ShowProgressBarPopup = false;
+    private int progress;
+    private string info;
 
     BlazoredTextEditor QuillHtml;
     bool RichTextEditorMode = true;
@@ -381,6 +416,26 @@
         var UpdateSMTPAuthendicationResult = _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
 
         objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+    }
+
+    // Upload File
+
+    private async Task OnProgress(UploadProgressArgs args)
+    {
+        ShowProgressBarPopup = true;
+        this.info = $"{args.Loaded} of {args.Total} bytes.";
+        this.progress = args.Progress;
+
+        StateHasChanged();
+
+        if (args.Loaded == args.Total)
+        {
+            ShowProgressBarPopup = false;
+
+            // Restart Site
+            var url = UriHelper.ToAbsoluteUri("/api/RestartApp/ShutdownSite");
+            await Http.GetAsync(url.ToString());
+        }
     }
 
     public async Task SendTestEmail()
