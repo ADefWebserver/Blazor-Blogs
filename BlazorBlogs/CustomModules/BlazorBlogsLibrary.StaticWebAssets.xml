@@ -1,0 +1,7 @@
+﻿<StaticWebAssets Version="1.0">
+  <ContentRoot BasePath="/Identity" Path="C:\Users\Michael\.nuget\packages\microsoft.aspnetcore.identity.ui\3.1.1\staticwebassets\V4" />
+  <ContentRoot BasePath="_content/Blazored.TextEditor" Path="C:\Users\Michael\.nuget\packages\blazored.texteditor\1.0.3\build\..\staticwebassets\" />
+  <ContentRoot BasePath="_content/Blazored.Toast" Path="C:\Users\Michael\.nuget\packages\blazored.toast\2.0.8\build\..\staticwebassets\" />
+  <ContentRoot BasePath="_content/Radzen.Blazor" Path="C:\Users\Michael\.nuget\packages\radzen.blazor\2.1.23\build\..\staticwebassets\" />
+  <ContentRoot BasePath="_content/Toolbelt.Blazor.HeadElement.Services" Path="C:\Users\Michael\.nuget\packages\toolbelt.blazor.headelement.services\1.1.0.1\build\..\staticwebassets\" />
+</StaticWebAssets>

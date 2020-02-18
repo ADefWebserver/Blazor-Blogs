@@ -29,10 +29,13 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="CustomModules\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazorBlogsLibrary\BlazorBlogsLibrary.csproj" />
+    <None Update="BlazorBlogsLibrary.StaticWebAssets.xml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

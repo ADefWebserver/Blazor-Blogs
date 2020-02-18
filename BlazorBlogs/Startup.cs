@@ -22,15 +22,25 @@ namespace BlazorBlogs
 
         public void ConfigureServices(IServiceCollection services)
         {
-            var path = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.dll");
+            var BlazorBlogsLibraryViewsPath = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.Views.dll");
+
+            var BlazorBlogsViewsAssembly =
+                AssemblyLoadContext
+                .Default.LoadFromAssemblyPath(BlazorBlogsLibraryViewsPath);
+
+            var BlazorBlogsLibraryPath = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.dll");
 
             var BlazorBlogsAssembly =
                 AssemblyLoadContext
-                .Default.LoadFromAssemblyPath(path);
+                .Default.LoadFromAssemblyPath(BlazorBlogsLibraryPath);
 
             Type BlazorBlogsType =
                 BlazorBlogsAssembly
                 .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
+
+            services.AddMvc(options => options.EnableEndpointRouting = false)
+                .AddApplicationPart(BlazorBlogsViewsAssembly)
+                .AddApplicationPart(BlazorBlogsAssembly);
 
             BlazorBlogsType.GetMethod("AddBlazorBlogsServices")
                 .Invoke(null, new object[] { services, Configuration });
