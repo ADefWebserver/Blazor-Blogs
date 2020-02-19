@@ -57,7 +57,7 @@ else
     BlogAdministration BlogAdministrationControl;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     bool UserIsAdminOfBlogPost = false;
-    string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"/ViewBlogPost/{BlogPostId}").AbsoluteUri;
+    string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
     protected override async Task OnInitializedAsync()
     {

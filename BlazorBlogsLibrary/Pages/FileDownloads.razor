@@ -73,7 +73,7 @@
                             </div>
                             <RadzenUpload ChooseText="Upload And Save" Multiple="false"
                                           Accept="application/x-zip-compressed"
-                                          Url=@($"/api/upload/single?FileTitle={SelectedFile.FileName}")
+                                          Url=@($"api/upload/single?FileTitle={SelectedFile.FileName}")
                                           Style="margin-bottom: 20px;height: 45px"
                                           Progress="@((args) => OnProgress(args))" />
                         </div>
@@ -318,7 +318,7 @@
         await _BlogsService.UpdateFilesAsync(paramFile);
 
         // Download file
-        NavigationManager.NavigateTo($"/api/File/DownloadFile?FileName={paramFile.FilePath}", true);
+        NavigationManager.NavigateTo($"api/File/DownloadFile?FileName={paramFile.FilePath}", true);
     }
 
     // Upload File

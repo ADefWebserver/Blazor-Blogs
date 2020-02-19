@@ -19,7 +19,7 @@
                     <div class="row">
                         <RadzenUpload ChooseText="Upload Files" Multiple="true"
                                       Accept="image/*"
-                                      Url=@($"/api/upload/multiple?CurrentDirectory={CurrentDirectory}")
+                                      Url=@($"api/upload/multiple?CurrentDirectory={CurrentDirectory}")
                                       Style="margin-bottom: 20px;height: 45px"
                                       Progress="@((args) => OnProgress(args))" />
 
