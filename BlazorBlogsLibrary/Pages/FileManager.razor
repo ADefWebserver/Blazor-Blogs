@@ -260,7 +260,8 @@
                     FileName =
                     Path.GetFileName(item),
                     FilePath =
-                    item.Replace(HostEnvironment.WebRootPath, ""),
+                    item.Replace(HostEnvironment.WebRootPath, "")
+                    .Replace("\\uploads", "uploads"),
                     Height = image.Height,
                     Width = image.Width,
                     ThumbnailHeight = Convert.ToInt32(thumbnailHeight),

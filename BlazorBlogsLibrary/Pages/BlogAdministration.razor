@@ -472,7 +472,14 @@
         objLog.LogDate = DateTime.Now;
         objLog.LogAction = strAction;
         objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
-        objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        try
+        {
+            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        }
+        catch
+        {
+            objLog.LogIpaddress = "127.0.0.1";
+        }
 
         var result = await @Service.CreateLogAsync(objLog);
     }

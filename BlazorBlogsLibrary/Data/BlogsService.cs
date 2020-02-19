@@ -396,7 +396,7 @@ namespace BlazorBlogs.Data
                                              CreateDate = Files.CreateDate,
                                              DownloadCount = Files.DownloadCount,
                                              FileName = Files.FileName,
-                                             FilePath = Files.FilePath,
+                                             FilePath = Files.FilePath.Replace("\\files","files"),
                                          }).AsNoTracking()
                                                  .OrderBy(x => x.FileName)
                                                  .Skip(page * 10)
