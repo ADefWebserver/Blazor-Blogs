@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -30,13 +32,18 @@ namespace BlazorBlogs
     {
         private readonly IWebHostEnvironment environment;
         private readonly BlazorBlogsContext blogsContext;
+        private readonly GeneralSettingsService generalSettingsService;
+
         public UploadController(IWebHostEnvironment environment, 
-            BlazorBlogsContext context)
+            BlazorBlogsContext context,
+            GeneralSettingsService generalSettingsService)
         {
             this.environment = environment;
             this.blogsContext = context;
+            this.generalSettingsService = generalSettingsService;
         }
 
+        #region public async Task<IActionResult> MultipleAsync(IFormFile[] files, string CurrentDirectory)    
         [HttpPost("[action]")]
         public async Task<IActionResult> MultipleAsync(
             IFormFile[] files, string CurrentDirectory)
@@ -83,8 +90,10 @@ namespace BlazorBlogs
             {
                 return StatusCode(500, ex.Message);
             }
-        }
+        } 
+        #endregion
 
+        #region public async Task<IActionResult> SingleAsync(IFormFile file, string FileTitle)
         [HttpPost("[action]")]
         public async Task<IActionResult> SingleAsync(
             IFormFile file, string FileTitle)
@@ -128,7 +137,8 @@ namespace BlazorBlogs
             {
                 return StatusCode(500, ex.Message);
             }
-        }
+        } 
+        #endregion
 
         [HttpPost("[action]")]
         public async Task<IActionResult> UpgradeAsync(
@@ -141,20 +151,73 @@ namespace BlazorBlogs
                     // Only accept .zip files
                     if (file.ContentType == "application/x-zip-compressed")
                     {
-                        string path =
+                        string UploadPath =
+                            Path.Combine(
+                                environment.ContentRootPath,
+                                "Uploads");
+
+                        string UploadPathAndFile =
                             Path.Combine(
                                 environment.ContentRootPath,
                                 "Uploads",
                                 "BlazorBlogsUpgrade.zip");
 
+                        string UpgradePath = Path.Combine(
+                            environment.ContentRootPath,
+                            "Upgrade");
+
+                        // Upload Upgrade package to Upload Folder
                         using (var stream =
-                            new FileStream(path, FileMode.Create))
+                            new FileStream(UploadPathAndFile, FileMode.Create))
                         {
                             await file.CopyToAsync(stream);
                         }
 
-                        // Unzip files to ProcessDirectory
-                        ZipFile.ExtractToDirectory(path, "Upgrade");                        
+                        DeleteFiles(UpgradePath);
+
+                        // Unzip files to Upgrade folder
+                        ZipFile.ExtractToDirectory(UploadPathAndFile, UpgradePath, true);
+
+                        // Process the manifest.json file
+
+                        // *** Check upgrade
+                        // Get current version
+                        Version objVersion = new Version();
+                        var GeneralSettings = await generalSettingsService.GetGeneralSettingsAsync();
+                        objVersion.VersionNumber = GeneralSettings.VersionNumber;
+
+                        // Examine the manifest file
+                        objVersion = ReadManifest(objVersion);
+
+                        try
+                        {
+                            if (objVersion.ManifestLowestVersion == "")
+                            {
+                                // Delete the files
+                                DeleteFiles(UpgradePath);
+                                return Ok("Error: could not find manifest");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Delete the files
+                            DeleteFiles(UpgradePath);
+                            return Ok(ex.ToString());
+                        }
+
+                        // Show error if needed and delete upgrade files 
+                        if
+                            (
+                            (ConvertToInteger(objVersion.VersionNumber) > ConvertToInteger(objVersion.ManifestHighestVersion)) ||
+                            (ConvertToInteger(objVersion.VersionNumber) < ConvertToInteger(objVersion.ManifestLowestVersion))
+                            )
+                        {
+                            // Delete the files
+                            DeleteFiles(UpgradePath);
+
+                            // Return the error response
+                            return Ok(objVersion.ManifestFailure);
+                        }
                     }
                 }
                 return StatusCode(200);
@@ -164,5 +227,67 @@ namespace BlazorBlogs
                 return StatusCode(500, ex.Message);
             }
         }
+
+
+        // Upgrade Code
+
+        #region private static void DeleteFiles(string FilePath)
+        private static void DeleteFiles(string FilePath)
+        {
+            // Delete everything in Upgrade folder
+            string[] UpgradePathFiles = Directory.GetFiles(FilePath);
+            foreach (string filePath in UpgradePathFiles)
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
+        #endregion
+
+        #region private Version ReadManifest(Version objVersion)
+        private Version ReadManifest(Version objVersion)
+        {
+            string strManifest;
+            string strFilePath = Path.Combine(environment.ContentRootPath, "Upgrade", @"\Manifest.json");
+
+            using (StreamReader reader = new StreamReader(strFilePath))
+            {
+                strManifest = reader.ReadToEnd();
+                reader.Close();
+            }
+
+            dynamic objManifest = JsonConvert.DeserializeObject(strManifest);
+
+            objVersion.ManifestHighestVersion = objManifest.ManifestHighestVersion;
+            objVersion.ManifestLowestVersion = objManifest.ManifestLowestVersion;
+            objVersion.ManifestSuccess = objManifest.ManifestSuccess;
+            objVersion.ManifestFailure = objManifest.ManifestFailure;
+
+            return objVersion;
+        }
+        #endregion
+
+        #region private int ConvertToInteger(string strParamVersion)
+        private int ConvertToInteger(string strParamVersion)
+        {
+            int intVersionNumber = 0;
+            string strVersion = strParamVersion;
+
+            // Split into parts seperated by periods
+            char[] splitchar = { '.' };
+            var strSegments = strVersion.Split(splitchar);
+
+            // Process the segments
+            int i = 0;
+            List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+            foreach (var strSegment in strSegments)
+            {
+                int intSegmentNumber = Convert.ToInt32(strSegment);
+                intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+                i++;
+            }
+
+            return intVersionNumber;
+        }
+        #endregion
     }
 }
