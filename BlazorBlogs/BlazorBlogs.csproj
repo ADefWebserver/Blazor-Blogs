@@ -29,12 +29,14 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="CustomModules\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="BlazorBlogsLibrary.StaticWebAssets.xml">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="CustomModules\Placeholder.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
