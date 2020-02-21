@@ -187,7 +187,7 @@ namespace BlazorBlogs
                         objVersion.VersionNumber = GeneralSettings.VersionNumber;
 
                         // Examine the manifest file
-                        objVersion = ReadManifest(objVersion);
+                        objVersion = ReadManifest(objVersion, UpgradePath);
 
                         try
                         {
@@ -200,8 +200,6 @@ namespace BlazorBlogs
                         }
                         catch (Exception ex)
                         {
-                            // Delete the files
-                            DeleteFiles(UpgradePath);
                             return Ok(ex.ToString());
                         }
 
@@ -243,11 +241,11 @@ namespace BlazorBlogs
         }
         #endregion
 
-        #region private Version ReadManifest(Version objVersion)
-        private Version ReadManifest(Version objVersion)
+        #region private Version ReadManifest(Version objVersion, string UpgradePath)
+        private Version ReadManifest(Version objVersion, string UpgradePath)
         {
             string strManifest;
-            string strFilePath = Path.Combine(environment.ContentRootPath, "Upgrade", @"\Manifest.json");
+            string strFilePath = Path.Combine(UpgradePath, "Manifest.json");
 
             using (StreamReader reader = new StreamReader(strFilePath))
             {

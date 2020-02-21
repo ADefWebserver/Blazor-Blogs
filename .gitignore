@@ -344,3 +344,8 @@ healthchecksdb
 /BlazorBlogs/Uploads/BlazorBlogsUpgrade.zip
 /BlazorBlogs/CustomModules/BlazorBlogsLibrary.dll
 /BlazorBlogs/CustomModules/BlazorBlogsLibrary.Views.dll
+/BlazorBlogs/Upgrade/SQLScripts/01.20.00.sql
+/BlazorBlogs/Upgrade/SQLScripts
+/BlazorBlogs/Upgrade/Upgrade
+/BlazorBlogs/Upgrade/wwwroot
+/BlazorBlogs/Upgrade/manifest.json
