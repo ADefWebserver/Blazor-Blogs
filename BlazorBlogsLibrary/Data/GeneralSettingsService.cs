@@ -39,7 +39,8 @@ namespace BlazorBlogs.Data
 
             objGeneralSettings.DisqusEnabled = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
             objGeneralSettings.DisqusShortName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusShortName").SettingValue);
-            
+
+            objGeneralSettings.VersionNumber = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "VersionNumber").SettingValue);
             return objGeneralSettings;
         }
         #endregion
@@ -221,6 +222,20 @@ namespace BlazorBlogs.Data
                          select Settings;
 
             resuts.FirstOrDefault().SettingValue = Convert.ToString(DisqusShortName);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateVersionNumber
+        public Task<bool> UpdateVersionNumberNameAsync(string VersionNumber)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "VersionNumber"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(VersionNumber);
             _context.SaveChanges();
 
             return Task.FromResult(true);

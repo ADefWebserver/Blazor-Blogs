@@ -20,5 +20,6 @@ namespace BlazorBlogs.Data.Models
         public string ApplicationHeader { get; set; }
         public string DisqusEnabled { get; set; }
         public string DisqusShortName { get; set; }
+        public string VersionNumber { get; set; }
     }
 }
