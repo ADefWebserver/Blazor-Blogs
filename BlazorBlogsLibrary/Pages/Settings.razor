@@ -30,7 +30,8 @@
                     <tr>
                         <td>Application Version: <b>@objGeneralSettings.VersionNumber</b></td>
                         <td>
-                            <RadzenUpload ChooseText="Upload Upgrade Package" Multiple="false"
+                            <RadzenUpload ChooseText="Upload Upgrade Package"
+                                          Multiple="false"
                                           Accept="application/x-zip-compressed"
                                           Url=@($"api/upload/upgrade?FileTitle=BlazorBlogsUpgrade.zip")
                                           Progress="@((args) => OnProgress(args))" />
@@ -227,13 +228,20 @@
                     <div class="modal-dialog modal-sm">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">Upload Status</h4>
+                                <h4 class="modal-title">Upgrade Status</h4>
                             </div>
                             <div align="center">
-                                <RadzenProgressBar Value="@progress"
-                                                   Unit="@info"
-                                                   Visible="@(progress > 0)"
-                                                   Style="margin-bottom: 20px" />
+                                @if (!Upgrading)
+                                {
+                                    <RadzenProgressBar Value="@progress"
+                                                       Unit="@info"
+                                                       Visible="@(progress > 0)"
+                                                       Style="margin-bottom: 20px" />
+                                }
+                                else
+                                {
+                                    <h4>Processing...</h4>
+                                }
                             </div>
                         </div>
                     </div>
@@ -259,6 +267,7 @@
     private FileManager FileManagerControl;
     private FileManager FileManagerApplicationHeaderControl;
 
+    private bool Upgrading = false;
     private bool ShowProgressBarPopup = false;
     private int progress;
     private string info;
@@ -420,7 +429,7 @@
 
     // Upload File
 
-    private async Task OnProgress(UploadProgressArgs args)
+    private void OnProgress(UploadProgressArgs args)
     {
         ShowProgressBarPopup = true;
         this.info = $"{args.Loaded} of {args.Total} bytes.";
@@ -430,11 +439,8 @@
 
         if (args.Loaded == args.Total)
         {
-            ShowProgressBarPopup = false;
-
-            // Restart Site
-            //var url = UriHelper.ToAbsoluteUri("api/RestartApp/ShutdownSite");
-            //await Http.GetAsync(url.ToString());
+            Upgrading = true;
+            StateHasChanged();
         }
     }
 

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -33,14 +34,17 @@ namespace BlazorBlogs
         private readonly IWebHostEnvironment environment;
         private readonly BlazorBlogsContext blogsContext;
         private readonly GeneralSettingsService generalSettingsService;
+        private IHostApplicationLifetime applicationLifetime;
 
         public UploadController(IWebHostEnvironment environment, 
             BlazorBlogsContext context,
-            GeneralSettingsService generalSettingsService)
+            GeneralSettingsService generalSettingsService,
+            IHostApplicationLifetime appLifetime)
         {
             this.environment = environment;
             this.blogsContext = context;
             this.generalSettingsService = generalSettingsService;
+            this.applicationLifetime = appLifetime;
         }
 
         #region public async Task<IActionResult> MultipleAsync(IFormFile[] files, string CurrentDirectory)    
@@ -178,15 +182,13 @@ namespace BlazorBlogs
                         // Unzip files to Upgrade folder
                         ZipFile.ExtractToDirectory(UploadPathAndFile, UpgradePath, true);
 
-                        // Process the manifest.json file
-
-                        // *** Check upgrade
-                        // Get current version
+                        #region Check upgrade - Get current version
                         Version objVersion = new Version();
                         var GeneralSettings = await generalSettingsService.GetGeneralSettingsAsync();
                         objVersion.VersionNumber = GeneralSettings.VersionNumber;
+                        #endregion
 
-                        // Examine the manifest file
+                        #region Examine the manifest file
                         objVersion = ReadManifest(objVersion, UpgradePath);
 
                         try
@@ -201,9 +203,10 @@ namespace BlazorBlogs
                         catch (Exception ex)
                         {
                             return Ok(ex.ToString());
-                        }
+                        } 
+                        #endregion
 
-                        // Show error if needed and delete upgrade files 
+                        #region Show error if needed and delete upgrade files 
                         if
                             (
                             (ConvertToInteger(objVersion.VersionNumber) > ConvertToInteger(objVersion.ManifestHighestVersion)) ||
@@ -216,14 +219,27 @@ namespace BlazorBlogs
                             // Return the error response
                             return Ok(objVersion.ManifestFailure);
                         }
+                        #endregion
+
+                        // Proceed with upgrade...
+
+                        DeleteFiles(UpgradePath);
+
+                        // Unzip files to final paths
+                        ZipFile.ExtractToDirectory(UploadPathAndFile, environment.ContentRootPath, true);
+
+                        // Stop site so that when it restarts the assemblies will be copied
+                        // from the Upgrade folder and the installer will run
+                        ShutdownSite();
                     }
                 }
-                return StatusCode(200);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
+
+            return Ok();
         }
 
 
@@ -293,6 +309,15 @@ namespace BlazorBlogs
 
             return intVersionNumber;
         }
+        #endregion
+
+        #region public void ShutdownSite()
+        public void ShutdownSite()
+        {
+            // In a real application only allow an Administrator
+            // to call this method
+            applicationLifetime.StopApplication();
+        } 
         #endregion
     }
 }
