@@ -231,12 +231,12 @@ namespace BlazorBlogs
 
         #region private static void DeleteFiles(string FilePath)
         private static void DeleteFiles(string FilePath)
-        {
-            // Delete everything in Upgrade folder
-            string[] UpgradePathFiles = Directory.GetFiles(FilePath);
-            foreach (string filePath in UpgradePathFiles)
+        {            
+            if (System.IO.Directory.Exists(FilePath))
             {
-                System.IO.File.Delete(filePath);
+                DirectoryInfo Directory = new DirectoryInfo(FilePath);
+                Directory.Delete(true);
+                Directory.Create();
             }
         }
         #endregion
@@ -246,6 +246,13 @@ namespace BlazorBlogs
         {
             string strManifest;
             string strFilePath = Path.Combine(UpgradePath, "Manifest.json");
+
+            if (!System.IO.File.Exists(strFilePath))
+            {
+                // Manifest not found
+                objVersion.ManifestLowestVersion = "";
+                return objVersion;
+            }
 
             using (StreamReader reader = new StreamReader(strFilePath))
             {
