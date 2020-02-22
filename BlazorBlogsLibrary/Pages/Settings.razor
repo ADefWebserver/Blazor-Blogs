@@ -1,4 +1,5 @@
 ﻿@page "/settings"
+@using System.Threading
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
@@ -240,7 +241,14 @@
                                 }
                                 else
                                 {
-                                    <h4>Processing...</h4>
+                                    @if (!ReadyToContinue)
+                                    {
+                                        <h4>Processing...</h4>
+                                    }
+                                    else
+                                    {
+                                        <RadzenLink Path="api/RestartApp/ShutdownSite" Text="Click here to Restart Site and Continue" target="_blank" />
+                                    }
                                 }
                             </div>
                         </div>
@@ -267,6 +275,7 @@
     private FileManager FileManagerControl;
     private FileManager FileManagerApplicationHeaderControl;
 
+    private bool ReadyToContinue = false;
     private bool Upgrading = false;
     private bool ShowProgressBarPopup = false;
     private int progress;
@@ -422,14 +431,15 @@
                 break;
         }
 
-        var UpdateSMTPAuthendicationResult = _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
+        var UpdateSMTPAuthendicationResult =
+            _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
 
         objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
     }
 
     // Upload File
 
-    private void OnProgress(UploadProgressArgs args)
+    private async Task OnProgress(UploadProgressArgs args)
     {
         ShowProgressBarPopup = true;
         this.info = $"{args.Loaded} of {args.Total} bytes.";
@@ -440,6 +450,10 @@
         if (args.Loaded == args.Total)
         {
             Upgrading = true;
+            StateHasChanged();
+
+            await Task.Delay(5000);
+            ReadyToContinue = true;
             StateHasChanged();
         }
     }

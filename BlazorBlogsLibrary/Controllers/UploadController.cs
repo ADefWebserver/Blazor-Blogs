@@ -227,10 +227,6 @@ namespace BlazorBlogs
 
                         // Unzip files to final paths
                         ZipFile.ExtractToDirectory(UploadPathAndFile, environment.ContentRootPath, true);
-
-                        // Stop site so that when it restarts the assemblies will be copied
-                        // from the Upgrade folder and the installer will run
-                        ShutdownSite();
                     }
                 }
             }
@@ -309,15 +305,6 @@ namespace BlazorBlogs
 
             return intVersionNumber;
         }
-        #endregion
-
-        #region public void ShutdownSite()
-        public void ShutdownSite()
-        {
-            // In a real application only allow an Administrator
-            // to call this method
-            applicationLifetime.StopApplication();
-        } 
         #endregion
     }
 }

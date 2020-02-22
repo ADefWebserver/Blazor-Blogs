@@ -349,3 +349,7 @@ healthchecksdb
 /BlazorBlogs/Upgrade/Upgrade
 /BlazorBlogs/Upgrade/wwwroot
 /BlazorBlogs/Upgrade/manifest.json
+/BlazorBlogs/SQLScripts/01.20.00.sql
+/BlazorBlogs/Upgrade/BlazorBlogsLibrary.dll
+/BlazorBlogs/Upgrade/BlazorBlogsLibrary.Views.dll
+/BlazorBlogs/manifest.json
