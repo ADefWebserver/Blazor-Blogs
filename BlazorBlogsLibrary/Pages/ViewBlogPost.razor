@@ -120,7 +120,8 @@ else
 
     void Back()
     {
-        NavigationManager.NavigateTo("/");
+        string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/../").AbsoluteUri;
+        NavigationManager.NavigateTo(url);
     }
 
     async Task BlogUpdatedEvent()
