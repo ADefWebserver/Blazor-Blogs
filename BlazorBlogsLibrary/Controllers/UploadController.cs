@@ -171,6 +171,11 @@ namespace BlazorBlogs
                             "Upgrade");
 
                         // Upload Upgrade package to Upload Folder
+                        if (!Directory.Exists(UpgradePath))
+                        {
+                            Directory.CreateDirectory(UpgradePath);
+                        }
+
                         using (var stream =
                             new FileStream(UploadPathAndFile, FileMode.Create))
                         {
