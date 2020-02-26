@@ -24,16 +24,16 @@ namespace BlazorBlogs
 
         // api/RestartApp/ShutdownSite
         [HttpGet("[action]")]
-        public void ShutdownSite(string url)
+        public ContentResult ShutdownSite(string url)
         {
             ApplicationLifetime.StopApplication();
 
-            //return new ContentResult
-            //{
-            //    ContentType = @"text/html",
-            //    StatusCode = (int)HttpStatusCode.OK,
-            //    Content = $@"<html><body><h2><a href={GetBaseUrl()}>click here to continue</a></h2></body></html>"
-            //};
+            return new ContentResult
+            {
+                ContentType = @"text/html",
+                StatusCode = (int)HttpStatusCode.OK,
+                Content = $@"<html><body><h2><a href={GetBaseUrl()}>click here to continue</a></h2></body></html>"
+            };
         }
 
         // Utility
