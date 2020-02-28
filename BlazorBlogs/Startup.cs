@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -21,6 +22,25 @@ namespace BlazorBlogs
             // Determine if we have files in the Upgrade directory and process it first
             if (System.IO.File.Exists(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll"))
             {
+                string WebConfigOrginalFileNameAndPath = env.ContentRootPath + @"\Web.config";
+                string WebConfigTempFileNameAndPath = env.ContentRootPath + @"\Web.config.txt";
+
+                if (System.IO.File.Exists(WebConfigOrginalFileNameAndPath))
+                {
+                    // Temporarily rename the web.config file
+                    // to release the locks on any assemblies
+                    System.IO.File.Copy(WebConfigOrginalFileNameAndPath, WebConfigTempFileNameAndPath);
+                    System.IO.File.Delete(WebConfigOrginalFileNameAndPath);
+
+                    // Give the site time to release locks on the assemblies
+                    Task.Delay(2000).Wait(); // Wait 2 seconds with blocking
+
+                    // Rename the temp web.config file back to web.config
+                    // so the site will be active again
+                    System.IO.File.Copy(WebConfigTempFileNameAndPath, WebConfigOrginalFileNameAndPath);
+                    System.IO.File.Delete(WebConfigTempFileNameAndPath);
+                }
+
                 // Delete current 
                 System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.dll");
                 System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.Views.dll");
