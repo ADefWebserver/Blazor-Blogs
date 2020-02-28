@@ -232,6 +232,8 @@ namespace BlazorBlogs
 
                         // Unzip files to final paths
                         ZipFile.ExtractToDirectory(UploadPathAndFile, environment.ContentRootPath, true);
+
+                        Task.Delay(4000).Wait(); // Wait 4 seconds with blocking
                     }
                 }
             }
