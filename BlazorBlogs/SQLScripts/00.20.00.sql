@@ -190,7 +190,7 @@ INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (12,
 GO
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (14, N'DisqusShortName', N'')
 GO
-INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (15, N'VersionNumber', N'00.00.00')
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (15, N'VersionNumber', N'00.20.00')
 GO
 SET IDENTITY_INSERT [dbo].[Settings] OFF
 GO
