@@ -13,167 +13,173 @@
 @inherits OwningComponentBase
 
 <h1>Downloads</h1>
+@if (!UserIsLoggiedIn)
+{
+    <p>You must be logged in to download files</p>
+    @if (AllowRegistration)
+    {
+        <a href="Identity/Account/Login">[Login]</a>
+    }
+}
 @if (UserIsAnAdmin)
 {
     <button type="button" class="btn btn-link oi oi-cloud-upload" @onclick="(() => UploadFile())"> Upload</button>
 }
 <hr />
-<AuthorizeView>
-    <Authorized>
-        @if (colFiles.FilesCount == 0)
+
+@if (colFiles.FilesCount == 0)
+{
+    <h2>No items returned</h2>
+}
+else
+{
+    @foreach (var file in colFiles.Files)
+    {
+        @if (UserIsAnAdmin)
         {
-            <h2>No items returned</h2>
+            <button type="button" class="btn btn-link" @onclick="(() => EditFile(file))">[Edit]</button>
+        }
+        @if (UserIsLoggiedIn)
+        {
+            <button class="btn btn-link oi oi-cloud-download" @onclick="@(() => DownloadFile(file))"> @file.FileName</button>
         }
         else
         {
-            @foreach (var file in colFiles.Files)
-            {
-                @if (UserIsAnAdmin)
-                {
-                    <button type="button" class="btn btn-link" @onclick="(() => EditFile(file))">[Edit]</button>
-                }
-                <button class="btn btn-link oi oi-cloud-download" @onclick="@(() => DownloadFile(file))"> @file.FileName</button>
-                <br />
-            }
+            <span class="oi oi-cloud-download"> @file.FileName</span>
         }
         <br />
-        @if (ShowPreviousButton)
-        {
-            <button class="btn btn-warning"
-                    @onclick="Previous">
-                <b>&#x3C;</b>
-            </button>
-        }
-        @if (ShowNextButton)
-        {
-            <button class="btn btn-warning"
-                    @onclick="Next">
-                <b>&#x3E;</b>
-            </button>
-        }
+    }
+    <br />
+}
+@if (ShowPreviousButton)
+{
+    <button class="btn btn-warning"
+            @onclick="Previous">
+        <b>&#x3C;</b>
+    </button>
+}
+@if (ShowNextButton)
+{
+    <button class="btn btn-warning"
+            @onclick="Next">
+        <b>&#x3E;</b>
+    </button>
+}
 
-        @if (FileUploadPopup)
-        {
-            <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title">Upload File</h3>
-                            <!-- Button to close the popup -->
-                            <button type="button" class="close"
-                                    @onclick="CloseUploadPopup">
-                                <span aria-hidden="true">X</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <h5>File Name</h5>
-                            <div class="form-group">
-                                <input class="form-control" type="text"
-                                       @bind="SelectedFile.FileName" />
-                            </div>
-                            <RadzenUpload ChooseText="Upload And Save" Multiple="false"
-                                          Accept="application/x-zip-compressed"
-                                          Url=@($"api/upload/single?FileTitle={SelectedFile.FileName}")
-                                          Style="margin-bottom: 20px;height: 45px"
-                                          Progress="@((args) => OnProgress(args))" />
-                        </div>
+@if (FileUploadPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Upload File</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="CloseUploadPopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>File Name</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               @bind="SelectedFile.FileName" />
+                    </div>
+                    <RadzenUpload ChooseText="Upload And Save" Multiple="false"
+                                  Accept="application/x-zip-compressed"
+                                  Url=@($"api/upload/single?FileTitle={SelectedFile.FileName}")
+                                  Style="margin-bottom: 20px;height: 45px"
+                                  Progress="@((args) => OnProgress(args))" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (FileEditPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit File</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>File Name</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               @bind="SelectedFile.FileName" />
+                    </div>
+                    <div class="modal-body">
+                        <button class="btn btn-primary"
+                                @onclick="SaveFile">
+                            Save
+                        </button>
+                        <button class="btn btn-danger"
+                                @onclick="DeleteFile">
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
-        }
+        </div>
+    </div>
+}
 
-        @if (FileEditPopup)
-        {
-            <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title">Edit File</h3>
-                            <!-- Button to close the popup -->
-                            <button type="button" class="close"
-                                    @onclick="ClosePopup">
-                                <span aria-hidden="true">X</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <h5>File Name</h5>
-                            <div class="form-group">
-                                <input class="form-control" type="text"
-                                       @bind="SelectedFile.FileName" />
-                            </div>
-                            <div class="modal-body">
-                                <button class="btn btn-primary"
-                                        @onclick="SaveFile">
-                                    Save
-                                </button>
-                                <button class="btn btn-danger"
-                                        @onclick="DeleteFile">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+@if (ConfirmDeletePopup)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Delete File?</h3>
+                </div>
+                <div class="modal-body">
+                    <button class="btn btn-primary"
+                            @onclick="DeleteYes">
+                        Yes
+                    </button>
+                    <button class="btn btn-danger"
+                            @onclick="DeleteNo">
+                        No
+                    </button>
                 </div>
             </div>
-        }
+        </div>
+    </div>
+}
 
-        @if (ConfirmDeletePopup)
-        {
-            <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3 class="modal-title">Delete File?</h3>
-                        </div>
-                        <div class="modal-body">
-                            <button class="btn btn-primary"
-                                    @onclick="DeleteYes">
-                                Yes
-                            </button>
-                            <button class="btn btn-danger"
-                                    @onclick="DeleteNo">
-                                No
-                            </button>
-                        </div>
-                    </div>
+@if (ShowProgressBarPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload Status</h4>
+                </div>
+                <div align="center">
+                    <RadzenProgressBar Value="@progress"
+                                       Unit="@info"
+                                       Visible="@(progress > 0)"
+                                       Style="margin-bottom: 20px" />
                 </div>
             </div>
-        }
-
-        @if (ShowProgressBarPopup)
-        {
-            <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title">Upload Status</h4>
-                        </div>
-                        <div align="center">
-                            <RadzenProgressBar Value="@progress"
-                                               Unit="@info"
-                                               Visible="@(progress > 0)"
-                                               Style="margin-bottom: 20px" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </Authorized>
-    <NotAuthorized>
-        <p>You are not logged in.</p>
-        @if (AllowRegistration)
-        {
-            <a href="Identity/Account/Login">[Login]</a>
-        }
-    </NotAuthorized>
-</AuthorizeView>
+        </div>
+    </div>
+}
 
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     string ADMINISTRATION_ROLE = "Administrators";
     bool UserIsAnAdmin = false;
+    bool UserIsLoggiedIn = false;
 
     public bool FileUploadPopup = false;
     public bool FileEditPopup = false;
@@ -219,6 +225,7 @@
 
         if (CurrentUser != null)
         {
+            UserIsLoggiedIn = CurrentUser.Identity.IsAuthenticated;
             UserIsAnAdmin = CurrentUser.IsInRole(ADMINISTRATION_ROLE);
         }
 
