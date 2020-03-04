@@ -47,6 +47,10 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<AuthenticationStateProvider,
                 RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
+            // Allows appsettings.json to be updated programatically
+            services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
+            services.AddSingleton<IConfiguration>(configuration);
+
             services.AddScoped<BlogsService>();
             services.AddScoped<GeneralSettingsService>();
             services.AddScoped<EmailService>();
