@@ -78,7 +78,7 @@
             <td>
                 @if (boolProcessing == false)
                 {
-                    <button type="button" label="Set Connection"
+                    <button type="button" label="Set Database Connection"
                             class="btn btn-success"
                             @onclick="setConnection">
                         Set Connection
@@ -130,9 +130,10 @@
         }
         else
         {
-            boolProcessing = false;
             strStatusMessage = result.StatusMessage;
         }
+
+        boolProcessing = false;
     }
 
     #region public DTOStatus SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
@@ -214,7 +215,7 @@
         // Update DefaultConnection in the appsettings.json file
         connectionString.Update(opt =>
         {
-            opt.DefaultConnection = strConnectionString;
+            opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         });
 
         // *********************************
