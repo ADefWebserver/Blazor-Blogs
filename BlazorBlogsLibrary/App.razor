@@ -1,6 +1,6 @@
 ﻿@using System.IO;
 @using System.Runtime.Loader;
-
+@using BlazorBlogs.Data;
 <CascadingAuthenticationState>
     <Router AppAssembly="BlazorBlogsAssembly">
         <Found Context="routeData">
@@ -14,7 +14,6 @@
     </Router>
 </CascadingAuthenticationState>
 @code {
-
     System.Reflection.Assembly BlazorBlogsAssembly;
     Type BlazorBlogsMainLayout;
 

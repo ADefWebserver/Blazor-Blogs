@@ -1,8 +1,15 @@
 ﻿@layout InstallWizardLayout
-@page "/installwizard"
+@page "/installwizard/{WizardMode}"
+@inject InstallUpdateState InstallUpdateState
 
 <h3>Install Wizard</h3>
+<p>Install Mode: @WizardMode</p>
+<br />
 <InstallWizardDatabaseConfiguration />
 @code {
+    [Parameter] public string WizardMode { get; set; }
+    //protected override async Task OnInitializedAsync()
+    //{
 
+    //}
 }

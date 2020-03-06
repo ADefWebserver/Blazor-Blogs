@@ -4,8 +4,10 @@
 @using BlazorBlogs.Data.Models;
 @inject IJSRuntime JSRuntime
 @inject GeneralSettingsService _GeneralSettingsService
+@inject BlazorBlogsContext context;
 @inject DisqusState DisqusState
-
+@inject InstallUpdateState _InstallUpdateState
+@inject NavigationManager NavigationManager
 <BlazoredToasts />
 <div class="sidebar">
     <NavMenu />
@@ -30,11 +32,23 @@
     </div>
 </div>
 @code {
+    // ********************************
+    string CurrentVersion = "01.00.00";
+    // ********************************
+
     GeneralSettings objGeneralSettings = new GeneralSettings();
     private ElementReference disqusBody;
 
     protected override async Task OnInitializedAsync()
     {
+        // Check for Install/Upgrade
+        // The Index.razor page will detect this and load the
+        // Install/Upgrade Wizard
+        if (!context.Database.CanConnect())
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
         // Subscribe to the StateChanged EventHandler
         DisqusState.StateChanged +=
         OnDisqusStateStateChanged;
@@ -47,7 +61,7 @@
     {
         if (firstRender)
         {
-            if(Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+            if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
                 await DisqusInterop.CreateDisqus(
                     JSRuntime,
@@ -60,7 +74,36 @@
     protected async Task LoadGeneralSettingsAsync()
     {
         objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+
+        if (ConvertToInteger(CurrentVersion) > ConvertToInteger(objGeneralSettings.VersionNumber))
+        {
+            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+        }
     }
+
+    #region private int ConvertToInteger(string strParamVersion)
+    private int ConvertToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+        string strVersion = strParamVersion;
+
+        // Split into parts seperated by periods
+        char[] splitchar = { '.' };
+        var strSegments = strVersion.Split(splitchar);
+
+        // Process the segments
+        int i = 0;
+        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+        foreach (var strSegment in strSegments)
+        {
+            int intSegmentNumber = Convert.ToInt32(strSegment);
+            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+            i++;
+        }
+
+        return intVersionNumber;
+    }
+    #endregion
 
     // This method is fired when the DisqusState object
     // invokes its StateHasChanged() method

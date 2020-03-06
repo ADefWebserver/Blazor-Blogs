@@ -8,12 +8,12 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject SearchState SearchState
+@inject InstallUpdateState _InstallUpdateState
 @inject IConfiguration _configuration
 @inject IHttpContextAccessor httpContextAccessor
 @inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
 @inject NavigationManager NavigationManager
-@inject GeneralSettingsService _GeneralSettingsService
 @inherits OwningComponentBase<BlogsService>
 <Title>Blazor-Blogs</Title>
 <Meta Property="og:title" Content="Blazor-Blogs" />
@@ -80,8 +80,6 @@ else
     </button>
 </div>
 @code {
-    string CurrentVersion = "01.00.00";
-
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -120,16 +118,7 @@ else
     System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     protected override async Task OnInitializedAsync()
-    {
-        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-        var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-
-        if (ConvertToInteger(CurrentVersion) > ConvertToInteger(GeneralSettings.VersionNumber))
-        {
-            // Load Install / Upgrade Wizard
-            NavigationManager.NavigateTo("installwizard", true);
-        }
-
+    {     
         if (SearchState.CurrentPage == 0)
         {
             SearchState.CurrentPage = 1;
@@ -245,28 +234,4 @@ else
         SearchState.CurrentPage = SearchState.CurrentPage + 1;
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
     }
-
-    #region private int ConvertToInteger(string strParamVersion)
-    private int ConvertToInteger(string strParamVersion)
-    {
-        int intVersionNumber = 0;
-        string strVersion = strParamVersion;
-
-        // Split into parts seperated by periods
-        char[] splitchar = { '.' };
-        var strSegments = strVersion.Split(splitchar);
-
-        // Process the segments
-        int i = 0;
-        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
-        foreach (var strSegment in strSegments)
-        {
-            int intSegmentNumber = Convert.ToInt32(strSegment);
-            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
-            i++;
-        }
-
-        return intVersionNumber;
-    }
-    #endregion
 }

@@ -57,6 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<SearchState>();
             services.AddScoped<DisqusState>();
+            services.AddScoped<InstallUpdateState>();
             services.AddMetaWeblog<BlazorBlogs.MetaWeblogService>();
             services.AddHttpContextAccessor();
             services.AddScoped<HttpContextAccessor>();
