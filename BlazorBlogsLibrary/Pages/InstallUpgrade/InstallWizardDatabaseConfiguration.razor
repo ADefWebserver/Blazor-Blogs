@@ -1,6 +1,6 @@
 ﻿@using System.Text;
 @using Microsoft.Extensions.Options;
-@using System.IO;
+@using System.Security.Claims;
 @using Microsoft.Extensions.Configuration;
 @using Microsoft.Extensions.DependencyInjection;
 @using Microsoft.AspNetCore.Hosting;
@@ -20,7 +20,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
             </td>
             <td>
-                <input type="text" id="ServerName" class="form-control" bind="@ServerName" />
+                <input type="text" id="ServerName" class="form-control" @bind="ServerName" />
             </td>
         </tr>
         <tr>
@@ -28,7 +28,7 @@
                 <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
             </td>
             <td>
-                <input type="text" id="DatabaseName" class="form-control" bind="@DatabaseName" />
+                <input type="text" id="DatabaseName" class="form-control" @bind="DatabaseName" />
             </td>
         </tr>
         <tr>
@@ -54,7 +54,7 @@
                     <label for="Title" class="control-label" style="font-weight: bold">Database Username: </label>
                 </td>
                 <td>
-                    <input type="text" id="DatabaseUsername" class="form-control" bind="@DatabaseUsername" />
+                    <input type="text" id="DatabaseUsername" class="form-control" @bind="DatabaseUsername" />
                 </td>
             </tr>
             <tr>
@@ -62,7 +62,7 @@
                     <label for="Title" class="control-label" style="font-weight: bold">Database Password: </label>
                 </td>
                 <td>
-                    <input type="password" id="DatabasePassword" class="form-control" bind="@DatabasePassword" />
+                    <input type="password" id="DatabasePassword" class="form-control" @bind="DatabasePassword" />
                 </td>
             </tr>
         }
@@ -95,6 +95,11 @@
 @strStatusMessage
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
     private DTOConnectionSetting connectionSetting = new DTOConnectionSetting();
     string IntegratedSecurityDisplay = "False";
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
@@ -106,10 +111,11 @@
     private string DatabaseUsername = "TestDatabaseUser";
     private string DatabasePassword = "password";
 
-    //protected override async Task OnInitializedAsync()
-    //{
-
-    //}
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+    }
 
     private void setConnection()
     {
@@ -272,7 +278,7 @@
     }
     #endregion
 
-    // Classes 
+    // Classes
 
     public class ConnectionSetting
     {
