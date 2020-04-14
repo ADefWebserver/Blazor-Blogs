@@ -1,14 +1,40 @@
 ﻿@layout InstallWizardLayout
 @page "/installwizard/{WizardMode}"
+@using System.Security.Claims;
 @inject InstallUpdateState InstallUpdateState
 
 <h3>@WizardMode Wizard</h3>
 <br />
-<InstallWizardDatabaseConfiguration />
+@if (WizardStage == "DatabaseConfiguration")
+{
+    <InstallWizardDatabaseConfiguration />
+}
+@if (WizardStage == "VerifyAdministrator")
+{
+    <p>Verify Administrator</p>
+}
 @code {
     [Parameter] public string WizardMode { get; set; }
-    //protected override async Task OnInitializedAsync()
-    //{
 
-    //}
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    public string WizardStage = "";
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (WizardMode == "INSTALL")
+        {
+            WizardStage = "DatabaseConfiguration";
+        }
+
+        if (WizardMode == "UPGRADE")
+        {
+            WizardStage = "VerifyAdministrator";
+        }
+    }
 }
