@@ -1,0 +1,51 @@
+﻿@using System.Security.Claims;
+
+<h3>Verify Administrator</h3>
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+            </td>
+            <td>
+                <input type="text" id="DatabaseUsername" class="form-control" @bind="Username" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+            </td>
+            <td>
+                <input type="password" id="DatabasePassword" class="form-control" @bind="Password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" label="Authenticate"
+                        class="btn btn-success"
+                        @onclick="Authenticate">
+                    Authenticate
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    private string Username = "";
+    private string Password = "";
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+    }
+
+    private void Authenticate()
+    {
+
+    }
+}
