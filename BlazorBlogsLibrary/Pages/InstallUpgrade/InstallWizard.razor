@@ -2,28 +2,52 @@
 @page "/installwizard/{WizardMode}"
 @using System.Security.Claims;
 @inject InstallUpdateState InstallUpdateState
+@inject NavigationManager NavigationManager
 
 <h3>@WizardMode Wizard</h3>
 <br />
+
 @if (WizardStage == "DatabaseConfiguration")
 {
-    <InstallWizardDatabaseConfiguration />
+    <RadzenSteps>
+        <Steps>
+            <RadzenStepsItem Text="Database Configuration" Disabled="@(null == null)">
+                <InstallWizardDatabaseConfiguration />
+            </RadzenStepsItem>
+        </Steps>
+    </RadzenSteps>
 }
+
 @if (WizardStage == "VerifyAdministrator")
 {
-    <InstallWizardLoginAdministrator />
+    <RadzenSteps>
+        <Steps>
+            <RadzenStepsItem Text="Database Configuration" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
+                <InstallWizardLoginAdministrator />
+            </RadzenStepsItem>
+            <RadzenStepsItem Text="Run Scripts" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
+                <p>Run Scripts</p>
+            </RadzenStepsItem>
+            <RadzenStepsItem Text="Complete" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
+                <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+            </RadzenStepsItem>
+        </Steps>
+    </RadzenSteps>
 }
 @code {
-    [Parameter] public string WizardMode { get; set; }
-
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    [Parameter] public string WizardMode { get; set; }
+
+    string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
     public string WizardStage = "";
     protected override async Task OnInitializedAsync()
     {
+        //await Task.FromResult(
+
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
 
@@ -36,5 +60,11 @@
         {
             WizardStage = "VerifyAdministrator";
         }
+    }
+
+    void Continue()
+    {
+        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
+        NavigationManager.NavigateTo(url);
     }
 }
