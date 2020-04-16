@@ -9,30 +9,25 @@
 
 @if (WizardStage == "DatabaseConfiguration")
 {
-    <RadzenSteps>
-        <Steps>
-            <RadzenStepsItem Text="Database Configuration" Disabled="@(null == null)">
-                <InstallWizardDatabaseConfiguration />
-            </RadzenStepsItem>
-        </Steps>
-    </RadzenSteps>
+    <InstallWizardDatabaseConfiguration />
 }
 
-@if (WizardStage == "VerifyAdministrator")
+@if (WizardMode == "UPGRADE")
 {
-    <RadzenSteps>
-        <Steps>
-            <RadzenStepsItem Text="Database Configuration" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
-                <InstallWizardLoginAdministrator />
-            </RadzenStepsItem>
-            <RadzenStepsItem Text="Run Scripts" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
-                <p>Run Scripts</p>
-            </RadzenStepsItem>
-            <RadzenStepsItem Text="Complete" Disabled="@(!CurrentUser.IsInRole(ADMINISTRATION_ROLE))">
-                <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
-            </RadzenStepsItem>
-        </Steps>
-    </RadzenSteps>
+    @if (WizardStage == "VerifyAdministrator")
+    {
+        <InstallWizardLoginAdministrator />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <p>Run Scripts</p>
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
 }
 @code {
     [CascadingParameter]
@@ -42,7 +37,6 @@
 
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
-
     public string WizardStage = "";
     protected override async Task OnInitializedAsync()
     {
@@ -58,7 +52,14 @@
 
         if (WizardMode == "UPGRADE")
         {
-            WizardStage = "VerifyAdministrator";
+            if (!CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+            {
+                WizardStage = "VerifyAdministrator";
+            }
+            else
+            {
+                WizardStage = "RunScripts";
+            }
         }
     }
 
