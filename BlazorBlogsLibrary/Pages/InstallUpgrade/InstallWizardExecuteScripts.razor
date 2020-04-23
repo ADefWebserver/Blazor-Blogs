@@ -1,5 +1,122 @@
-﻿<h1>Run Scripts</h1>
+﻿@using System.Security.Claims;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using Microsoft.AspNetCore.Hosting;
+@using System.IO;
+@inject GeneralSettingsService _GeneralSettingsService
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inherits OwningComponentBase
 
+@if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+{
+    @if(@ErrorMessage != "")
+    {
+    <h4>@ErrorMessage</h4>
+    }
+    <h4>@VersionNumber</h4>
+    <h4>@ConvertVersionToInteger(@VersionNumber).ToString()</h4>
+
+}
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    string ErrorMessage = "";
+    string VersionNumber = "";
+    string ADMINISTRATION_ROLE = "Administrators";
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+
+        VersionNumber = GeneralSettings.VersionNumber;
+        int intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
+
+        // Get the update scripts
+        Dictionary<int, string> ColScripts = UpdateScripts();
+        foreach (var sqlScript in ColScripts)
+        {
+            try
+            {
+                // Only run the script if it is higher than the 
+                // current database version
+                if (sqlScript.Key > intCurrentDatabaseVersion)
+                {
+                    string strSQLScript = GetSQLScript(sqlScript.Value);
+
+                    //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+                    //optionsBuilder.UseSqlServer(ConnectionString);
+
+                    //using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+                    //{
+                    //    context.Database.ExecuteSqlCommand(GetSQLScript(sqlScript.Value));
+                    //}
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                return;
+            }
+        }
+    }
+
+    #region private static int ConvertVersionToInteger(string strParamVersion)
+    private static int ConvertVersionToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+
+        if (strParamVersion != "")
+        {
+            // Strip out possible .sql in string
+            string strVersion = strParamVersion.Replace(".sql", "");
+
+            // Split into parts seperated by periods
+            char[] splitchar = { '.' };
+            var strSegments = strVersion.Split(splitchar);
+
+            // Process the segments
+            int i = 0;
+            List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+            foreach (var strSegment in strSegments)
+            {
+                int intSegmentNumber = Convert.ToInt32(strSegment);
+                intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+                i++;
+            }
+        }
+
+        return intVersionNumber;
+    }
+    #endregion
+
+    #region private String GetSQLScript(string SQLScript)
+    private String GetSQLScript(string SQLScript)
+    {
+        string strSQLScript = "";
+        string strFilePath = _IWebHostEnvironment.ContentRootPath + $@"\SQLScripts\{SQLScript}";
+
+        strSQLScript = System.IO.File.ReadAllText(@strFilePath);
+
+        return strSQLScript;
+    }
+    #endregion
+
+    #region private static Dictionary<int, string> UpdateScripts()
+    private static Dictionary<int, string> UpdateScripts()
+    {
+        Dictionary<int, string> ColScripts = new Dictionary<int, string>();
+
+        ColScripts.Add(ConvertVersionToInteger("00.10.00.sql"), "00.10.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("00.20.00.sql"), "00.20.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("01.00.00.sql"), "01.00.00.sql");
+
+        return ColScripts;
+    }
+    #endregion
 }
