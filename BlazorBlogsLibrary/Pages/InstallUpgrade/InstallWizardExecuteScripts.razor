@@ -32,6 +32,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    int intCurrentDatabaseVersion = 0;
     string ErrorMessage = "";
     string VersionNumber = "";
     bool Upgrading = true;
@@ -49,42 +50,51 @@
         var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
 
         VersionNumber = GeneralSettings.VersionNumber;
-        int intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
+        intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
+    }
 
-        if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+    protected override async Task
+        OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            Upgrading = true;
-            StateHasChanged();
-            Task.Delay(2000).Wait();
-            StateHasChanged();
-
-            // Get the update scripts
-            Dictionary<int, string> ColScripts = UpdateScripts();
-            foreach (var sqlScript in ColScripts)
+            if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
             {
-                try
+                Upgrading = true;
+                StateHasChanged();
+                Task.Delay(2000).Wait();
+
+                // Get the update scripts
+                Dictionary<int, string> ColScripts = UpdateScripts();
+                foreach (var sqlScript in ColScripts)
                 {
-                    // Only run the script if it is higher than the
-                    // current database version
-                    if (sqlScript.Key > intCurrentDatabaseVersion)
+                    try
                     {
-                        string strSQLScript = GetSQLScript(sqlScript.Value);
-                        _BlogsService.ExecuteSqlRaw(strSQLScript);
+                        // Only run the script if it is higher than the
+                        // current database version
+                        if (sqlScript.Key > intCurrentDatabaseVersion)
+                        {
+                            string strSQLScript = GetSQLScript(sqlScript.Value);
+                            await _BlogsService.ExecuteSqlRaw(strSQLScript);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = ex.Message;
+                        StateHasChanged();
+                        return;
                     }
                 }
-                catch (Exception ex)
-                {
-                    ErrorMessage = ex.Message;
-                    return;
-                }
-            }
 
-            // Show the Continue button
-            Upgrading = false;
-        }
-        else
-        {
-            ErrorMessage = "Must be an Administrator to run update scripts";
+                // Show the Continue button
+                Upgrading = false;
+                StateHasChanged();
+            }
+            else
+            {
+                ErrorMessage = "Must be an Administrator to run update scripts";
+                StateHasChanged();
+            }
         }
     }
 

@@ -624,10 +624,10 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public void ExecuteSqlRaw(string sql)
-        public void ExecuteSqlRaw(string sql)
+        #region public async Task ExecuteSqlRaw(string sql)
+        public async Task ExecuteSqlRaw(string sql)
         {
-            _context.Database.ExecuteSqlRaw(sql);
+            await _context.Database.ExecuteSqlRawAsync(sql);
         }
         #endregion
 
