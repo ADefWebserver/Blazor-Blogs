@@ -5,17 +5,24 @@
 @using System.IO;
 @inject GeneralSettingsService _GeneralSettingsService
 @inject IWebHostEnvironment _IWebHostEnvironment
+@inject NavigationManager NavigationManager
 @inherits OwningComponentBase
 
 @if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
 {
-    @if(@ErrorMessage != "")
+    @if (@ErrorMessage != "")
     {
-    <h4>@ErrorMessage</h4>
+        <h4>@ErrorMessage</h4>
     }
-    <h4>@VersionNumber</h4>
-    <h4>@ConvertVersionToInteger(@VersionNumber).ToString()</h4>
-
+    @if (Upgrading)
+    {
+        <h4>Upgrading...</h4>
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    }
+    @if (!Upgrading)
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
 }
 @code {
     [CascadingParameter]
@@ -23,6 +30,7 @@
 
     string ErrorMessage = "";
     string VersionNumber = "";
+    bool Upgrading = true;
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
@@ -37,33 +45,54 @@
         VersionNumber = GeneralSettings.VersionNumber;
         int intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
 
-        // Get the update scripts
-        Dictionary<int, string> ColScripts = UpdateScripts();
-        foreach (var sqlScript in ColScripts)
+        if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
         {
-            try
+            Upgrading = true;
+            StateHasChanged();
+            Task.Delay(5000).Wait();
+            StateHasChanged();
+
+            // Get the update scripts
+            Dictionary<int, string> ColScripts = UpdateScripts();
+            foreach (var sqlScript in ColScripts)
             {
-                // Only run the script if it is higher than the 
-                // current database version
-                if (sqlScript.Key > intCurrentDatabaseVersion)
+                try
                 {
-                    string strSQLScript = GetSQLScript(sqlScript.Value);
+                    // Only run the script if it is higher than the
+                    // current database version
+                    if (sqlScript.Key > intCurrentDatabaseVersion)
+                    {
+                        string strSQLScript = GetSQLScript(sqlScript.Value);
 
-                    //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-                    //optionsBuilder.UseSqlServer(ConnectionString);
+                        //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
+                        //optionsBuilder.UseSqlServer(ConnectionString);
 
-                    //using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-                    //{
-                    //    context.Database.ExecuteSqlCommand(GetSQLScript(sqlScript.Value));
-                    //}
+                        //using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
+                        //{
+                        //    context.Database.ExecuteSqlCommand(GetSQLScript(sqlScript.Value));
+                        //}
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = ex.Message;
+                    return;
                 }
             }
-            catch (Exception ex)
-            {
-                ErrorMessage = ex.Message;
-                return;
-            }
+
+            // Show the Continue button
+            Upgrading = false;
         }
+        else
+        {
+            ErrorMessage = "Must be an Administrator to run update scripts";
+        }
+    }
+
+    void Continue()
+    {
+        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
+        NavigationManager.NavigateTo(url);
     }
 
     #region private static int ConvertVersionToInteger(string strParamVersion)
