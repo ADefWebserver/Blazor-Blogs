@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Hosting;
 @using System.IO;
 @inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
 @inject IWebHostEnvironment _IWebHostEnvironment
 @inject NavigationManager NavigationManager
 @inherits OwningComponentBase
@@ -14,14 +15,17 @@
     {
         <h4>@ErrorMessage</h4>
     }
-    @if (Upgrading)
+    else
     {
-        <h4>Upgrading...</h4>
-        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-    }
-    @if (!Upgrading)
-    {
-        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        @if (Upgrading)
+        {
+            <h4>Upgrading...</h4>
+            <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+        }
+        @if (!Upgrading)
+        {
+            <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        }
     }
 }
 @code {
@@ -40,6 +44,8 @@
         CurrentUser = (await authenticationStateTask).User;
 
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
         var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
 
         VersionNumber = GeneralSettings.VersionNumber;
@@ -49,7 +55,7 @@
         {
             Upgrading = true;
             StateHasChanged();
-            Task.Delay(5000).Wait();
+            Task.Delay(2000).Wait();
             StateHasChanged();
 
             // Get the update scripts
@@ -63,14 +69,7 @@
                     if (sqlScript.Key > intCurrentDatabaseVersion)
                     {
                         string strSQLScript = GetSQLScript(sqlScript.Value);
-
-                        //var optionsBuilder = new DbContextOptionsBuilder<ADefHelpDeskContext>();
-                        //optionsBuilder.UseSqlServer(ConnectionString);
-
-                        //using (var context = new ADefHelpDeskContext(optionsBuilder.Options))
-                        //{
-                        //    context.Database.ExecuteSqlCommand(GetSQLScript(sqlScript.Value));
-                        //}
+                        _BlogsService.ExecuteSqlRaw(strSQLScript);
                     }
                 }
                 catch (Exception ex)

@@ -624,6 +624,13 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public void ExecuteSqlRaw(string sql)
+        public void ExecuteSqlRaw(string sql)
+        {
+            _context.Database.ExecuteSqlRaw(sql);
+        }
+        #endregion
+
         #region public void DetachAllEntities()
         public void DetachAllEntities()
         {
