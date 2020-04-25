@@ -4,8 +4,13 @@
 @using Microsoft.Extensions.Configuration;
 @using Microsoft.Extensions.DependencyInjection;
 @using Microsoft.AspNetCore.Hosting;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
 @using Microsoft.EntityFrameworkCore;
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
 @inject InstallUpdateState _InstallUpdateState
 @inject IOptions<ConnectionStrings> ConnectionStrings
 @inject IWritableOptions<ConnectionStrings> connectionString
@@ -14,6 +19,8 @@
 @inject BlazorBlogsContext context
 @inject GeneralSettingsService _GeneralSettingsService
 @inject NavigationManager NavigationManager
+
+<span>@strStatusMessage</span>
 
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
@@ -94,13 +101,17 @@
         </tr>
     </tbody>
 </table>
-@strStatusMessage
+
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    string strAdministratorUserName = "";
+    string strAdministratorPassword = "";
 
     private DTOConnectionSetting connectionSetting = new DTOConnectionSetting();
     string IntegratedSecurityDisplay = "False";
@@ -156,6 +167,36 @@
 
         boolProcessing = false;
     }
+
+    private async void CreateAdministrator()
+    {
+        // ensure there is a ADMINISTRATION_ROLE
+        var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+        if (RoleResult == null)
+        {
+            // Create ADMINISTRATION_ROLE Role
+            await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
+        }
+
+        // Create the user
+        ApplicationUser objApplicationUser = new ApplicationUser();
+        objApplicationUser.UserName = strAdministratorUserName;
+        objApplicationUser.DisplayName = strAdministratorUserName;
+        objApplicationUser.Email = strAdministratorUserName;
+        objApplicationUser.EmailConfirmed = true;
+
+        var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+
+        var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+
+        if (user != null)
+        {
+            // Put admin in Administrator role
+            await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+        }
+    }
+
+    // Utility
 
     #region public DTOStatus SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
     public DTOStatus SetConnectionSetting(DTOConnectionSetting objConnectionSetting)

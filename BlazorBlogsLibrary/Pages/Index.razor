@@ -4,9 +4,8 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using static Toolbelt.Blazor.HeadElement.MetaElement
-@inject UserManager<ApplicationUser> _UserManager
-@inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> _UserManager
 @inject SearchState SearchState
 @inject InstallUpdateState _InstallUpdateState
 @inject IConfiguration _configuration
@@ -118,7 +117,7 @@ else
     System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     protected override async Task OnInitializedAsync()
-    {     
+    {
         if (SearchState.CurrentPage == 0)
         {
             SearchState.CurrentPage = 1;
@@ -129,58 +128,13 @@ else
             SearchState.CurrentCategoryID = "0";
         }
 
-        // ensure there is a ADMINISTRATION_ROLE
-        var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
-        if (RoleResult == null)
-        {
-            // Create ADMINISTRATION_ROLE Role
-            await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
-        }
-
-        // Ensure there is a user who is an Administrator
-        string strAdministratorUserName = _configuration["AdministratorUserName"];
-        string strAdministratorPassword = _configuration["AdministratorPassword"];
-
-        var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
-
-        if (user != null)
-        {
-            // Is user in administrator role?
-            var UserResult = await _UserManager.IsInRoleAsync(user, ADMINISTRATION_ROLE);
-            if (!UserResult)
-            {
-                // Put admin in Administrator role
-                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
-            }
-        }
-        else
-        {
-            // Administrator does not exist
-            // Create the user
-            ApplicationUser objApplicationUser = new ApplicationUser();
-            objApplicationUser.UserName = strAdministratorUserName;
-            objApplicationUser.DisplayName = strAdministratorUserName;
-            objApplicationUser.Email = strAdministratorUserName;
-            objApplicationUser.EmailConfirmed = true;
-
-            var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
-
-            user = await _UserManager.FindByNameAsync(strAdministratorUserName);
-
-            if (user != null)
-            {
-                // Put admin in Administrator role
-                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
-            }
-        }
-
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
         if (CurrentUser.Identity.IsAuthenticated)
         {
             var Current_User = await _UserManager.FindByNameAsync(CurrentUser.Identity.Name);
-            // Is user an administrator?
+
             UserIsAnAdmin = await _UserManager.IsInRoleAsync(Current_User, ADMINISTRATION_ROLE);
         }
 
