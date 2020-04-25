@@ -49,9 +49,21 @@
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
 
+        // The database connection may be good, 
+        // but the database tables are missing
+        try
+        {
+            var settings = await
+                _GeneralSettingsService.GetGeneralSettingsAsync();
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
         // Subscribe to the StateChanged EventHandler
         DisqusState.StateChanged +=
-        OnDisqusStateStateChanged;
+            OnDisqusStateStateChanged;
 
         await LoadGeneralSettingsAsync();
     }
