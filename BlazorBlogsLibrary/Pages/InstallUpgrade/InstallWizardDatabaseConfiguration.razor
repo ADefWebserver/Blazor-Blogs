@@ -12,6 +12,8 @@
 @inject IConfiguration configRoot
 @inject IWebHostEnvironment hostEnvironment
 @inject BlazorBlogsContext context
+@inject GeneralSettingsService _GeneralSettingsService
+@inject NavigationManager NavigationManager
 
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
@@ -115,6 +117,19 @@
     {
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
+
+        try
+        {
+            var settings = await
+                _GeneralSettingsService.GetGeneralSettingsAsync();
+
+            // If we can connect then do not proceed
+            NavigationManager.NavigateTo("/", true);
+        }
+        catch
+        {
+            // Allow install to proceed
+        }
     }
 
     private void setConnection()
@@ -149,39 +164,29 @@
         DTOStatus objDTOStatus = new DTOStatus();
         objDTOStatus.Success = true;
 
-        // Do not run if we can connect to the current database
-        if (context.Database.CanConnect())
+        // Create a Database connection string
+        string strConnectionString = CreateDatabaseConnectionString(objConnectionSetting);
+
+        // Test the database connection string
+        if (DatabaseConnectionValid(strConnectionString))
         {
-            objDTOStatus.Success = false;
-            objDTOStatus.StatusMessage = "Database already set-up";
-            _InstallUpdateState.DatabaseReady = true;
+            try
+            {
+                // Update the appsettings.json file
+                UpdateDatabaseConnectionString(strConnectionString);
+            }
+            catch (Exception ex)
+            {
+                // appsettings.json file update error
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+            }
         }
         else
         {
-            // Create a Database connection string
-            string strConnectionString = CreateDatabaseConnectionString(objConnectionSetting);
-
-            // Test the database connection string
-            if (DatabaseConnectionValid(strConnectionString))
-            {
-                try
-                {
-                    // Update the appsettings.json file
-                    UpdateDatabaseConnectionString(strConnectionString);
-                }
-                catch (Exception ex)
-                {
-                    // appsettings.json file update error
-                    objDTOStatus.Success = false;
-                    objDTOStatus.StatusMessage = ex.GetBaseException().Message;
-                }
-            }
-            else
-            {
-                // Bad connection setting
-                objDTOStatus.Success = false;
-                objDTOStatus.StatusMessage = "Connection settings are not valid";
-            }
+            // Bad connection setting
+            objDTOStatus.Success = false;
+            objDTOStatus.StatusMessage = "Connection settings are not valid";
         }
 
         // Return the result
@@ -192,23 +197,15 @@
     #region private bool DatabaseConnectionValid(string strConnectionString)
     private bool DatabaseConnectionValid(string strConnectionString)
     {
-        bool boolDatabaseConnectionValid = true;
+        bool boolDatabaseConnectionValid = false;
 
-        try
-        {
-            // Try to connect to the database
-            var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-            optionsBuilder.UseSqlServer(strConnectionString);
+        // Try to connect to the database
+        var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+        optionsBuilder.UseSqlServer(strConnectionString);
 
-            using (var context = new BlazorBlogsContext(optionsBuilder.Options))
-            {
-                context.Database.OpenConnection();
-            }
-        }
-        catch
+        using (var context = new BlazorBlogsContext(optionsBuilder.Options))
         {
-            // Could not connect
-            boolDatabaseConnectionValid = false;
+            boolDatabaseConnectionValid = context.Database.CanConnect();
         }
 
         return boolDatabaseConnectionValid;
