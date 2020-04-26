@@ -2,7 +2,6 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Hosting;
-@using System.IO;
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
 @inject IWebHostEnvironment _IWebHostEnvironment
@@ -33,7 +32,6 @@ else
     string ErrorMessage = "";
     string VersionNumber = "";
 
-    string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
     protected override async Task OnInitializedAsync()
@@ -134,7 +132,6 @@ else
     }
     #endregion
 
-    #region private static Dictionary<int, string> UpdateScripts()
     private static Dictionary<int, string> UpdateScripts()
     {
         Dictionary<int, string> ColScripts = new Dictionary<int, string>();
@@ -145,5 +142,4 @@ else
 
         return ColScripts;
     }
-    #endregion
 }

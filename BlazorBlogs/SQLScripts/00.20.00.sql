@@ -2,13 +2,13 @@
  
 SET QUOTED_IDENTIFIER ON
  
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BlogCate ry]') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BlogCategory]') AND type in (N'U'))
 BEGIN
-CREATE TABLE [dbo].[BlogCate ry](
+CREATE TABLE [dbo].[BlogCategory](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[BlogId] [int] NOT NULL,
-	[Cate ryId] [int] NOT NULL,
- CONSTRAINT [PK_BlogCate ry] PRIMARY KEY CLUSTERED 
+	[CategoryId] [int] NOT NULL,
+ CONSTRAINT [PK_BlogCategory] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -39,15 +39,15 @@ SET ANSI_NULLS ON
  
 SET QUOTED_IDENTIFIER ON
  
-IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Cate rys]') AND type in (N'U'))
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Categorys]') AND type in (N'U'))
 BEGIN
-CREATE TABLE [dbo].[Cate rys](
-	[Cate ryId] [int] IDENTITY(1,1) NOT NULL,
+CREATE TABLE [dbo].[Categorys](
+	[CategoryId] [int] IDENTITY(1,1) NOT NULL,
 	[Title] [nvarchar](500) NOT NULL,
 	[Description] [nvarchar](500) NULL,
- CONSTRAINT [PK_Cate rys] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_Categorys] PRIMARY KEY CLUSTERED 
 (
-	[Cate ryId] ASC
+	[CategoryId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 END
@@ -98,21 +98,21 @@ SET ANSI_NULLS ON
 SET QUOTED_IDENTIFIER ON
  
 
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCate ry_Blogs]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCate ry]'))
-ALTER TABLE [dbo].[BlogCate ry]  WITH CHECK ADD  CONSTRAINT [FK_BlogCate ry_Blogs] FOREIGN KEY([BlogId])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCategory_Blogs]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCategory]'))
+ALTER TABLE [dbo].[BlogCategory]  WITH CHECK ADD  CONSTRAINT [FK_BlogCategory_Blogs] FOREIGN KEY([BlogId])
 REFERENCES [dbo].[Blogs] ([BlogId])
 ON DELETE CASCADE
  
-IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCate ry_Blogs]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCate ry]'))
-ALTER TABLE [dbo].[BlogCate ry] CHECK CONSTRAINT [FK_BlogCate ry_Blogs]
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCategory_Blogs]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCategory]'))
+ALTER TABLE [dbo].[BlogCategory] CHECK CONSTRAINT [FK_BlogCategory_Blogs]
  
-IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCate ry_Cate rys]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCate ry]'))
-ALTER TABLE [dbo].[BlogCate ry]  WITH CHECK ADD  CONSTRAINT [FK_BlogCate ry_Cate rys] FOREIGN KEY([Cate ryId])
-REFERENCES [dbo].[Cate rys] ([Cate ryId])
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCategory_Categorys]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCategory]'))
+ALTER TABLE [dbo].[BlogCategory]  WITH CHECK ADD  CONSTRAINT [FK_BlogCategory_Categorys] FOREIGN KEY([CategoryId])
+REFERENCES [dbo].[Categorys] ([CategoryId])
 ON DELETE CASCADE
  
-IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCate ry_Cate rys]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCate ry]'))
-ALTER TABLE [dbo].[BlogCate ry] CHECK CONSTRAINT [FK_BlogCate ry_Cate rys]
+IF  EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_BlogCategory_Categorys]') AND parent_object_id = OBJECT_ID(N'[dbo].[BlogCategory]'))
+ALTER TABLE [dbo].[BlogCategory] CHECK CONSTRAINT [FK_BlogCategory_Categorys]
  
 IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE object_id = OBJECT_ID(N'[dbo].[FK_Comment_Blogs]') AND parent_object_id = OBJECT_ID(N'[dbo].[Comment]'))
 ALTER TABLE [dbo].[Comment]  WITH CHECK ADD  CONSTRAINT [FK_Comment_Blogs] FOREIGN KEY([BlogId])
@@ -173,7 +173,7 @@ INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (6, 
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (7, N'SMTPPassword', N'')
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (8, N'SMTPAuthendication', N'')
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (9, N'SMTPFromEmail', N'')
-INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (10, N'ApplicationLo ', N'uploads\lo .png')
+INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (10, N'ApplicationLogo', N'uploads\logo.png')
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (11, N'ApplicationHeader', N'')
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (12, N'DisqusEnabled', N'False')
 INSERT [dbo].[Settings] ([SettingID], [SettingName], [SettingValue]) VALUES (14, N'DisqusShortName', N'')
