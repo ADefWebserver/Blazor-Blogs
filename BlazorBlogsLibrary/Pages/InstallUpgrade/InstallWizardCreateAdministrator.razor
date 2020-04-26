@@ -5,15 +5,43 @@
 @inject RoleManager<IdentityRole> _RoleManager
 @inject BlogsService _BlogsService
 
-<h3>Install Wizard Create Administrator</h3>
+<h3>Create Administrator</h3>
 @if (@ErrorMessage != "")
 {
     <h4>@ErrorMessage</h4>
 }
-else
-{
 
-}
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
+            </td>
+            <td>
+                <input type="email" id="Username" class="form-control" @bind="strAdministratorUserName" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+            </td>
+            <td>
+                <input type="password" id="Password" class="form-control" @bind="strAdministratorPassword" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" label="Create Administrator"
+                        class="btn btn-success"
+                        @onclick="CreateAdministrator">
+                    Create Administrator
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -60,6 +88,17 @@ else
             objApplicationUser.EmailConfirmed = true;
 
             var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+
+            if(!UserResult.Succeeded)
+            {
+                ErrorMessage = "";
+                foreach (var item in UserResult.Errors)
+                {
+                    ErrorMessage = ErrorMessage + " " + item.Description;
+                }
+                StateHasChanged();
+                return;
+            }
 
             var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
 
