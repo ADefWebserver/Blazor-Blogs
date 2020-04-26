@@ -7,9 +7,22 @@
 <h3>@WizardMode Wizard</h3>
 <br />
 
-@if (WizardStage == "DatabaseConfiguration")
+@if (WizardMode == "INSTALL")
 {
-    <InstallWizardDatabaseConfiguration />
+    @if (WizardStage == "DatabaseConfiguration")
+    {
+        <InstallWizardDatabaseConfiguration />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Installing" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
 }
 
 @if (WizardMode == "UPGRADE")
@@ -21,7 +34,7 @@
 
     @if (WizardStage == "RunScripts")
     {
-        <InstallWizardExecuteScripts />
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Upgrading" ExecuteScriptsChanged="@RunScriptsComplete" />
     }
 
     @if (WizardStage == "RunScriptsComplete")
@@ -60,6 +73,14 @@
             {
                 WizardStage = "RunScripts";
             }
+        }
+    }
+
+    void RunScriptsComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "RunScriptsComplete";
         }
     }
 
