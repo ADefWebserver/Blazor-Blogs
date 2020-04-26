@@ -107,6 +107,10 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    // DatabaseConfigurationChanged is an EventCallback that will
+    // notify the parent component DatabaseConfiguration Is complete
+    [Parameter] public EventCallback<bool> DatabaseConfigurationChanged { get; set; }
+
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
     string ADMINISTRATION_ROLE = "Administrators";
@@ -143,7 +147,7 @@
         }
     }
 
-    private void setConnection()
+    private async void setConnection()
     {
         boolProcessing = true;
         strStatusMessage = "";
@@ -158,7 +162,8 @@
 
         if (result.Success)
         {
-            //await InstallationState.InvokeAsync("InstallationScripts");
+            // Notify parent component 
+            await DatabaseConfigurationChanged.InvokeAsync(true);
         }
         else
         {
@@ -316,8 +321,7 @@
     }
     #endregion
 
-    // Classes
-
+    #region private void Classes
     public class ConnectionSetting
     {
         public string DatabaseName { get; set; }
@@ -341,4 +345,5 @@
         public string StatusMessage { get; set; }
         public bool Success { get; set; }
     }
+    #endregion
 }
