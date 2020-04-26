@@ -3,6 +3,7 @@ using BlazorBlogs.Data.Models;
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using BlazorBlogs.Data.Models;
 
 namespace BlazorBlogs.Data
 {
@@ -17,6 +18,8 @@ namespace BlazorBlogs.Data
         {
         }
 
+        public virtual DbSet<AspNetRoles> AspNetRoles { get; set; }
+        public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
         public virtual DbSet<BlogCategory> BlogCategory { get; set; }
         public virtual DbSet<Blogs> Blogs { get; set; }
@@ -26,16 +29,34 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Logs> Logs { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
+            modelBuilder.Entity<AspNetRoles>(entity =>
+            {
+                entity.HasIndex(e => e.NormalizedName)
+                    .HasName("RoleNameIndex")
+                    .IsUnique()
+                    .HasFilter("([NormalizedName] IS NOT NULL)");
+
+                entity.Property(e => e.Name).HasMaxLength(256);
+
+                entity.Property(e => e.NormalizedName).HasMaxLength(256);
+            });
+
+            modelBuilder.Entity<AspNetUserRoles>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.RoleId });
+
+                entity.HasIndex(e => e.RoleId);
+
+                entity.HasOne(d => d.Role)
+                    .WithMany(p => p.AspNetUserRoles)
+                    .HasForeignKey(d => d.RoleId);
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.AspNetUserRoles)
+                    .HasForeignKey(d => d.UserId);
+            });
 
             modelBuilder.Entity<AspNetUsers>(entity =>
             {
@@ -46,8 +67,6 @@ namespace BlazorBlogs.Data
                     .HasName("UserNameIndex")
                     .IsUnique()
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.DisplayName).HasMaxLength(256);
 

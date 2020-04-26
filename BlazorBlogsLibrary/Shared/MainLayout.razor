@@ -3,6 +3,7 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @inject IJSRuntime JSRuntime
+@inject BlogsService _BlogsService
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlazorBlogsContext context
 @inject DisqusState DisqusState
@@ -36,6 +37,7 @@
     string CurrentVersion = "01.00.00";
     // ********************************
 
+    string ADMINISTRATION_ROLE = "Administrators";
     GeneralSettings objGeneralSettings = new GeneralSettings();
     private ElementReference disqusBody;
 
@@ -49,7 +51,7 @@
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
 
-        // The database connection may be good, 
+        // The database connection may be good,
         // but the database tables are missing
         try
         {
@@ -61,9 +63,24 @@
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
 
+        // The database connection may be good,
+        // but the Administrator account may not exist
+        try
+        {
+            var AdminExists = await _BlogsService.AdminExistsAsync();
+            if (!AdminExists)
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
         // Subscribe to the StateChanged EventHandler
         DisqusState.StateChanged +=
-            OnDisqusStateStateChanged;
+        OnDisqusStateStateChanged;
 
         await LoadGeneralSettingsAsync();
     }

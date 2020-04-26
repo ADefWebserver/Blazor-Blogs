@@ -1,0 +1,66 @@
+﻿@using System.Security.Claims;
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject InstallUpdateState _InstallUpdateState
+@inject IWebHostEnvironment hostEnvironment
+@inject BlazorBlogsContext context
+@inject GeneralSettingsService _GeneralSettingsService
+
+<h3>InstallWizardCreateAdministrator</h3>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    // CreateAdministratorChanged is an EventCallback that will
+    // notify the parent component CreateAdministrator Is complete
+    [Parameter] public EventCallback<bool> CreateAdministratorChanged { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    string strAdministratorUserName = "";
+    string strAdministratorPassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+    }
+
+    private async void CreateAdministrator()
+    {
+        // ensure there is a ADMINISTRATION_ROLE
+        var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+        if (RoleResult == null)
+        {
+            // Create ADMINISTRATION_ROLE Role
+            await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
+        }
+
+        // Create the user
+        ApplicationUser objApplicationUser = new ApplicationUser();
+        objApplicationUser.UserName = strAdministratorUserName;
+        objApplicationUser.DisplayName = strAdministratorUserName;
+        objApplicationUser.Email = strAdministratorUserName;
+        objApplicationUser.EmailConfirmed = true;
+
+        var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+
+        var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+
+        if (user != null)
+        {
+            // Put admin in Administrator role
+            await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+        }
+
+        // Notify parent component
+        await CreateAdministratorChanged.InvokeAsync(true);
+    }
+}

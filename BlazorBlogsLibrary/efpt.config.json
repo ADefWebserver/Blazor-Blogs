@@ -14,6 +14,14 @@
    "Tables": [
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[AspNetRoles]"
+      },
+      {
+         "HasPrimaryKey": true,
+         "Name": "[dbo].[AspNetUserRoles]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[AspNetUsers]"
       },
       {
@@ -46,6 +54,7 @@
       }
    ],
    "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
    "UseFluentApiOnly": true,
    "UseHandleBars": false,
    "UseInflector": false,

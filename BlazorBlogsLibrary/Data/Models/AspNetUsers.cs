@@ -6,6 +6,11 @@ namespace BlazorBlogs.Data.Models
 {
     public partial class AspNetUsers
     {
+        public AspNetUsers()
+        {
+            AspNetUserRoles = new HashSet<AspNetUserRoles>();
+        }
+
         public string Id { get; set; }
         public string UserName { get; set; }
         public string NormalizedUserName { get; set; }
@@ -23,5 +28,7 @@ namespace BlazorBlogs.Data.Models
         public int AccessFailedCount { get; set; }
         public string DisplayName { get; set; }
         public bool? NewsletterSubscriber { get; set; }
+
+        public virtual ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }
     }
 }

@@ -594,6 +594,34 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public async Task<bool> AdminExistsAsync()
+        public async Task<bool> AdminExistsAsync()
+        {
+            // Get Admin Role
+            var AdminRoleList = await _context.AspNetRoles
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking()
+                 .Where(x => x.Name.ToLower() == "Administrators")
+                 .ToListAsync();
+
+            if(AdminRoleList.Count == 0)
+            {
+                return false;
+            }
+
+            var AdminRole = AdminRoleList.FirstOrDefault();
+
+            // Get number of users in that role
+            var UsersInAdminRole = await _context.AspNetUserRoles
+                // Use AsNoTracking to disable EF change tracking
+                .AsNoTracking()
+                .Where(x => x.RoleId == AdminRole.Id)
+                .CountAsync();
+
+            return (UsersInAdminRole > 0);
+        }
+        #endregion
+
         // Utility
 
         #region private List<BlogCategory> GetSelectedBlogCategories(BlogDTO objBlogs, IEnumerable<string> blogCatagories)
