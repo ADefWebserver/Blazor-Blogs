@@ -14,17 +14,17 @@
         <InstallWizardDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
     }
 
-    @if (WizardStage == "CreateAdministrator")
-    {
-        <p>CreateAdministrator</p>
-    }
-
     @if (WizardStage == "RunScripts")
     {
         <InstallWizardExecuteScripts ExecuteScriptsMode="Installing" ExecuteScriptsChanged="@RunScriptsComplete" />
     }
 
     @if (WizardStage == "RunScriptsComplete")
+    {
+        <InstallWizardCreateAdministrator CreateAdministratorChanged="@CreateAdministratorComplete" />
+    }
+
+    @if (WizardStage == "Continue")
     {
         <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
@@ -56,6 +56,7 @@
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     public string WizardStage = "";
+
     protected override async Task OnInitializedAsync()
     {
         //await Task.FromResult(
@@ -81,11 +82,21 @@
         }
     }
 
+    // Methods
+
     void DatabaseConfigurationComplete(bool paramValue)
     {
         if (paramValue)
         {
-            WizardStage = "CreateAdministrator";
+            WizardStage = "RunScripts";
+        }
+    }
+
+    void CreateAdministratorComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "Continue";
         }
     }
 

@@ -9,18 +9,16 @@
 @inject NavigationManager NavigationManager
 @inherits OwningComponentBase
 
-@if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+@if (@ErrorMessage != "")
 {
-    @if (@ErrorMessage != "")
-    {
-        <h4>@ErrorMessage</h4>
-    }
-    else
-    {
-        <h4>@ExecuteScriptsMode...</h4>
-        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-    }
+    <h4>@ErrorMessage</h4>
 }
+else
+{
+    <h4>@ExecuteScriptsMode...</h4>
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+}
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -34,7 +32,7 @@
     int intCurrentDatabaseVersion = 0;
     string ErrorMessage = "";
     string VersionNumber = "";
-    bool Upgrading = true;
+
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
@@ -46,9 +44,17 @@
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
-        var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        // Get the version Number
+        try
+        {
+            var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+            VersionNumber = GeneralSettings.VersionNumber;
+        }
+        catch
+        {
+            VersionNumber = "00.00.00";
+        }
 
-        VersionNumber = GeneralSettings.VersionNumber;
         intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
     }
 
@@ -57,42 +63,33 @@
     {
         if (firstRender)
         {
-            if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
-            {
-                Upgrading = true;
-                StateHasChanged();
-                Task.Delay(2000).Wait();
+            StateHasChanged();
+            Task.Delay(2000).Wait();
 
-                // Get the update scripts
-                Dictionary<int, string> ColScripts = UpdateScripts();
-                foreach (var sqlScript in ColScripts)
+            // Get the scripts
+            Dictionary<int, string> ColScripts = UpdateScripts();
+            foreach (var sqlScript in ColScripts)
+            {
+                try
                 {
-                    try
+                    // Only run the script if it is higher than the
+                    // current database version
+                    if (sqlScript.Key > intCurrentDatabaseVersion)
                     {
-                        // Only run the script if it is higher than the
-                        // current database version
-                        if (sqlScript.Key > intCurrentDatabaseVersion)
-                        {
-                            string strSQLScript = GetSQLScript(sqlScript.Value);
-                            await _BlogsService.ExecuteSqlRaw(strSQLScript);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorMessage = ex.Message;
-                        StateHasChanged();
-                        return;
+                        string strSQLScript = GetSQLScript(sqlScript.Value);
+                        await _BlogsService.ExecuteSqlRaw(strSQLScript);
                     }
                 }
+                catch (Exception ex)
+                {
+                    ErrorMessage = ex.Message;
+                    StateHasChanged();
+                    return;
+                }
+            }
 
-                // Notify parent component 
-                await ExecuteScriptsChanged.InvokeAsync(true);
-            }
-            else
-            {
-                ErrorMessage = "Must be an Administrator to run update scripts";
-                StateHasChanged();
-            }
+            // Notify parent component
+            await ExecuteScriptsChanged.InvokeAsync(true);
         }
     }
 

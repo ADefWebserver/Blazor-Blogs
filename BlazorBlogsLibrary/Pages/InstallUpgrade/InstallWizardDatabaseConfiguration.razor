@@ -20,8 +20,6 @@
 @inject GeneralSettingsService _GeneralSettingsService
 @inject NavigationManager NavigationManager
 
-<span>@strStatusMessage</span>
-
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
         <tr>
@@ -95,6 +93,7 @@
                 }
                 else
                 {
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
                     <span>Processing...</span>
                 }
             </td>
@@ -102,6 +101,7 @@
     </tbody>
 </table>
 
+<h4>@strStatusMessage</h4>
 
 @code {
     [CascadingParameter]
@@ -155,7 +155,7 @@
         connectionSetting.ServerName = ServerName;
         connectionSetting.Username = DatabaseUsername;
 
-        var result = SetConnectionSetting(connectionSetting);
+        var result = await SetConnectionSetting(connectionSetting);
 
         if (result.Success)
         {
@@ -168,12 +168,13 @@
         }
 
         boolProcessing = false;
+        StateHasChanged();
     }
 
     // Utility
 
-    #region public DTOStatus SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
-    public DTOStatus SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
+    #region public async Task<DTOStatus> SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
+    public async Task<DTOStatus> SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
     {
         // The return message
         DTOStatus objDTOStatus = new DTOStatus();
@@ -183,12 +184,12 @@
         string strConnectionString = CreateDatabaseConnectionString(objConnectionSetting);
 
         // Test the database connection string
-        if (DatabaseConnectionValid(strConnectionString))
+        if (await DatabaseConnectionValid(strConnectionString))
         {
             try
             {
                 // Update the appsettings.json file
-                UpdateDatabaseConnectionString(strConnectionString);
+                await UpdateDatabaseConnectionString(strConnectionString);
             }
             catch (Exception ex)
             {
@@ -209,8 +210,8 @@
     }
     #endregion
 
-    #region private bool DatabaseConnectionValid(string strConnectionString)
-    private bool DatabaseConnectionValid(string strConnectionString)
+    #region private async Task<bool> DatabaseConnectionValid(string strConnectionString)
+    private async Task<bool> DatabaseConnectionValid(string strConnectionString)
     {
         bool boolDatabaseConnectionValid = false;
 
@@ -220,15 +221,15 @@
 
         using (var context = new BlazorBlogsContext(optionsBuilder.Options))
         {
-            boolDatabaseConnectionValid = context.Database.CanConnect();
+            boolDatabaseConnectionValid = await context.Database.CanConnectAsync();
         }
 
         return boolDatabaseConnectionValid;
     }
     #endregion
 
-    #region private string UpdateDatabaseConnectionString(string strConnectionString)
-    private string UpdateDatabaseConnectionString(string strConnectionString)
+    #region private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
+    private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
     {
         // Update DefaultConnection in the appsettings.json file
         connectionString.Update(opt =>
@@ -238,7 +239,7 @@
 
         // *********************************
         // Reload configuration
-        ReloadConfiguration();
+        await ReloadConfiguration();
 
         return strConnectionString;
     }
@@ -266,8 +267,8 @@
     }
     #endregion
 
-    #region private void ReloadConfiguration()
-    private void ReloadConfiguration()
+    #region private async Task ReloadConfiguration()
+    private async Task ReloadConfiguration()
     {
         string WebConfigOrginalFileNameAndPath = hostEnvironment.ContentRootPath + @"\Web.config";
         string WebConfigTempFileNameAndPath = hostEnvironment.ContentRootPath + @"\Web.config.txt";
@@ -280,7 +281,7 @@
             System.IO.File.Delete(WebConfigOrginalFileNameAndPath);
 
             // Give the site time to release locks on the assemblies
-            Task.Delay(2000).Wait(); // Wait 2 seconds with blocking
+            await Task.Delay(2000); // Wait 2 seconds with blocking
 
             // Rename the temp web.config file back to web.config
             // so the site will be active again
