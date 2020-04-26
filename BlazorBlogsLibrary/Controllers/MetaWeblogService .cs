@@ -20,20 +20,17 @@ namespace BlazorBlogs
         private readonly IWebHostEnvironment _environment;
         private IHttpContextAccessor _httpContextAccessor;
         private readonly BlazorBlogsContext _BlazorBlogsContext;
-        private readonly GeneralSettingsService _GeneralSettingsService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public MetaWeblogService(
             IWebHostEnvironment environment,
             IHttpContextAccessor httpContextAccessor,
             BlazorBlogsContext blazorBlogsContext,
-            GeneralSettingsService generalSettingsService,
             UserManager<ApplicationUser> userManager)
         {
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _BlazorBlogsContext = blazorBlogsContext;
-            _GeneralSettingsService = generalSettingsService;
             _userManager = userManager;
         }
 

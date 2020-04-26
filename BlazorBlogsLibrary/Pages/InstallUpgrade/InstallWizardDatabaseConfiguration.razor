@@ -118,10 +118,10 @@
     string strStatusMessage = "";
     bool boolProcessing = false;
 
-    private string DatabaseName = "BlazorBlogs";
-    private string ServerName = "(local)";
-    private string DatabaseUsername = "TestDatabaseUser";
-    private string DatabasePassword = "password";
+    private string DatabaseName = "";
+    private string ServerName = "";
+    private string DatabaseUsername = "";
+    private string DatabasePassword = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -236,10 +236,6 @@
             opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
         });
 
-        // *********************************
-        // Reload configuration
-        await ReloadConfiguration();
-
         return strConnectionString;
     }
     #endregion
@@ -263,30 +259,6 @@
             strUserInfo);
 
         return strConnectionString;
-    }
-    #endregion
-
-    #region private async Task ReloadConfiguration()
-    private async Task ReloadConfiguration()
-    {
-        string WebConfigOrginalFileNameAndPath = hostEnvironment.ContentRootPath + @"\Web.config";
-        string WebConfigTempFileNameAndPath = hostEnvironment.ContentRootPath + @"\Web.config.txt";
-
-        if (System.IO.File.Exists(WebConfigOrginalFileNameAndPath))
-        {
-            // Temporarily rename the web.config file
-            // to release the locks on any assemblies
-            System.IO.File.Copy(WebConfigOrginalFileNameAndPath, WebConfigTempFileNameAndPath);
-            System.IO.File.Delete(WebConfigOrginalFileNameAndPath);
-
-            // Give the site time to release locks on the assemblies
-            await Task.Delay(2000); // Wait 2 seconds with blocking
-
-            // Rename the temp web.config file back to web.config
-            // so the site will be active again
-            System.IO.File.Copy(WebConfigTempFileNameAndPath, WebConfigOrginalFileNameAndPath);
-            System.IO.File.Delete(WebConfigTempFileNameAndPath);
-        }
     }
     #endregion
 
