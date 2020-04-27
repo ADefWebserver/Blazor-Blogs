@@ -220,7 +220,14 @@
 
         using (var context = new BlazorBlogsContext(optionsBuilder.Options))
         {
-            boolDatabaseConnectionValid = await context.Database.CanConnectAsync();
+            try
+            {
+                boolDatabaseConnectionValid = await context.Database.CanConnectAsync();
+            }
+            catch
+            {
+                boolDatabaseConnectionValid = false;
+            }
         }
 
         return boolDatabaseConnectionValid;
