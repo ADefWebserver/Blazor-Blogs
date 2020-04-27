@@ -45,7 +45,14 @@
         // Check for Install/Upgrade
         // The Index.razor page will detect this and load the
         // Install/Upgrade Wizard
-        if (!context.Database.CanConnect())
+        try
+        {
+            if (!context.Database.CanConnect())
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch
         {
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
