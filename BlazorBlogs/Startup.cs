@@ -18,6 +18,13 @@ namespace BlazorBlogs
         {
             Configuration = configuration;
 
+            var builder = new ConfigurationBuilder()
+           .SetBasePath(env.ContentRootPath)
+           .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+           .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+
             // Before we load the CustomClassLibrary.dll (and potentially lock it)
             // Determine if we have files in the Upgrade directory and process it first
             if (System.IO.File.Exists(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll"))

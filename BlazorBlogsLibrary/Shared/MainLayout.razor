@@ -2,6 +2,7 @@
 @implements IDisposable
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@inject IConfiguration _configuration
 @inject IJSRuntime JSRuntime
 @inject BlogsService _BlogsService
 @inject GeneralSettingsService _GeneralSettingsService
@@ -73,15 +74,17 @@
         // but the Administrator account may not exist
         try
         {
-            var AdminExists = await _BlogsService.AdminExistsAsync();
+            // Get database conection string
+            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+            var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
             if (!AdminExists)
             {
-                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
             }
         }
         catch
         {
-            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
         }
 
         // Subscribe to the StateChanged EventHandler

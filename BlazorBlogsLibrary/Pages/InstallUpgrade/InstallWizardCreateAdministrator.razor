@@ -1,12 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@inject IConfiguration _configuration
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject BlogsService _BlogsService
 
 <h3>Create Administrator</h3>
-<br/><br />
+<br />
+<br />
 @if (@ErrorMessage != "")
 {
     <h4>@ErrorMessage</h4>
@@ -59,12 +61,14 @@
     protected override async Task OnInitializedAsync()
     {
         // Don't allow this to be used if an Administrator already exists
-        var AdminExists = await _BlogsService.AdminExistsAsync();
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+        var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
 
         if (AdminExists)
         {
-            // Notify parent component
-            await CreateAdministratorChanged.InvokeAsync(true);
+            ErrorMessage = "Administrator Already Exists";
+            return;
         }
     }
 
@@ -90,7 +94,7 @@
 
             var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
 
-            if(!UserResult.Succeeded)
+            if (!UserResult.Succeeded)
             {
                 ErrorMessage = "";
                 foreach (var item in UserResult.Errors)

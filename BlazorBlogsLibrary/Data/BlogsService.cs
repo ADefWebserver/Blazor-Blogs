@@ -594,31 +594,37 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task<bool> AdminExistsAsync()
-        public async Task<bool> AdminExistsAsync()
+        #region public async Task<bool> AdminExistsAsync(string strDefaultConnection)
+        public async Task<bool> AdminExistsAsync(string strDefaultConnection)
         {
-            // Get Admin Role
-            var AdminRoleList = await _context.AspNetRoles
-                // Use AsNoTracking to disable EF change tracking
-                .AsNoTracking()
-                 .Where(x => x.Name.ToLower() == "Administrators")
-                 .ToListAsync();
+            var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+            optionsBuilder.UseSqlServer(strDefaultConnection);
 
-            if(AdminRoleList.Count == 0)
+            using (var context = new BlazorBlogsContext(optionsBuilder.Options))
             {
-                return false;
-            }
+                // Get Admin Role
+                var AdminRoleList = await context.AspNetRoles
+                        // Use AsNoTracking to disable EF change tracking
+                        .AsNoTracking()
+                         .Where(x => x.Name.ToLower() == "Administrators")
+                         .ToListAsync();
 
-            var AdminRole = AdminRoleList.FirstOrDefault();
+                if (AdminRoleList.Count == 0)
+                {
+                    return false;
+                }
 
-            // Get number of users in that role
-            var UsersInAdminRole = await _context.AspNetUserRoles
-                // Use AsNoTracking to disable EF change tracking
-                .AsNoTracking()
-                .Where(x => x.RoleId == AdminRole.Id)
-                .CountAsync();
+                var AdminRole = AdminRoleList.FirstOrDefault();
 
-            return (UsersInAdminRole > 0);
+                // Get number of users in that role
+                var UsersInAdminRole = await context.AspNetUserRoles
+                    // Use AsNoTracking to disable EF change tracking
+                    .AsNoTracking()
+                    .Where(x => x.RoleId == AdminRole.Id)
+                    .CountAsync();
+
+                return (UsersInAdminRole > 0);
+            }      
         }
         #endregion
 
@@ -671,5 +677,6 @@ namespace BlazorBlogs.Data
                 entry.State = EntityState.Detached;
         }
         #endregion
+
     }
 }

@@ -21,11 +21,6 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <InstallWizardCreateAdministrator CreateAdministratorChanged="@CreateAdministratorComplete" />
-    }
-
-    @if (WizardStage == "Continue")
-    {
         <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
@@ -47,6 +42,20 @@
         <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
+
+@if (WizardMode == "CreateAdministrator")
+{
+    @if (WizardStage == "CreateAdministrator")
+    {
+        <InstallWizardCreateAdministrator CreateAdministratorChanged="@CreateAdministratorComplete" />
+    }
+
+    @if (WizardStage == "Continue")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -79,6 +88,11 @@
             {
                 WizardStage = "RunScripts";
             }
+        }
+
+        if (WizardMode == "CreateAdministrator")
+        {
+            WizardStage = "CreateAdministrator";
         }
     }
 

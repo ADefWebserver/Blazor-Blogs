@@ -2,6 +2,8 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Hosting;
+@using Microsoft.EntityFrameworkCore;
+@inject IConfiguration _configuration
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
 @inject IWebHostEnvironment _IWebHostEnvironment
@@ -64,6 +66,9 @@ else
             StateHasChanged();
             Task.Delay(2000).Wait();
 
+            // Get database conection string
+            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
             // Get the scripts
             Dictionary<int, string> ColScripts = UpdateScripts();
             foreach (var sqlScript in ColScripts)
@@ -75,7 +80,25 @@ else
                     if (sqlScript.Key > intCurrentDatabaseVersion)
                     {
                         string strSQLScript = GetSQLScript(sqlScript.Value);
-                        await _BlogsService.ExecuteSqlRaw(strSQLScript);
+
+                        var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+                        optionsBuilder.UseSqlServer(strDefaultConnection);
+
+                        using (var context = new BlazorBlogsContext(optionsBuilder.Options))
+                        {
+                            try
+                            {
+                                await context.Database.ExecuteSqlRawAsync(strSQLScript);
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorMessage = ex.Message;
+                                StateHasChanged();
+                                return;
+                            }
+
+                            Task.Delay(1000).Wait();
+                        }
                     }
                 }
                 catch (Exception ex)
