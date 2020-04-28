@@ -628,6 +628,40 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+        public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+            optionsBuilder.UseSqlServer(strDefaultConnection);
+
+            try
+            {
+                using (var context = new BlazorBlogsContext(optionsBuilder.Options))
+                {
+                    // If we can get Version Number database is set up
+                    var VersionNumber = await context.Settings
+                            // Use AsNoTracking to disable EF change tracking
+                            .AsNoTracking()
+                             .Where(x => x.SettingName.ToLower() == "versionnumber")
+                             .FirstOrDefaultAsync();
+
+                    if (VersionNumber == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        #endregion
+
         // Utility
 
         #region private List<BlogCategory> GetSelectedBlogCategories(BlogDTO objBlogs, IEnumerable<string> blogCatagories)

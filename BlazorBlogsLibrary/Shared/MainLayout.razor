@@ -58,14 +58,20 @@
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
 
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
         // The database connection may be good,
         // but the database tables are missing
         try
         {
-            var settings = await
-                _GeneralSettingsService.GetGeneralSettingsAsync();
+            var DatabaseSetUp = await _BlogsService.IsDatabaseSetUpAsync(strDefaultConnection);
+            if (!DatabaseSetUp)
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
         }
-        catch
+        catch (Exception ex)
         {
             NavigationManager.NavigateTo("installwizard/INSTALL", true);
         }
@@ -74,8 +80,6 @@
         // but the Administrator account may not exist
         try
         {
-            // Get database conection string
-            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
             var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
             if (!AdminExists)
             {
