@@ -125,6 +125,6 @@
     void Continue()
     {
         string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
-        NavigationManager.NavigateTo(url);
+        NavigationManager.NavigateTo(url, true);
     }
 }
