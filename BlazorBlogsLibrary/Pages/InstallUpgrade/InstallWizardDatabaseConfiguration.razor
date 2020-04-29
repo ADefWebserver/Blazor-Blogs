@@ -237,13 +237,16 @@
     #region private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
     private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
     {
-        // Update DefaultConnection in the appsettings.json file
-        connectionString.Update(opt =>
+        return await Task.Run(() =>
         {
-            opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        });
+            // Update DefaultConnection in the appsettings.json file
+            connectionString.Update(opt =>
+            {
+                opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            });
 
-        return strConnectionString;
+            return strConnectionString;
+        });
     }
     #endregion
 
