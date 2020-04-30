@@ -1,0 +1,300 @@
+﻿@using System.Text;
+@using Microsoft.Extensions.Options;
+@using System.Security.Claims;
+@using Microsoft.Extensions.Configuration;
+@using Microsoft.Extensions.DependencyInjection;
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using Microsoft.EntityFrameworkCore;
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject InstallUpdateState _InstallUpdateState
+@inject IOptions<ConnectionStrings> ConnectionStrings
+@inject IWritableOptions<ConnectionStrings> connectionString
+@inject IConfiguration configRoot
+@inject IWebHostEnvironment hostEnvironment
+@inject BlazorBlogsContext context
+@inject GeneralSettingsService _GeneralSettingsService
+@inject NavigationManager NavigationManager
+
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Server: </label>
+            </td>
+            <td>
+                <input type="text" id="ServerName" class="form-control" @bind="ServerName" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Database: </label>
+            </td>
+            <td>
+                <input type="text" id="DatabaseName" class="form-control" @bind="DatabaseName" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Integrated Security: </label>
+            </td>
+            <td>
+                <select class="form-control"
+                        @bind="IntegratedSecurityDisplay">
+                    @foreach (var option in OptionsTrueFalse)
+                    {
+                        <option value="@option">
+                            @option
+                        </option>
+                    }
+                </select>
+            </td>
+        </tr>
+        @if (IntegratedSecurityDisplay == "False")
+        {
+            <tr>
+                <td>
+                    <label for="Title" class="control-label" style="font-weight: bold">Database Username: </label>
+                </td>
+                <td>
+                    <input type="text" id="DatabaseUsername" class="form-control" @bind="DatabaseUsername" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="Title" class="control-label" style="font-weight: bold">Database Password: </label>
+                </td>
+                <td>
+                    <input type="password" id="DatabasePassword" class="form-control" @bind="DatabasePassword" />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                &nbsp;
+            </td>
+            <td>
+                @if (boolProcessing == false)
+                {
+                    <button type="button" label="Set Database Connection"
+                            class="btn btn-success"
+                            @onclick="setConnection">
+                        Set Connection
+                    </button>
+                }
+                else
+                {
+                    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+                    <span>Processing...</span>
+                }
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<h4>@strStatusMessage</h4>
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    // DatabaseConfigurationChanged is an EventCallback that will
+    // notify the parent component DatabaseConfiguration Is complete
+    [Parameter] public EventCallback<bool> DatabaseConfigurationChanged { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    private DTOConnectionSetting connectionSetting = new DTOConnectionSetting();
+    string IntegratedSecurityDisplay = "False";
+    List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
+    string strStatusMessage = "";
+    bool boolProcessing = false;
+
+    private string DatabaseName = "";
+    private string ServerName = "";
+    private string DatabaseUsername = "";
+    private string DatabasePassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        try
+        {
+            var settings = await
+                _GeneralSettingsService.GetGeneralSettingsAsync();
+
+            // If we can connect then do not proceed
+            // Notify parent component 
+            await DatabaseConfigurationChanged.InvokeAsync(true);
+        }
+        catch
+        {
+            // Allow install to proceed
+        }
+    }
+
+    private async void setConnection()
+    {
+        boolProcessing = true;
+        strStatusMessage = "";
+
+        connectionSetting.DatabaseName = DatabaseName;
+        connectionSetting.IntegratedSecurity = Convert.ToBoolean(IntegratedSecurityDisplay);
+        connectionSetting.Password = DatabasePassword;
+        connectionSetting.ServerName = ServerName;
+        connectionSetting.Username = DatabaseUsername;
+
+        var result = await SetConnectionSetting(connectionSetting);
+
+        if (result.Success)
+        {
+            // Notify parent component 
+            await DatabaseConfigurationChanged.InvokeAsync(true);
+        }
+        else
+        {
+            strStatusMessage = result.StatusMessage;
+        }
+
+        boolProcessing = false;
+        StateHasChanged();
+    }
+
+    // Utility
+
+    #region public async Task<DTOStatus> SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
+    public async Task<DTOStatus> SetConnectionSetting(DTOConnectionSetting objConnectionSetting)
+    {
+        // The return message
+        DTOStatus objDTOStatus = new DTOStatus();
+        objDTOStatus.Success = true;
+
+        // Create a Database connection string
+        string strConnectionString = CreateDatabaseConnectionString(objConnectionSetting);
+
+        // Test the database connection string
+        if (await DatabaseConnectionValid(strConnectionString))
+        {
+            try
+            {
+                // Update the appsettings.json file
+                await UpdateDatabaseConnectionString(strConnectionString);
+            }
+            catch (Exception ex)
+            {
+                // appsettings.json file update error
+                objDTOStatus.Success = false;
+                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+            }
+        }
+        else
+        {
+            // Bad connection setting
+            objDTOStatus.Success = false;
+            objDTOStatus.StatusMessage = "Connection settings are not valid";
+        }
+
+        // Return the result
+        return objDTOStatus;
+    }
+    #endregion
+
+    #region private async Task<bool> DatabaseConnectionValid(string strConnectionString)
+    private async Task<bool> DatabaseConnectionValid(string strConnectionString)
+    {
+        bool boolDatabaseConnectionValid = false;
+
+        // Try to connect to the database
+        var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+        optionsBuilder.UseSqlServer(strConnectionString);
+
+        using (var context = new BlazorBlogsContext(optionsBuilder.Options))
+        {
+            try
+            {
+                boolDatabaseConnectionValid = await context.Database.CanConnectAsync();
+            }
+            catch
+            {
+                boolDatabaseConnectionValid = false;
+            }
+        }
+
+        return boolDatabaseConnectionValid;
+    }
+    #endregion
+
+    #region private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
+    private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
+    {
+        return await Task.Run(() =>
+        {
+            // Update DefaultConnection in the appsettings.json file
+            connectionString.Update(opt =>
+            {
+                opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            });
+
+            return strConnectionString;
+        });
+    }
+    #endregion
+
+    #region private string CreateDatabaseConnectionString(DTOConnectionSetting objConnectionSetting)
+    private string CreateDatabaseConnectionString(DTOConnectionSetting objConnectionSetting)
+    {
+        StringBuilder SB = new StringBuilder();
+        string strConnectionString = "";
+
+        string strUserInfo = (!objConnectionSetting.IntegratedSecurity) ?
+            String.Format("uid={0};pwd={1}",
+            objConnectionSetting.Username,
+            objConnectionSetting.Password) :
+            "integrated security=True";
+
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+            SB.ToString(),
+            objConnectionSetting.ServerName,
+            objConnectionSetting.DatabaseName,
+            strUserInfo);
+
+        return strConnectionString;
+    }
+    #endregion
+
+    #region private void Classes
+    public class ConnectionSetting
+    {
+        public string DatabaseName { get; set; }
+        public string ServerName { get; set; }
+        public bool IntegratedSecurity { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class DTOConnectionSetting
+    {
+        public string DatabaseName { get; set; }
+        public string ServerName { get; set; }
+        public bool IntegratedSecurity { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class DTOStatus
+    {
+        public string StatusMessage { get; set; }
+        public bool Success { get; set; }
+    }
+    #endregion
+}

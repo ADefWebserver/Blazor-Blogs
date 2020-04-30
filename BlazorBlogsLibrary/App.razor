@@ -1,0 +1,32 @@
+﻿@using System.IO;
+@using System.Runtime.Loader;
+@using BlazorBlogs.Data;
+<CascadingAuthenticationState>
+    <Router AppAssembly="BlazorBlogsAssembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="BlazorBlogsMainLayout" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="BlazorBlogsMainLayout">
+                <p>Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+@code {
+    System.Reflection.Assembly BlazorBlogsAssembly;
+    Type BlazorBlogsMainLayout;
+
+    protected override void OnInitialized()
+    {
+        string path =
+            Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.dll");
+
+        BlazorBlogsAssembly =
+            AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+
+        BlazorBlogsMainLayout =
+            BlazorBlogsAssembly
+            .GetType("BlazorBlogsLibrary.Shared.MainLayout");
+    }
+}

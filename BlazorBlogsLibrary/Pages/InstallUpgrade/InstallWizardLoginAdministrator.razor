@@ -1,0 +1,64 @@
+﻿@using System.Security.Claims;
+@using System.Web;
+@inject NavigationManager NavigationManager
+
+<h3>Verify Administrator</h3>
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
+            </td>
+            <td>
+                <input type="text" id="DatabaseUsername" class="form-control" @bind="Username" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+            </td>
+            <td>
+                <input type="password" id="DatabasePassword" class="form-control" @bind="Password" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" label="Authenticate"
+                        class="btn btn-success"
+                        @onclick="Authenticate">
+                    Log In
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    private string Username = "";
+    private string Password = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+    }
+
+    private void Authenticate()
+    {
+        string BaseUrl = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
+        string ReturnUrl = NavigationManager.ToAbsoluteUri($"/").AbsolutePath;
+        string url = BaseUrl + $"Identity/Account/InstallWizardAuth?paramUsername={encode(@Username)}&paramPassword={encode(@Password)}&returnUrl={encode(ReturnUrl)}";
+        NavigationManager.NavigateTo(url,true);
+    }
+
+    // Utility
+
+    private string encode(string param)
+    {
+        return HttpUtility.UrlEncode(param);
+    }
+}

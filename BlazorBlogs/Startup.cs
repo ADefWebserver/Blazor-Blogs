@@ -1,14 +1,9 @@
-using BlazorBlogs.Areas.Identity;
-using BlazorBlogs.Data;
-using BlazorBlogs.Data.Models;
-using Blazored.Toast;
+using System;
+using System.IO;
+using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,48 +14,84 @@ namespace BlazorBlogs
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
+
+            var builder = new ConfigurationBuilder()
+           .SetBasePath(env.ContentRootPath)
+           .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+           .AddEnvironmentVariables();
+
+            Configuration = builder.Build();
+
+            // Before we load the CustomClassLibrary.dll (and potentially lock it)
+            // Determine if we have files in the Upgrade directory and process it first
+            if (System.IO.File.Exists(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll"))
+            {
+                string WebConfigOrginalFileNameAndPath = env.ContentRootPath + @"\Web.config";
+                string WebConfigTempFileNameAndPath = env.ContentRootPath + @"\Web.config.txt";
+
+                if (System.IO.File.Exists(WebConfigOrginalFileNameAndPath))
+                {
+                    // Temporarily rename the web.config file
+                    // to release the locks on any assemblies
+                    System.IO.File.Copy(WebConfigOrginalFileNameAndPath, WebConfigTempFileNameAndPath);
+                    System.IO.File.Delete(WebConfigOrginalFileNameAndPath);
+
+                    // Give the site time to release locks on the assemblies
+                    Task.Delay(2000).Wait(); // Wait 2 seconds with blocking
+
+                    // Rename the temp web.config file back to web.config
+                    // so the site will be active again
+                    System.IO.File.Copy(WebConfigTempFileNameAndPath, WebConfigOrginalFileNameAndPath);
+                    System.IO.File.Delete(WebConfigTempFileNameAndPath);
+                }
+
+                // Delete current 
+                System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.dll");
+                System.IO.File.Delete(env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.Views.dll");
+
+                // Copy new 
+                System.IO.File.Copy(
+                    env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll",
+                    env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.dll");
+                System.IO.File.Copy(
+                    env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.Views.dll",
+                    env.ContentRootPath + @"\CustomModules\BlazorBlogsLibrary.Views.dll");
+
+                // Delete Upgrade - so it wont be processed again
+                System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.dll");
+                System.IO.File.Delete(env.ContentRootPath + @"\Upgrade\BlazorBlogsLibrary.Views.dll");
+            }
         }
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            var BlazorBlogsLibraryViewsPath = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.Views.dll");
 
-            services.AddDbContext<BlazorBlogsContext>(options =>
-            options.UseSqlServer(
-                Configuration.GetConnectionString("DefaultConnection")));
+            var BlazorBlogsViewsAssembly =
+                AssemblyLoadContext
+                .Default.LoadFromAssemblyPath(BlazorBlogsLibraryViewsPath);
 
-            services.AddDefaultIdentity<ApplicationUser>(
-                  options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            var BlazorBlogsLibraryPath = Path.GetFullPath(@"CustomModules\BlazorBlogsLibrary.dll");
 
-            services.AddRazorPages();
-            services.AddServerSideBlazor()
-                .AddCircuitOptions(options => { options.DetailedErrors = true; });
+            var BlazorBlogsAssembly =
+                AssemblyLoadContext
+                .Default.LoadFromAssemblyPath(BlazorBlogsLibraryPath);
 
-            services.AddScoped<AuthenticationStateProvider, 
-                RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            Type BlazorBlogsType =
+                BlazorBlogsAssembly
+                .GetType("Microsoft.Extensions.DependencyInjection.RegisterServices");
 
-            services.AddScoped<BlogsService>();
-            services.AddScoped<GeneralSettingsService>();
-            services.AddScoped<EmailService>();
-            services.AddTransient<IEmailSender, EmailSender>();
-            services.AddScoped<SearchState>();
-            services.AddScoped<DisqusState>();
-            services.AddMetaWeblog<MetaWeblogService>();
-            services.AddHttpContextAccessor();
-            services.AddScoped<HttpContextAccessor>();
-            services.AddBlazoredToast();
-            services.AddHeadElementHelper();
+            services.AddMvc(options => options.EnableEndpointRouting = false)
+                .AddApplicationPart(BlazorBlogsViewsAssembly)
+                .AddApplicationPart(BlazorBlogsAssembly);
+
+            BlazorBlogsType.GetMethod("AddBlazorBlogsServices")
+                .Invoke(null, new object[] { services, Configuration });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -74,7 +105,9 @@ namespace BlazorBlogs
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                // The default HSTS value is 30 days. 
+                // You may want to change this for production scenarios, 
+                // see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

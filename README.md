@@ -32,10 +32,10 @@
 
 ### Installing
 
-1) Create Database and run scripts in !SQL directory
-2) Edit *appsettings.json* to set the database connection and the user name and password of the Administrator
-3) Run the application, click the *Register* link and create a user that matches the user name and password
-4) Log out and log back in. You will now be the Administrator 
+1) Create a Database
+2) Deploy the code to Azure or IIS
+3) Run the application by navigating to the root page in the web browser
+4) The Install Wizard will show and guide you though installing the application
 
 ### Helpful Articles
 

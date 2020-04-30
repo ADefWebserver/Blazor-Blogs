@@ -1,0 +1,127 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject IConfiguration _configuration
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject BlogsService _BlogsService
+
+<h3>Create Administrator</h3>
+<br />
+<br />
+@if (@ErrorMessage != "")
+{
+    <h4>@ErrorMessage</h4>
+}
+
+<table class="form-group" cellpadding="4" cellspacing="4">
+    <tbody>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Email Address: </label>
+            </td>
+            <td>
+                <input type="email" id="Username" class="form-control" @bind="strAdministratorUserName" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
+            </td>
+            <td>
+                <input type="password" id="Password" class="form-control" @bind="strAdministratorPassword" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" label="Create Administrator"
+                        class="btn btn-success"
+                        @onclick="CreateAdministrator">
+                    Create Administrator
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    // CreateAdministratorChanged is an EventCallback that will
+    // notify the parent component CreateAdministrator Is complete
+    [Parameter] public EventCallback<bool> CreateAdministratorChanged { get; set; }
+
+    string ErrorMessage = "";
+    string ADMINISTRATION_ROLE = "Administrators";
+    string strAdministratorUserName = "";
+    string strAdministratorPassword = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Don't allow this to be used if an Administrator already exists
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+        var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
+
+        if (AdminExists)
+        {
+            ErrorMessage = "Administrator Already Exists";
+            return;
+        }
+    }
+
+    #region private async void CreateAdministrator()
+    private async void CreateAdministrator()
+    {
+        try
+        {
+            // ensure there is a ADMINISTRATION_ROLE
+            var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
+            if (RoleResult == null)
+            {
+                // Create ADMINISTRATION_ROLE Role
+                await _RoleManager.CreateAsync(new IdentityRole(ADMINISTRATION_ROLE));
+            }
+
+            // Create the user
+            ApplicationUser objApplicationUser = new ApplicationUser();
+            objApplicationUser.UserName = strAdministratorUserName;
+            objApplicationUser.DisplayName = strAdministratorUserName;
+            objApplicationUser.Email = strAdministratorUserName;
+            objApplicationUser.EmailConfirmed = true;
+
+            var UserResult = await _UserManager.CreateAsync(objApplicationUser, strAdministratorPassword);
+
+            if (!UserResult.Succeeded)
+            {
+                ErrorMessage = "";
+                foreach (var item in UserResult.Errors)
+                {
+                    ErrorMessage = ErrorMessage + " " + item.Description;
+                }
+                StateHasChanged();
+                return;
+            }
+
+            var user = await _UserManager.FindByNameAsync(strAdministratorUserName);
+
+            if (user != null)
+            {
+                // Put admin in Administrator role
+                await _UserManager.AddToRoleAsync(user, ADMINISTRATION_ROLE);
+            }
+
+            // Notify parent component
+            await CreateAdministratorChanged.InvokeAsync(true);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.Message;
+            StateHasChanged();
+            return;
+        }
+    }
+    #endregion
+}

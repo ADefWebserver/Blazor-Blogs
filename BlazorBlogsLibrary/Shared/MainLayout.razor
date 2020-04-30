@@ -1,0 +1,165 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject IConfiguration _configuration
+@inject IJSRuntime JSRuntime
+@inject BlogsService _BlogsService
+@inject GeneralSettingsService _GeneralSettingsService
+@inject BlazorBlogsContext context
+@inject DisqusState DisqusState
+@inject InstallUpdateState _InstallUpdateState
+@inject NavigationManager NavigationManager
+<BlazoredToasts />
+<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <LoginDisplay />
+        <partial name="_LoginPartial" />
+        <a href="https://github.com/ADefWebserver/Blazor-Blogs" target="_blank">About</a>
+        <a href="api/RSSFeed/Rss" target="_blank"><RadzenIcon Icon="rss_feed" /></a>
+    </div>
+    <div class="header-centered">
+        @((MarkupString)objGeneralSettings.ApplicationHeader)
+    </div>
+    <div @ref="@disqusBody" class="content px-4">
+        @Body
+        @if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+        {
+            <div id="disqus_thread" style="@((!DisqusState.getDisplayDisqus()) ? "display: none;" : "")"></div>
+        }
+    </div>
+</div>
+@code {
+    // ********************************
+    string CurrentVersion = "01.00.00";
+    // ********************************
+
+    GeneralSettings objGeneralSettings = new GeneralSettings();
+    private ElementReference disqusBody;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check for Install/Upgrade
+        // The Index.razor page will detect this and load the
+        // Install/Upgrade Wizard
+        try
+        {
+            if (!context.Database.CanConnect())
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // The database connection may be good,
+        // but the database tables are missing
+        try
+        {
+            var DatabaseSetUp = await _BlogsService.IsDatabaseSetUpAsync(strDefaultConnection);
+            if (!DatabaseSetUp)
+            {
+                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+        }
+
+        // The database connection may be good,
+        // but the Administrator account may not exist
+        try
+        {
+            var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
+            if (!AdminExists)
+            {
+                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+            }
+        }
+        catch
+        {
+            NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+        }
+
+        // Subscribe to the StateChanged EventHandler
+        DisqusState.StateChanged +=
+        OnDisqusStateStateChanged;
+
+        await LoadGeneralSettingsAsync();
+    }
+
+    protected override async Task
+         OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+            {
+                await DisqusInterop.CreateDisqus(
+                    JSRuntime,
+                    disqusBody,
+                    @$"https://{objGeneralSettings.DisqusShortName.Trim()}.disqus.com/embed.js");
+            }
+        }
+    }
+
+    protected async Task LoadGeneralSettingsAsync()
+    {
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+
+        if (ConvertToInteger(CurrentVersion) > ConvertToInteger(objGeneralSettings.VersionNumber))
+        {
+            NavigationManager.NavigateTo("installwizard/UPGRADE", true);
+        }
+    }
+
+    #region private int ConvertToInteger(string strParamVersion)
+    private int ConvertToInteger(string strParamVersion)
+    {
+        int intVersionNumber = 0;
+        string strVersion = strParamVersion;
+
+        // Split into parts seperated by periods
+        char[] splitchar = { '.' };
+        var strSegments = strVersion.Split(splitchar);
+
+        // Process the segments
+        int i = 0;
+        List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
+        foreach (var strSegment in strSegments)
+        {
+            int intSegmentNumber = Convert.ToInt32(strSegment);
+            intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
+            i++;
+        }
+
+        return intVersionNumber;
+    }
+    #endregion
+
+    // This method is fired when the DisqusState object
+    // invokes its StateHasChanged() method
+    // This will cause this control to invoke its own
+    // StateHasChanged() method refreshing the page
+    // and displaying the updated counter value
+    void OnDisqusStateStateChanged(
+        object sender, EventArgs e) => StateHasChanged();
+
+    void IDisposable.Dispose()
+    {
+        // When this control is disposed of
+        // unsubscribe from the StateChanged EventHandler
+        DisqusState.StateChanged -=
+        OnDisqusStateStateChanged;
+    }
+}

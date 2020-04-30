@@ -1,0 +1,20 @@
+﻿<div class="top-row pl-2 navbar navbar-dark">
+    <a class="navbar-brand" href="">
+        <img src="uploads/logo.png" />
+    </a>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+
+</div>
+
+@code {
+    bool collapseNavMenu = true;
+
+    string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

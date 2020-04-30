@@ -1,0 +1,130 @@
+﻿@layout InstallWizardLayout
+@page "/installwizard/{WizardMode}"
+@using System.Security.Claims;
+@inject InstallUpdateState InstallUpdateState
+@inject NavigationManager NavigationManager
+
+<h3>Install Upgrade Wizard</h3>
+<br />
+
+@if (WizardMode == "INSTALL")
+{
+    @if (WizardStage == "DatabaseConfiguration")
+    {
+        <InstallWizardDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Installing" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@if (WizardMode == "UPGRADE")
+{
+    @if (WizardStage == "VerifyAdministrator")
+    {
+        <InstallWizardLoginAdministrator />
+    }
+
+    @if (WizardStage == "RunScripts")
+    {
+        <InstallWizardExecuteScripts ExecuteScriptsMode="Upgrading" ExecuteScriptsChanged="@RunScriptsComplete" />
+    }
+
+    @if (WizardStage == "RunScriptsComplete")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@if (WizardMode == "CreateAdministrator")
+{
+    @if (WizardStage == "CreateAdministrator")
+    {
+        <InstallWizardCreateAdministrator CreateAdministratorChanged="@CreateAdministratorComplete" />
+    }
+
+    @if (WizardStage == "Continue")
+    {
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+    }
+}
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public string WizardMode { get; set; }
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    public string WizardStage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        //await Task.FromResult(
+
+        // Get current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (WizardMode == "INSTALL")
+        {
+            WizardStage = "DatabaseConfiguration";
+        }
+
+        if (WizardMode == "UPGRADE")
+        {
+            if (!CurrentUser.IsInRole(ADMINISTRATION_ROLE))
+            {
+                WizardStage = "VerifyAdministrator";
+            }
+            else
+            {
+                WizardStage = "RunScripts";
+            }
+        }
+
+        if (WizardMode == "CreateAdministrator")
+        {
+            WizardStage = "CreateAdministrator";
+        }
+    }
+
+    // Methods
+
+    void DatabaseConfigurationComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "RunScripts";
+        }
+    }
+
+    void CreateAdministratorComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "Continue";
+        }
+    }
+
+    void RunScriptsComplete(bool paramValue)
+    {
+        if (paramValue)
+        {
+            WizardStage = "RunScriptsComplete";
+        }
+    }
+
+    void Continue()
+    {
+        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
+        NavigationManager.NavigateTo(url, true);
+    }
+}
