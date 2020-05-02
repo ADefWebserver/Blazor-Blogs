@@ -32,7 +32,7 @@
         "description": "Location for all resources."
       }
     },
-    "BlazorName": {
+    "BlazorWebsiteName": {
       "type": "string",
       "minLength": 1
     },
@@ -126,7 +126,7 @@
       ]
     },
     {
-      "name": "[parameters('BlazorName')]",
+      "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-06-01",
@@ -135,7 +135,7 @@
         "displayName": "Blazor"
       },
       "properties": {
-        "name": "[parameters('BlazorName')]",
+        "name": "[parameters('BlazorWebsiteName')]",
         "sku": "[parameters('BlazorSKU')]",
         "workerSize": "[parameters('BlazorWorkerSize')]",
         "numberOfWorkers": 1
