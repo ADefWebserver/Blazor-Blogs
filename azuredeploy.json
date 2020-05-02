@@ -14,12 +14,6 @@
         "description": "The administrator password of the SQL Server."
       }
     },
-    "BlazorWebsiteName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the website. It has to be unique."
-      }
-    },
     "sqlServerName": {
       "type": "string",
       "metadata": {
@@ -30,6 +24,12 @@
       "type": "string",
       "metadata": {
         "description": "The name of the sql databaseName. It has to be unique."
+      }
+    },
+    "BlazorWebsiteName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the website. It has to be unique."
       }
     },
     "BlazorSKU": {
@@ -149,6 +149,7 @@
       },
       "properties": {
         "name": "[variables('BlazorBlogsName')]",
+        "webSocketsEnabled": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       }
     }
