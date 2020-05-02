@@ -25,13 +25,6 @@
         "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
       }
     },
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]",
-      "metadata": {
-        "description": "Location for all resources."
-      }
-    },
     "BlazorWebsiteName": {
       "type": "string",
       "minLength": 1
@@ -69,7 +62,7 @@
       "name": "[variables('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2014-04-01-preview",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "SqlServer"
       },
@@ -83,7 +76,7 @@
           "name": "[variables('databaseName')]",
           "type": "databases",
           "apiVersion": "2015-01-01",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "tags": {
             "displayName": "Database"
           },
@@ -114,7 +107,7 @@
           "name": "AllowAllMicrosoftAzureIps",
           "type": "firewallrules",
           "apiVersion": "2014-04-01",
-          "location": "[parameters('location')]",
+          "location": "[resourceGroup().location]",
           "properties": {
             "endIpAddress": "0.0.0.0",
             "startIpAddress": "0.0.0.0"
@@ -147,15 +140,15 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-08-01",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', parameters('BlazorName'))]"
+        "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       ],
       "tags": {
-        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('BlazorName'))]": "Resource",
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]": "Resource",
         "displayName": "BlazorBlogs"
       },
       "properties": {
         "name": "[variables('BlazorBlogsName')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       }
     }
   ],
