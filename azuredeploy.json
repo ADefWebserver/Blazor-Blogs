@@ -27,7 +27,10 @@
     },
     "BlazorWebsiteName": {
       "type": "string",
-      "minLength": 1
+      "defaultValue": "[concat('BlazorBlogs-', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "That name is the name of our application. It has to be unique."
+      }
     },
     "BlazorSKU": {
       "type": "string",
@@ -138,7 +141,7 @@
       "name": "[variables('BlazorBlogsName')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-08-01",
+      "apiVersion": "2018-11-01",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       ],
@@ -148,7 +151,8 @@
       },
       "properties": {
         "name": "[variables('BlazorBlogsName')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]",
+        "webSocketsEnabled": true
       }
     }
   ],
