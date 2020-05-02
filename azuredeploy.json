@@ -27,7 +27,7 @@
     },
     "BlazorWebsiteName": {
       "type": "string",
-      "defaultValue": "[concat('BlazorBlogs-', uniqueString(resourceGroup().id))]",
+      "defaultValue": "[concat('ASPNET-', uniqueString(resourceGroup().id))]",
       "metadata": {
         "description": "That name is the name of our application. It has to be unique."
       }
@@ -54,7 +54,7 @@
   },
   "variables": {
     "sqlServerName": "[concat('sqlserver', uniqueString(subscription().id, resourceGroup().id))]",
-    "databaseName": "sample-db-with-tde",
+    "databaseName": "blazor-db,
     "databaseEdition": "Basic",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseServiceObjectiveName": "Basic",
