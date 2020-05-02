@@ -14,22 +14,22 @@
         "description": "The administrator password of the SQL Server."
       }
     },
-    "transparentDataEncryption": {
-      "type": "string",
-      "allowedValues": [
-        "Enabled",
-        "Disabled"
-      ],
-      "defaultValue": "Enabled",
-      "metadata": {
-        "description": "Enable or disable Transparent Data Encryption (TDE) for the database."
-      }
-    },
     "BlazorWebsiteName": {
       "type": "string",
-      "defaultValue": "[concat('ASPNET-', uniqueString(resourceGroup().id))]",
       "metadata": {
-        "description": "That name is the name of our application. It has to be unique."
+        "description": "The name of the website. It has to be unique."
+      }
+    },
+    "sqlServerName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the sql server. It has to be unique."
+      }
+    },
+    "databaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the sql databaseName. It has to be unique."
       }
     },
     "BlazorSKU": {
@@ -53,8 +53,6 @@
     }
   },
   "variables": {
-    "sqlServerName": "[concat('sqlserver', uniqueString(subscription().id, resourceGroup().id))]",
-    "databaseName": "blazor-db",
     "databaseEdition": "Basic",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseServiceObjectiveName": "Basic",
@@ -62,7 +60,7 @@
   },
   "resources": [
     {
-      "name": "[variables('sqlServerName')]",
+      "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2014-04-01-preview",
       "location": "[resourceGroup().location]",
@@ -76,7 +74,7 @@
       },
       "resources": [
         {
-          "name": "[variables('databaseName')]",
+          "name": "[parameters('databaseName')]",
           "type": "databases",
           "apiVersion": "2015-01-01",
           "location": "[resourceGroup().location]",
@@ -89,7 +87,7 @@
             "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
           },
           "dependsOn": [
-            "[variables('sqlServerName')]"
+            "[parameters('sqlServerName')]"
           ],
           "resources": [
             {
@@ -98,10 +96,10 @@
               "type": "transparentDataEncryption",
               "apiVersion": "2014-04-01-preview",
               "properties": {
-                "status": "[parameters('transparentDataEncryption')]"
+                "status": "Enabled"
               },
               "dependsOn": [
-                "[variables('databaseName')]"
+                "[parameters('databaseName')]"
               ]
             }
           ]
@@ -116,7 +114,7 @@
             "startIpAddress": "0.0.0.0"
           },
           "dependsOn": [
-            "[variables('sqlServerName')]"
+            "[parameters('sqlServerName')]"
           ]
         }
       ]
@@ -158,11 +156,11 @@
   "outputs": {
     "sqlServerFqdn": {
       "type": "string",
-      "value": "[reference(concat('Microsoft.Sql/servers/', variables('sqlServerName'))).fullyQualifiedDomainName]"
+      "value": "[reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName]"
     },
     "databaseName": {
       "type": "string",
-      "value": "[variables('databaseName')]"
+      "value": "[parameters('databaseName')]"
     }
   }
 }
