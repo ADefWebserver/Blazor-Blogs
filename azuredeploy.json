@@ -29,7 +29,7 @@
       "type": "string",
       "defaultValue": "[concat('ASPNET-', uniqueString(resourceGroup().id))]",
       "metadata": {
-        "description": "That name is the name of our application. It has to be unique. Type a name followed by your resource group name. (<name>-<resourceGroupName>)"
+        "description": "That name is the name of our application. It has to be unique."
       }
     },
     "BlazorSKU": {
@@ -54,7 +54,7 @@
   },
   "variables": {
     "sqlServerName": "[concat('sqlserver', uniqueString(subscription().id, resourceGroup().id))]",
-    "databaseName": "sample-db-with-tde",
+    "databaseName": "blazor-db",
     "databaseEdition": "Basic",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseServiceObjectiveName": "Basic",
@@ -141,7 +141,7 @@
       "name": "[variables('BlazorBlogsName')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-08-01",
+      "apiVersion": "2018-11-01",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       ],
