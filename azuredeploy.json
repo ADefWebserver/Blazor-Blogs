@@ -55,8 +55,7 @@
   "variables": {
     "databaseEdition": "Basic",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "Basic",
-    "BlazorBlogsName": "[concat('BlazorBlogs', uniqueString(resourceGroup().id))]"
+    "databaseServiceObjectiveName": "Basic"
   },
   "resources": [
     {
@@ -120,7 +119,7 @@
       ]
     },
     {
-      "name": "[parameters('BlazorWebsiteName')]",
+      "name": "[concat('AppPlan', parameters('BlazorWebsiteName'))]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-06-01",
@@ -129,14 +128,14 @@
         "displayName": "Blazor"
       },
       "properties": {
-        "name": "[parameters('BlazorWebsiteName')]",
+        "name": "[concat('AppPlan', parameters('BlazorWebsiteName'))]",
         "sku": "[parameters('BlazorSKU')]",
         "workerSize": "[parameters('BlazorWorkerSize')]",
         "numberOfWorkers": 1
       }
     },
     {
-      "name": "[variables('BlazorBlogsName')]",
+      "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
       "apiVersion": "2018-11-01",
@@ -148,7 +147,7 @@
         "displayName": "BlazorBlogs"
       },
       "properties": {
-        "name": "[variables('BlazorBlogsName')]",
+        "name": "[parameters('BlazorWebsiteName')]",
         "webSocketsEnabled": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       }
