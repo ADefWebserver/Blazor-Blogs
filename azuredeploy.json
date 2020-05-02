@@ -151,8 +151,7 @@
       },
       "properties": {
         "name": "[variables('BlazorBlogsName')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]",
-        "webSocketsEnabled": true
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       }
     }
   ],
