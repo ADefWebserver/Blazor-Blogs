@@ -113,7 +113,7 @@
       ]
     },
     {
-      "name": "[parameters('BlazorWebsiteName')]",
+      "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-06-01",
@@ -122,7 +122,7 @@
         "displayName": "Blazor"
       },
       "properties": {
-        "name": "[parameters('BlazorWebsiteName')]",
+        "name": "[variables('hostingPlanName')]",
         "sku": "[parameters('BlazorSKU')]",
         "workerSize": "[parameters('BlazorWorkerSize')]",
         "numberOfWorkers": 1
