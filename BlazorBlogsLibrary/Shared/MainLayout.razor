@@ -35,7 +35,7 @@
 </div>
 @code {
     // ********************************
-    string CurrentVersion = "01.00.00";
+    string CurrentVersion = "01.00.20";
     // ********************************
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
@@ -68,12 +68,12 @@
             var DatabaseSetUp = await _BlogsService.IsDatabaseSetUpAsync(strDefaultConnection);
             if (!DatabaseSetUp)
             {
-                NavigationManager.NavigateTo("installwizard/INSTALL", true);
+                NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
             }
         }
         catch
         {
-            NavigationManager.NavigateTo("installwizard/INSTALL", true);
+            NavigationManager.NavigateTo("installwizard/RUNSCRIPTS", true);
         }
 
         // The database connection may be good,
