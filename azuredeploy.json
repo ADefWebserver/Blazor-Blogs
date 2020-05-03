@@ -181,7 +181,7 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[parameters('BlazorWebsiteName')]"
+            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
           ],
           "properties": {
             "DefaultConnection": {
