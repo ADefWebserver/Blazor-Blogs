@@ -138,7 +138,7 @@
       "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2015-08-01",
       "dependsOn": [
         "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       ],
@@ -148,9 +148,23 @@
       },
       "properties": {
         "name": "[parameters('BlazorWebsiteName')]",
-        "webSocketsEnabled": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
-      }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('BlazorWebsiteName'))]"
+          ],
+          "properties": {
+            "siteProperties": {
+              "webSocketsEnabled": true
+            }
+          }
+        }
+      ]
     }
   ],
   "outputs": {
