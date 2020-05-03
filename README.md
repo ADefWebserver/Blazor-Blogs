@@ -4,7 +4,7 @@
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FADefWebserver%2FBlazor-Blogs%2Fmaster%2Fazuredeploy.json)
 
 ## Live example site: https://blazorblogs.azurewebsites.net
-#### Also see: [Installing Blazor-Blogs on Microsoft Azure](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure (Manual Method)")
+#### Also see: [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 
 
 ![Screenshot](Animation.gif)
@@ -42,7 +42,7 @@
 
 ### Helpful Articles
 
-* [Installing Blazor-Blogs on Microsoft Azure](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure (Manual Method)")
+* [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 * [Uploading Images With The Blazor Rich Text Editor](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4369/Uploading-Images-With-The-Blazor-Rich-Text-Editor.aspx "Uploading Images With The Blazor Rich Text Editor")
 * [Creating Reusable Custom Blazor Controls](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4365/Creating-Reusable-Custom-Blazor-Controls.aspx "Creating Reusable Custom Blazor Controls")
 * [Creating A Rich Text Editor In Blazor Using Quill](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4364/Creating-A-Rich-Text-Editor-In-Blazor-Using-Quill.aspx "Creating A Rich Text Editor In Blazor Using Quill")
