@@ -170,7 +170,7 @@
         "[parameters('BlazorWebsiteName')]"
       ],
       "tags": {
-        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName')))]": "Resource",
         "displayName": "AppInsightsComponent"
       },
       "properties": {
