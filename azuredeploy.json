@@ -67,13 +67,13 @@
   },
   "resources": [
     {
-      "name": "[parameters('sqlserverName')]",
+      "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
-      "location": "[parameters('location')]",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "SqlServer"
       },
-      "apiVersion": "2018-06-01-preview",
       "properties": {
         "administratorLogin": "[parameters('sqlAdministratorLogin')]",
         "administratorLoginPassword": "[parameters('sqlAdministratorLoginPassword')]",
@@ -83,33 +83,46 @@
         {
           "name": "[parameters('databaseName')]",
           "type": "databases",
-          "location": "[parameters('location')]",
+          "apiVersion": "2015-01-01",
+          "location": "[resourceGroup().location]",
           "tags": {
             "displayName": "Database"
           },
-          "apiVersion": "2018-06-01-preview",
-          "dependsOn": [
-            "[parameters('sqlserverName')]"
-          ],
           "properties": {
-            "edition": "Basic",
-            "collation": "SQL_Latin1_General_CP1_CI_AS",
-            "maxSizeBytes": "1073741824",
-            "requestedServiceObjectiveName": "Basic"
-          }
+            "edition": "[variables('databaseEdition')]",
+            "collation": "[variables('databaseCollation')]",
+            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+          },
+          "dependsOn": [
+            "[parameters('sqlServerName')]"
+          ],
+          "resources": [
+            {
+              "comments": "Transparent Data Encryption",
+              "name": "current",
+              "type": "transparentDataEncryption",
+              "apiVersion": "2014-04-01-preview",
+              "properties": {
+                "status": "Enabled"
+              },
+              "dependsOn": [
+                "[parameters('databaseName')]"
+              ]
+            }
+          ]
         },
         {
+          "name": "AllowAllMicrosoftAzureIps",
           "type": "firewallrules",
-          "apiVersion": "2018-06-01-preview",
-          "dependsOn": [
-            "[parameters('sqlserverName')]"
-          ],
-          "location": "[parameters('location')]",
-          "name": "AllowAllWindowsAzureIps",
+          "apiVersion": "2014-04-01",
+          "location": "[resourceGroup().location]",
           "properties": {
             "endIpAddress": "0.0.0.0",
             "startIpAddress": "0.0.0.0"
-          }
+          },
+          "dependsOn": [
+            "[parameters('sqlServerName')]"
+          ]
         }
       ]
     },
