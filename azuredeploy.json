@@ -119,7 +119,7 @@
       ]
     },
     {
-      "name": "[concat('AppPlan', parameters('BlazorWebsiteName'))]",
+      "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-06-01",
@@ -128,7 +128,7 @@
         "displayName": "Blazor"
       },
       "properties": {
-        "name": "[concat('AppPlan', parameters('BlazorWebsiteName'))]",
+        "name": "[parameters('BlazorWebsiteName')]",
         "sku": "[parameters('BlazorSKU')]",
         "workerSize": "[parameters('BlazorWorkerSize')]",
         "numberOfWorkers": 1
@@ -140,7 +140,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-08-01",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', concat('AppPlan', parameters('BlazorWebsiteName')))]"
+        "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
       ],
       "tags": {
         "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]": "Resource",
