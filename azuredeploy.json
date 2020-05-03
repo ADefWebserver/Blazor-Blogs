@@ -102,7 +102,7 @@
           "type": "firewallrules",
           "apiVersion": "2018-06-01-preview",
           "dependsOn": [
-            "[variables('sqlserverName')]"
+            "[parameters('sqlserverName')]"
           ],
           "location": "[parameters('location')]",
           "name": "AllowAllWindowsAzureIps",
