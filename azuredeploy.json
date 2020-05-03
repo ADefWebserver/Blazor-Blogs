@@ -61,7 +61,6 @@
   },
   "variables": {
     "hostingPlanName": "[concat('hostingplan', uniqueString(resourceGroup().id))]",
-    "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
     "databaseEdition": "Standard",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
     "databaseServiceObjectiveName": "Standard"
@@ -131,7 +130,7 @@
     },
     {
       "apiVersion": "2018-02-01",
-      "name": "[variables('webSiteName')]",
+      "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
       "location": "[parameters('location')]",
       "dependsOn": [
@@ -142,7 +141,7 @@
         "displayName": "Website"
       },
       "properties": {
-        "name": "[variables('webSiteName')]",
+        "name": "[parameters('BlazorWebsiteName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       },
       "resources": [
@@ -151,7 +150,7 @@
           "type": "config",
           "name": "connectionstrings",
           "dependsOn": [
-            "[variables('webSiteName')]"
+            "[parameters('BlazorWebsiteName')]"
           ],
           "properties": {
             "DefaultConnection": {
@@ -164,18 +163,18 @@
     },
     {
       "apiVersion": "2018-05-01-preview",
-      "name": "[concat('AppInsights', variables('webSiteName'))]",
+      "name": "[concat('AppInsights', parameters('BlazorWebsiteName'))]",
       "type": "Microsoft.Insights/components",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[variables('webSiteName')]"
+        "[parameters('BlazorWebsiteName')]"
       ],
       "tags": {
         "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
         "displayName": "AppInsightsComponent"
       },
       "properties": {
-        "ApplicationId": "[variables('webSiteName')]"
+        "ApplicationId": "[parameters('BlazorWebsiteName')]"
       }
     }
   ]
