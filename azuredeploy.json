@@ -140,7 +140,7 @@
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-08-01",
       "dependsOn": [
-        "[concat('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
+        "[concat('Microsoft.Web/serverfarms/', concat('AppPlan', parameters('BlazorWebsiteName')))]"
       ],
       "tags": {
         "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]": "Resource",
