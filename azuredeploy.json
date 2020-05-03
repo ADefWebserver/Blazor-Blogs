@@ -183,7 +183,7 @@
           ],
           "properties": {
             "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs",
-            "branch": "deploy-to-azure-button",
+            "branch": "master",
             "IsManualIntegration": true
           }
         }
