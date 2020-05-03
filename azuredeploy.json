@@ -153,20 +153,6 @@
           "webSocketsEnabled": true
         }
       }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "name": "web",
-      "type": "Microsoft.Web/sites/sourcecontrols",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/Sites', parameters('BlazorWebsiteName'))]",
-        "[concat('Microsoft.Web/Sites/', parameters('BlazorWebsiteName'), '/config/web')]"
-      ],
-      "properties": {
-        "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs",
-        "branch": "deploy-to-azure-button",
-        "IsManualIntegration": true
-      }
     }
   ],
   "outputs": {
