@@ -40,7 +40,7 @@
         "Basic",
         "Standard"
       ],
-      "defaultValue": "Free"
+      "defaultValue": "Standard"
     },
     "BlazorWorkerSize": {
       "type": "string",
@@ -53,9 +53,9 @@
     }
   },
   "variables": {
-    "databaseEdition": "Basic",
+    "databaseEdition": "Standard",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "Basic"
+    "databaseServiceObjectiveName": "Standard"
   },
   "resources": [
     {
