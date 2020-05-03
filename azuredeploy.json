@@ -94,6 +94,7 @@
           "properties": {
             "edition": "[variables('databaseEdition')]",
             "collation": "[variables('databaseCollation')]",
+            "maxSizeBytes": "1073741824",
             "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
           }
         },
