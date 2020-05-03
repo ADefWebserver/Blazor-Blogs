@@ -64,7 +64,7 @@ else
         if (firstRender)
         {
             StateHasChanged();
-            Task.Delay(2000).Wait();
+            Task.Delay(1000).Wait();
 
             // Get database conection string
             string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
@@ -162,6 +162,7 @@ else
         ColScripts.Add(ConvertVersionToInteger("00.10.00.sql"), "00.10.00.sql");
         ColScripts.Add(ConvertVersionToInteger("00.20.00.sql"), "00.20.00.sql");
         ColScripts.Add(ConvertVersionToInteger("01.00.00.sql"), "01.00.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("01.00.20.sql"), "01.00.20.sql");
 
         return ColScripts;
     }

@@ -1,6 +1,8 @@
 # Blazor-Blogs
 #### Simple blogging application written in Microsoft Server Side Blazor
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FADefWebserver%2FBlazor-Blogs%2Fazuredeploy.json)
+
 ## Live example site: https://blazorblogs.azurewebsites.net
 #### Also see: [Installing Blazor-Blogs on Microsoft Azure](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 
