@@ -149,21 +149,22 @@
       "properties": {
         "name": "[parameters('BlazorWebsiteName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms/', parameters('BlazorWebsiteName'))]"
-      }
-    },
-    {
-      "apiVersion": "2018-02-01",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/Sites', parameters('BlazorWebsiteName'))]",
-        "[concat('Microsoft.Web/Sites/', parameters('BlazorWebsiteName'), '/config/web')]"
-      ],
-      "name": "web",
-      "properties": {
-        "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs",
-        "branch": "deploy-to-azure-button",
-        "IsManualIntegration": true
       },
-      "type": "Microsoft.Web/sites/sourcecontrols"
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', parameters('BlazorWebsiteName'))]"
+          ],
+          "properties": {
+            "siteProperties": {
+              "webSocketsEnabled": true
+            }
+          }
+        }
+      ]
     }
   ],
   "outputs": {
