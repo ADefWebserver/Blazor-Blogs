@@ -168,7 +168,9 @@
           "name": "web",
           "location": "[parameters('location')]",
           "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
+            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]",
+            "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'appsettings')]",
+            "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
           ],
           "properties": {
             "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
