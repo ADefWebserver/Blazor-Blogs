@@ -173,7 +173,7 @@
           ],
           "properties": {
             "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
-            "branch": "master",
+            "branch": "main",
             "IsManualIntegration": true
           }
         },
