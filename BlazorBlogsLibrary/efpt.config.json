@@ -42,6 +42,10 @@
       },
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[ExternalConnections]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[Files]"
       },
       {
