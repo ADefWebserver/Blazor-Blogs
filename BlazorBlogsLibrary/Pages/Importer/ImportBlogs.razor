@@ -1,6 +1,56 @@
 ﻿@page "/importblogs"
-<h3>ImportBlogs</h3>
+@using System.Security.Claims;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using Microsoft.AspNetCore.Hosting;
+@using Microsoft.EntityFrameworkCore;
+@using BlazorBlogsLibrary.Classes;
+@inject IConfiguration _configuration
+@inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject NavigationManager NavigationManager
+@inherits OwningComponentBase
+<AuthorizeView>
+    <Authorized>
+        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            <h3>Import Blogs</h3>
+            <RadzenDropDown AllowClear="true"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="SelectedConnection" Multiple="false"
+                            Placeholder="Search Category..."
+                            Data="@ColExternalConnections" TextProperty="ServerName"
+                            ValueProperty="Id"
+                            Style="width:200px;" />
+        }
+        </Authorized>
+        <NotAuthorized>
+            <h3>Administration</h3>
+            <p>You are not logged in.</p>
+        </NotAuthorized>
+    </AuthorizeView>
+    @code {
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-@code {
+        string ADMINISTRATION_ROLE = "Administrators";
 
-}
+        List<ExternalConnections> ColExternalConnections = new List<ExternalConnections>();
+        ExternalConnections SelectedConnection;
+
+        ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+        protected override async Task OnInitializedAsync()
+        {
+            // Get the current logged in user
+            CurrentUser = (await authenticationStateTask).User;
+
+            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+            //ColExternalConnections = await _BlogsService.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+        }
+
+    }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Z.EntityFramework.Plus;
+using BlazorBlogsLibrary.Classes;
 
 namespace BlazorBlogs.Data
 {
@@ -396,7 +397,7 @@ namespace BlazorBlogs.Data
                                              CreateDate = Files.CreateDate,
                                              DownloadCount = Files.DownloadCount,
                                              FileName = Files.FileName,
-                                             FilePath = Files.FilePath.Replace("\\files","files"),
+                                             FilePath = Files.FilePath.Replace("\\files", "files"),
                                          }).AsNoTracking()
                                                  .OrderBy(x => x.FileName)
                                                  .Skip(page * 10)
@@ -487,6 +488,118 @@ namespace BlazorBlogs.Data
                 // Delete the file
                 FileController objFileController = new FileController(_environment);
                 objFileController.DeleteFile(objFilesDTO.FilePath);
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        // ExternalConnections
+
+        #region public async Task<ExternalConnectionsDTO> GetExternalConnectionsAsync()
+        public async Task<List<ExternalConnectionsDTO>> GetExternalConnectionsAsync()
+        {
+            return await (from ExternalConnections in _context.ExternalConnections
+                          select new ExternalConnectionsDTO
+                          {
+                              ConnectionName = ExternalConnections.ServerName + " " + ExternalConnections.DatabaseName,
+                              Id = ExternalConnections.Id,
+                              DatabaseName = ExternalConnections.DatabaseName,
+                              DatabaseUsername = ExternalConnections.DatabaseUsername,
+                              DatabasePassword = ExternalConnections.DatabasePassword,
+                              IntegratedSecurity = ExternalConnections.IntegratedSecurity,
+                          }).AsNoTracking().OrderBy(x => x.ConnectionName).ToListAsync();
+        }
+        #endregion      
+
+        #region public Task<bool> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        public Task<bool> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        {
+            try
+            {
+                ExternalConnections objExternalConnections = new ExternalConnections();
+                objExternalConnections.ServerName = objExternalConnectionsDTO.ServerName;
+                objExternalConnections.DatabaseName = objExternalConnectionsDTO.DatabaseName;
+                objExternalConnections.DatabaseUsername = objExternalConnectionsDTO.DatabaseUsername;
+                objExternalConnections.DatabasePassword = objExternalConnectionsDTO.DatabasePassword;
+                objExternalConnections.IntegratedSecurity = objExternalConnectionsDTO.IntegratedSecurity;
+
+                _context.ExternalConnections.Add(objExternalConnections);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> UpdateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        public Task<bool> UpdateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        {
+            try
+            {
+                int intExternalConnectionsId = Convert.ToInt32(objExternalConnectionsDTO.Id);
+
+                var ExistingExternalConnections =
+                    _context.ExternalConnections
+                    .Where(x => x.Id == intExternalConnectionsId)
+                    .FirstOrDefault();
+
+                if (ExistingExternalConnections != null)
+                {
+                    ExistingExternalConnections.ServerName =
+                        objExternalConnectionsDTO.ServerName;
+
+                    ExistingExternalConnections.DatabaseName =
+                        objExternalConnectionsDTO.DatabaseName;
+
+                    ExistingExternalConnections.DatabaseUsername =
+                        objExternalConnectionsDTO.DatabaseUsername;
+
+                    ExistingExternalConnections.DatabasePassword =
+                        objExternalConnectionsDTO.DatabasePassword;
+
+                    ExistingExternalConnections.IntegratedSecurity =
+                        objExternalConnectionsDTO.IntegratedSecurity;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch (Exception ex)
+            {
+                DetachAllEntities();
+                throw ex;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> DeleteExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        public Task<bool> DeleteExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        {
+            int intExternalConnectionsId = Convert.ToInt32(objExternalConnectionsDTO.Id);
+
+            var ExistingExternalConnections =
+                _context.ExternalConnections
+                .Where(x => x.Id == intExternalConnectionsId)
+                .FirstOrDefault();
+
+            if (ExistingExternalConnections != null)
+            {
+                _context.ExternalConnections.Remove(ExistingExternalConnections);
+                _context.SaveChanges();
             }
             else
             {
@@ -624,7 +737,7 @@ namespace BlazorBlogs.Data
                     .CountAsync();
 
                 return (UsersInAdminRole > 0);
-            }      
+            }
         }
         #endregion
 
