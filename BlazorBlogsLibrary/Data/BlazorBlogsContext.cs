@@ -3,7 +3,6 @@ using BlazorBlogs.Data.Models;
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using BlazorBlogs.Data.Models;
 
 namespace BlazorBlogs.Data
 {

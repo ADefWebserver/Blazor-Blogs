@@ -13,44 +13,98 @@
 @inherits OwningComponentBase
 <AuthorizeView>
     <Authorized>
+        <h1>Import Blogs</h1>
+        <p>Works with: <a href="https://github.com/DNNCommunity/DNN.Blog">DotNetNuke Blog</a></p>
+        <br />
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            <h3>Import Blogs</h3>
-            <RadzenDropDown AllowClear="true"
-                            AllowFiltering="true"
+            <h4>Source</h4>
+            <RadzenDropDown AllowClear="false"
+                            AllowFiltering="false"
                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             @bind-Value="SelectedConnection" Multiple="false"
-                            Placeholder="Search Category..."
-                            Data="@ColExternalConnections" TextProperty="ServerName"
-                            ValueProperty="Id"
-                            Style="width:200px;" />
+                            Placeholder="Select Connection..."
+                            Data="@ColExternalConnections" TextProperty="ConnectionName"
+                            Style="width:500px;" />
+            <button class="btn btn-primary"
+                    @onclick="(() => EditConnection())">
+                Edit
+            </button>
+            @if (ShowPopup)
+            {
+                <div class="modal" tabindex="-1" style="display:block" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Edit Connection</h3>
+                                <!-- Button to close the popup -->
+                                <button type="button" class="close"
+                                        @onclick="ClosePopup">
+                                    <span aria-hidden="true">X</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <ImportBlogsDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         }
-        </Authorized>
-        <NotAuthorized>
-            <h3>Administration</h3>
-            <p>You are not logged in.</p>
-        </NotAuthorized>
-    </AuthorizeView>
-    @code {
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationStateTask { get; set; }
+    </Authorized>
+    <NotAuthorized>
+        <h3>Administration</h3>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-        string ADMINISTRATION_ROLE = "Administrators";
+    bool ShowPopup = false;
+    string ADMINISTRATION_ROLE = "Administrators";
 
-        List<ExternalConnections> ColExternalConnections = new List<ExternalConnections>();
-        ExternalConnections SelectedConnection;
+    List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
+    ExternalConnectionsDTO SelectedConnection;
 
-        ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current logged in user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+        ColExternalConnections = await _BlogsService.GetExternalConnectionsAsync();
+
+        if (ColExternalConnections.Count > 0)
         {
-            // Get the current logged in user
-            CurrentUser = (await authenticationStateTask).User;
-
-            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-            //ColExternalConnections = await _BlogsService.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+            SelectedConnection = ColExternalConnections.FirstOrDefault();
+            StateHasChanged();
         }
-
     }
+
+    void DatabaseConfigurationComplete(bool paramValue)
+    {
+        //if (paramValue)
+        //{
+        //    WizardStage = "RunScripts";
+        //}
+    }
+
+    async Task EditConnection()
+    {
+
+        // Open the Popup
+        ShowPopup = true;
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowPopup = false;
+    }
+
+}
