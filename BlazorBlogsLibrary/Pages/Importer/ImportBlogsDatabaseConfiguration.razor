@@ -98,6 +98,7 @@
                                                 @onclick="setConnection">
                                             Set Connection
                                         </button>
+                                        <h4>@strStatusMessage</h4>
                                     }
                                     else
                                     {
@@ -112,7 +113,6 @@
             </div>
         </div>
     </div>
-    <h4>@strStatusMessage</h4>
 }
 @code {
     // DatabaseConfigurationChanged is an EventCallback that will
@@ -159,6 +159,9 @@
 
         if (result.Success)
         {
+            // Close the Popup
+            ShowPopup = false;
+
             // Notify parent component
             await DatabaseConfigurationChanged.InvokeAsync(connectionSetting);
         }
