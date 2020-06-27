@@ -98,6 +98,14 @@
                                                 @onclick="setConnection">
                                             Set Connection
                                         </button>
+                                        @if (DatabaseConnectionState == ConnectionState.Update)
+                                        {
+                                            <button type="button" label="Delete Database Connection"
+                                                    class="btn btn-danger"
+                                                    @onclick="deleteConnection">
+                                                Delete Connection
+                                            </button>
+                                        }
                                         <h4>@strStatusMessage</h4>
                                     }
                                     else
@@ -131,6 +139,7 @@
     private string ServerName = "";
     private string DatabaseUsername = "";
     private string DatabasePassword = "";
+    private ConnectionState DatabaseConnectionState;
 
     public void setConnectionParameter(DTOConnectionSetting paramConnectionSetting)
     {
@@ -139,6 +148,9 @@
         DatabaseUsername = paramConnectionSetting.Username;
         DatabasePassword = paramConnectionSetting.Password;
         IntegratedSecurityDisplay = (paramConnectionSetting.IntegratedSecurity) ? "True" : "False";
+        DatabaseConnectionState = paramConnectionSetting.ConnectionState;
+
+        strStatusMessage = "";
 
         // Open the Popup
         ShowPopup = true;
@@ -154,6 +166,7 @@
         connectionSetting.Password = DatabasePassword;
         connectionSetting.ServerName = ServerName;
         connectionSetting.Username = DatabaseUsername;
+        connectionSetting.ConnectionState = DatabaseConnectionState;
 
         var result = await SetConnectionSetting(connectionSetting);
 
@@ -174,12 +187,21 @@
         StateHasChanged();
     }
 
-    void ClosePopup()
+    private async void deleteConnection()
     {
         // Close the Popup
         ShowPopup = false;
 
-        setConnection();
+        connectionSetting.ConnectionState = ConnectionState.Delete;
+
+        // Notify parent component
+        await DatabaseConfigurationChanged.InvokeAsync(connectionSetting);
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowPopup = false;
     }
 
     // Utility

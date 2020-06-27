@@ -20,11 +20,19 @@ namespace BlazorBlogsLibrary.Classes.Imports
         public bool IntegratedSecurity { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public ConnectionState ConnectionState { get; set; }
     }
 
     public class DTOStatus
     {
         public string StatusMessage { get; set; }
         public bool Success { get; set; }
+    }
+
+    public enum ConnectionState
+    {
+        Add,
+        Delete,
+        Update
     }
 }

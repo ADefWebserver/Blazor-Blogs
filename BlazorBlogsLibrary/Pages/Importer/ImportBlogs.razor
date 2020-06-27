@@ -27,9 +27,14 @@
                             Placeholder="Select Connection..."
                             Data="@ColExternalConnections" TextProperty="ConnectionName"
                             Style="width:500px;" />
+                            <br/>
             <button class="btn btn-primary"
                     @onclick="(() => EditConnection())">
                 Edit
+            </button>
+            <button class="btn btn-primary"
+                    @onclick="(() => NewConnection())">
+                New Connection
             </button>
             <ImportBlogsDatabaseConfiguration @ref="@objImportBlogsDatabaseConfiguration"
                                               paramConnectionSetting="@objConnectionSetting"
@@ -75,10 +80,20 @@
 
     void DatabaseConfigurationComplete(DTOConnectionSetting paramConnectionSetting)
     {
-        //if (paramValue)
-        //{
-        //    WizardStage = "RunScripts";
-        //}
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Add)
+        {
+
+        }
+
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Delete)
+        {
+
+        }
+
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Update)
+        {
+
+        }
     }
 
     void EditConnection()
@@ -90,8 +105,21 @@
             objConnectionSetting.IntegratedSecurity = Convert.ToBoolean(SelectedConnection.IntegratedSecurity);
             objConnectionSetting.Username = SelectedConnection.DatabaseUsername;
             objConnectionSetting.Password = SelectedConnection.DatabasePassword;
+            objConnectionSetting.ConnectionState = ConnectionState.Update;
 
             objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
         }
+    }
+
+    void NewConnection()
+    {
+        objConnectionSetting.DatabaseName = "DotNetNuke";
+        objConnectionSetting.ServerName = "(Local)";
+        objConnectionSetting.IntegratedSecurity = true;
+        objConnectionSetting.Username = "";
+        objConnectionSetting.Password = "";
+        objConnectionSetting.ConnectionState = ConnectionState.Add;
+
+        objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
     }
 }
