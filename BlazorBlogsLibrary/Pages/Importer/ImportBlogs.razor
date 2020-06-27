@@ -5,6 +5,7 @@
 @using Microsoft.AspNetCore.Hosting;
 @using Microsoft.EntityFrameworkCore;
 @using BlazorBlogsLibrary.Classes;
+@using BlazorBlogsLibrary.Classes.Imports;
 @inject IConfiguration _configuration
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
@@ -30,26 +31,10 @@
                     @onclick="(() => EditConnection())">
                 Edit
             </button>
-            @if (ShowPopup)
-            {
-                <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h3 class="modal-title">Edit Connection</h3>
-                                <!-- Button to close the popup -->
-                                <button type="button" class="close"
-                                        @onclick="ClosePopup">
-                                    <span aria-hidden="true">X</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <ImportBlogsDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+            <ImportBlogsDatabaseConfiguration @ref="@objImportBlogsDatabaseConfiguration"
+                                              paramConnectionSetting="@objConnectionSetting"
+                                              DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
+
         }
     </Authorized>
     <NotAuthorized>
@@ -61,7 +46,9 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    bool ShowPopup = false;
+    ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
+    DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
+
     string ADMINISTRATION_ROLE = "Administrators";
 
     List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
@@ -86,7 +73,7 @@
         }
     }
 
-    void DatabaseConfigurationComplete(bool paramValue)
+    void DatabaseConfigurationComplete(DTOConnectionSetting paramConnectionSetting)
     {
         //if (paramValue)
         //{
@@ -94,17 +81,17 @@
         //}
     }
 
-    async Task EditConnection()
+    void EditConnection()
     {
+        if (SelectedConnection != null)
+        {
+            objConnectionSetting.DatabaseName = SelectedConnection.DatabaseName;
+            objConnectionSetting.ServerName = SelectedConnection.ServerName;
+            objConnectionSetting.IntegratedSecurity = Convert.ToBoolean(SelectedConnection.IntegratedSecurity);
+            objConnectionSetting.Username = SelectedConnection.DatabaseUsername;
+            objConnectionSetting.Password = SelectedConnection.DatabasePassword;
 
-        // Open the Popup
-        ShowPopup = true;
+            objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+        }
     }
-
-    void ClosePopup()
-    {
-        // Close the Popup
-        ShowPopup = false;
-    }
-
 }

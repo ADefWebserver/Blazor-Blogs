@@ -507,6 +507,7 @@ namespace BlazorBlogs.Data
                           select new ExternalConnectionsDTO
                           {
                               ConnectionName = ExternalConnections.ServerName + " " + ExternalConnections.DatabaseName,
+                              ServerName = ExternalConnections.ServerName,
                               Id = ExternalConnections.Id,
                               DatabaseName = ExternalConnections.DatabaseName,
                               DatabaseUsername = ExternalConnections.DatabaseUsername,
