@@ -1,9 +1,14 @@
 ﻿@page "/importblogs"
+@using System.Text;
 @using System.Security.Claims;
 @using BlazorBlogs.Data;
 @using Microsoft.AspNetCore.Hosting;
 @using BlazorBlogsLibrary.Classes;
 @using BlazorBlogsLibrary.Classes.Imports;
+@using DotNetNukeBlogs.Data;
+@using DotNetNukeBlogs.Data.Models;
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.Extensions.Configuration;
 @inject IConfiguration _configuration
 @inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
@@ -17,6 +22,7 @@
         <br />
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
+            <!-- Connection Selection -->
             <h4>Source</h4>
             <RadzenDropDown AllowClear="false"
                             AllowFiltering="false"
@@ -24,7 +30,8 @@
                             @bind-Value="SelectedConnection" Multiple="false"
                             Placeholder="Select Connection..."
                             Data="@ColExternalConnections" TextProperty="ConnectionName"
-                            Style="width:500px;" />
+                            Style="width:500px;"
+                            Change="@(args => ChangeConnection(args, "DropDown"))" />
             <br />
             @if (SelectedConnection != null)
             {
@@ -37,10 +44,34 @@
                     @onclick="(() => NewConnection())">
                 New Connection
             </button>
+            <br /><br />
+            <!-- Blog Selection -->
+            @if (SelectedConnection != null)
+            {
+                <h4>Blog</h4>
+                @if (ShowProgressBar)
+                {
+                    <div style="max-width: 500px;">
+                        <RadzenProgressBar Value="100" ShowValue="false"
+                                           Mode="ProgressBarMode.Indeterminate"
+                                           Style="width: 500px;" />
+                    </div>
+                }
+                else
+                {
+                    <RadzenDropDown AllowClear="false"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="SelectedBlogEntry" Multiple="false"
+                                    Placeholder="Select Blog..."
+                                    Data="@ColBlogEntries" TextProperty="Title"
+                                    Style="width:500px;" />
+                }
+            }
+            <!-- Connection Popup -->
             <ImportBlogsDatabaseConfiguration @ref="@objImportBlogsDatabaseConfiguration"
                                               paramConnectionSetting="@objConnectionSetting"
                                               DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
-
         }
     </Authorized>
     <NotAuthorized>
@@ -60,7 +91,11 @@
     List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
     ExternalConnectionsDTO SelectedConnection;
 
+    List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
+    BlogEntries SelectedBlogEntry;
+
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    private bool ShowProgressBar = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -127,6 +162,29 @@
         }
     }
 
+    async Task ChangeConnection(object value, string name)
+    {
+        ColBlogEntries = new List<BlogEntries>();
+        ShowProgressBar = true;
+        StateHasChanged();
+
+        var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
+        optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
+
+        using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
+        {
+            ColBlogEntries = await context.BlogEntries.ToListAsync();
+
+            if (ColBlogEntries.Count > 0)
+            {
+                SelectedBlogEntry = ColBlogEntries.FirstOrDefault();
+            }
+        }
+
+        ShowProgressBar = false;
+        StateHasChanged();
+    }
+
     void EditConnection()
     {
         if (SelectedConnection != null)
@@ -153,4 +211,28 @@
 
         objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
     }
+
+    // Utility
+
+    #region private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    {
+        StringBuilder SB = new StringBuilder();
+        string strConnectionString = "";
+
+        string strUserInfo = (!Convert.ToBoolean(objConnectionSetting.IntegratedSecurity)) ?
+            String.Format("uid={0};pwd={1}",
+            objConnectionSetting.DatabaseUsername,
+            objConnectionSetting.DatabasePassword) :
+            "integrated security=True";
+
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+            SB.ToString(),
+            objConnectionSetting.ServerName,
+            objConnectionSetting.DatabaseName,
+            strUserInfo);
+
+        return strConnectionString;
+    }
+    #endregion
 }
