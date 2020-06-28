@@ -238,7 +238,7 @@
         if (SelectedBlogEntry != null)
         {
             Uri myUri = new Uri(SelectedBlogEntry.PermaLink);
-            string RootDomain = $"http://{myUri.Host}/";
+            string RootDomain = $"http://{myUri.Host}";
 
             BlogDTO objBlogDTO = new BlogDTO();
             objBlogDTO.BlogId = 0;
@@ -279,7 +279,7 @@
     #region private string FixImages(string domain, string content)
     private string FixImages(string domain, string content)
     {
-        content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}");
+        content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}/");
         content = content.Replace(@"src=""", @$"src=""{domain}");
         return content;
     }
