@@ -66,6 +66,14 @@
                                     Placeholder="Select Blog..."
                                     Data="@ColBlogEntries" TextProperty="Title"
                                     Style="width:500px;" />
+                    <br />
+                    @if (SelectedBlogEntry != null)
+                    {
+                        <button class="btn btn-primary"
+                                @onclick="(() => EditBlog())">
+                            Edit Blog
+                        </button>
+                    }
                 }
             }
             <!-- Connection Popup -->
@@ -107,6 +115,8 @@
 
         await RefreshConnectionsAsync(null);
     }
+
+    // Database Connection
 
     private async Task RefreshConnectionsAsync(int? SelectedConnectionId)
     {
@@ -210,6 +220,23 @@
         objConnectionSetting.ConnectionState = ConnectionState.Add;
 
         objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+    }
+
+    // Edit Blog
+
+    void EditBlog()
+    {
+        if (SelectedBlogEntry != null)
+        {
+            //objConnectionSetting.DatabaseName = SelectedConnection.DatabaseName;
+            //objConnectionSetting.ServerName = SelectedConnection.ServerName;
+            //objConnectionSetting.IntegratedSecurity = Convert.ToBoolean(SelectedConnection.IntegratedSecurity);
+            //objConnectionSetting.Username = SelectedConnection.DatabaseUsername;
+            //objConnectionSetting.Password = SelectedConnection.DatabasePassword;
+            //objConnectionSetting.ConnectionState = ConnectionState.Update;
+
+            //objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+        }
     }
 
     // Utility
