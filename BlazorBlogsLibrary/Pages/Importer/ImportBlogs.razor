@@ -1,7 +1,10 @@
 ﻿@page "/importblogs"
+@using System.IO;
 @using System.Text;
+@using System.Web;
 @using System.Security.Claims;
 @using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Hosting;
 @using BlazorBlogsLibrary.Classes;
 @using BlazorBlogsLibrary.Classes.Imports;
@@ -76,6 +79,10 @@
                     }
                 }
             }
+
+            <!-- ImportBlogsEdit Popup -->
+            <ImportBlogsEdit @ref="ImportBlogsEditControl" />
+
             <!-- Connection Popup -->
             <ImportBlogsDatabaseConfiguration @ref="@objImportBlogsDatabaseConfiguration"
                                               paramConnectionSetting="@objConnectionSetting"
@@ -90,6 +97,8 @@
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ImportBlogsEdit ImportBlogsEditControl;
 
     ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
     DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
@@ -228,14 +237,15 @@
     {
         if (SelectedBlogEntry != null)
         {
-            //objConnectionSetting.DatabaseName = SelectedConnection.DatabaseName;
-            //objConnectionSetting.ServerName = SelectedConnection.ServerName;
-            //objConnectionSetting.IntegratedSecurity = Convert.ToBoolean(SelectedConnection.IntegratedSecurity);
-            //objConnectionSetting.Username = SelectedConnection.DatabaseUsername;
-            //objConnectionSetting.Password = SelectedConnection.DatabasePassword;
-            //objConnectionSetting.ConnectionState = ConnectionState.Update;
+            BlogDTO objBlogDTO = new BlogDTO();
+            objBlogDTO.BlogId = 0;
+            objBlogDTO.BlogCategory = new List<BlogCategory>();
+            objBlogDTO.BlogContent = HtmlDecode(SelectedBlogEntry.Entry);
+            objBlogDTO.BlogDate = SelectedBlogEntry.AddedDate;
+            objBlogDTO.BlogSummary = SelectedBlogEntry.Description;
+            objBlogDTO.BlogTitle = SelectedBlogEntry.Title;
 
-            //objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+            ImportBlogsEditControl.EditBlog(objBlogDTO);
         }
     }
 
@@ -260,6 +270,17 @@
             strUserInfo);
 
         return strConnectionString;
+    }
+    #endregion
+
+    #region private string HtmlDecode(string param)
+    private string HtmlDecode(string param)
+    {
+        StringWriter myWriter = new StringWriter();
+
+        // Decode the encoded string.
+        HttpUtility.HtmlDecode(param, myWriter);
+        return myWriter.ToString();
     }
     #endregion
 }
