@@ -237,12 +237,15 @@
     {
         if (SelectedBlogEntry != null)
         {
+            Uri myUri = new Uri(SelectedBlogEntry.PermaLink);
+            string RootDomain = $"http://{myUri.Host}/";
+
             BlogDTO objBlogDTO = new BlogDTO();
             objBlogDTO.BlogId = 0;
             objBlogDTO.BlogCategory = new List<BlogCategory>();
-            objBlogDTO.BlogContent = HtmlDecode(SelectedBlogEntry.Entry);
+            objBlogDTO.BlogContent = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Entry));
             objBlogDTO.BlogDate = SelectedBlogEntry.AddedDate;
-            objBlogDTO.BlogSummary = SelectedBlogEntry.Description;
+            objBlogDTO.BlogSummary = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Description));
             objBlogDTO.BlogTitle = SelectedBlogEntry.Title;
 
             ImportBlogsEditControl.EditBlog(objBlogDTO);
@@ -270,6 +273,15 @@
             strUserInfo);
 
         return strConnectionString;
+    }
+    #endregion
+
+    #region private string FixImages(string domain, string content)
+    private string FixImages(string domain, string content)
+    {
+        content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}");
+        content = content.Replace(@"src=""", @$"src=""{domain}");
+        return content;
     }
     #endregion
 
