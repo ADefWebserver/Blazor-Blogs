@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using System.Text.RegularExpressions;
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -29,8 +30,12 @@
                                @bind="SelectedBlog.BlogDate" />
                     </div>
                     <div>
-                        <h5>Categories <button type="button" class="btn btn-link" 
-                                               @onclick="OpenCategoryManagerControl">[Edit]</button></h5>
+                        <h5>
+                            Categories <button type="button" class="btn btn-link"
+                                               @onclick="OpenCategoryManagerControl">
+                                [Edit]
+                            </button>
+                        </h5>
                     </div>
                     <div class="form-group">
                         <RadzenDropDown AllowClear="true"
@@ -282,9 +287,14 @@
             objNewBlog.BlogUserName =
                 CurrentUser.Identity.Name;
 
+            var colImages = GetAllImages(objNewBlog.BlogContent);
+            foreach (var item in colImages)
+            {
+                var result = DownloadImageFromUrl(GetURLFromImageTag(item.ToString()));
+            }
+
             // Save the result
-            var result =
-            @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
+            // var result = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
 
             // Log
             await LogAction($"Create Copied Blog #{objNewBlog.BlogId}");
@@ -377,5 +387,52 @@
         }
 
         var result = await @Service.CreateLogAsync(objLog);
+    }
+
+    // Utility
+
+    #region private MatchCollection GetAllImages(string param)
+    private MatchCollection GetAllImages(string param)
+    {
+        Regex r = new Regex(@"<img.+?src=""(.+?)"".+?/?>");
+        return r.Matches(param);
+    }
+    #endregion
+
+    #region private string GetURLFromImageTag(string param)
+    private string GetURLFromImageTag(string param)
+    {
+        int intStart = param.IndexOf(@"src=""") + 5;
+        int intEnd = param.IndexOf(@"""", intStart);
+
+
+        return param.Substring(intStart, (intEnd - intStart));
+    }
+    #endregion
+
+    public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+    {
+        System.Drawing.Image image = null;
+
+        try
+        {
+            System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
+            webRequest.AllowWriteStreamBuffering = true;
+            webRequest.Timeout = 30000;
+
+            System.Net.WebResponse webResponse = webRequest.GetResponse();
+
+            System.IO.Stream stream = webResponse.GetResponseStream();
+
+            image = System.Drawing.Image.FromStream(stream);
+
+            webResponse.Close();
+        }
+        catch
+        {
+            return null;
+        }
+
+        return image;
     }
 }
