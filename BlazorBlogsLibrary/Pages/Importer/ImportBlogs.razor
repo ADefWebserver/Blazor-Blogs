@@ -69,30 +69,60 @@
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
+        await RefreshConnectionsAsync(null);
+    }
+
+    private async Task RefreshConnectionsAsync(int? SelectedConnectionId)
+    {
         ColExternalConnections = await _BlogsService.GetExternalConnectionsAsync();
 
-        if (ColExternalConnections.Count > 0)
+        if (SelectedConnectionId != null)
         {
-            SelectedConnection = ColExternalConnections.FirstOrDefault();
-            StateHasChanged();
+            if (ColExternalConnections.Count > 0)
+            {
+                SelectedConnection = ColExternalConnections.FirstOrDefault();
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            SelectedConnection = ColExternalConnections.Where(x => x.Id == SelectedConnectionId).FirstOrDefault();
         }
     }
 
-    void DatabaseConfigurationComplete(DTOConnectionSetting paramConnectionSetting)
+    public async Task DatabaseConfigurationComplete(DTOConnectionSetting paramConnectionSetting)
     {
         if (paramConnectionSetting.ConnectionState == ConnectionState.Add)
         {
+            SelectedConnection = new ExternalConnectionsDTO();
 
-        }
+            SelectedConnection.DatabaseName = paramConnectionSetting.DatabaseName;
+            SelectedConnection.ServerName = paramConnectionSetting.ServerName;
+            SelectedConnection.IntegratedSecurity = paramConnectionSetting.IntegratedSecurity.ToString();
+            SelectedConnection.DatabaseUsername = paramConnectionSetting.Username;
+            SelectedConnection.DatabasePassword = paramConnectionSetting.Password;
 
-        if (paramConnectionSetting.ConnectionState == ConnectionState.Delete)
-        {
-
+            var result = await _BlogsService.CreateExternalConnectionsAsync(SelectedConnection);
+            await RefreshConnectionsAsync(result.Id);
         }
 
         if (paramConnectionSetting.ConnectionState == ConnectionState.Update)
         {
+            SelectedConnection.DatabaseName = paramConnectionSetting.DatabaseName;
+            SelectedConnection.ServerName = paramConnectionSetting.ServerName;
+            SelectedConnection.IntegratedSecurity = paramConnectionSetting.IntegratedSecurity.ToString();
+            SelectedConnection.DatabaseUsername = paramConnectionSetting.Username;
+            SelectedConnection.DatabasePassword = paramConnectionSetting.Password;
 
+            await _BlogsService.UpdateExternalConnectionsAsync(SelectedConnection);
+            await RefreshConnectionsAsync(SelectedConnection.Id);
+        }
+
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Delete)
+        {
+            await _BlogsService.DeleteExternalConnectionsAsync(SelectedConnection);
+            SelectedConnection = new ExternalConnectionsDTO();
+            await RefreshConnectionsAsync(null);
         }
     }
 

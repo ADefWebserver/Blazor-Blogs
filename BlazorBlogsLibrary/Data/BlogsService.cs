@@ -517,8 +517,8 @@ namespace BlazorBlogs.Data
         }
         #endregion      
 
-        #region public Task<bool> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
-        public Task<bool> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        #region public Task<ExternalConnections> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
+        public Task<ExternalConnections> CreateExternalConnectionsAsync(ExternalConnectionsDTO objExternalConnectionsDTO)
         {
             try
             {
@@ -531,7 +531,7 @@ namespace BlazorBlogs.Data
 
                 _context.ExternalConnections.Add(objExternalConnections);
                 _context.SaveChanges();
-                return Task.FromResult(true);
+                return Task.FromResult(objExternalConnections);
             }
             catch (Exception ex)
             {
