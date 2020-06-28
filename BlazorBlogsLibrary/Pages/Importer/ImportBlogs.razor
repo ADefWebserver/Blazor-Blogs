@@ -1,9 +1,7 @@
 ﻿@page "/importblogs"
 @using System.Security.Claims;
 @using BlazorBlogs.Data;
-@using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Hosting;
-@using Microsoft.EntityFrameworkCore;
 @using BlazorBlogsLibrary.Classes;
 @using BlazorBlogsLibrary.Classes.Imports;
 @inject IConfiguration _configuration
@@ -27,12 +25,15 @@
                             Placeholder="Select Connection..."
                             Data="@ColExternalConnections" TextProperty="ConnectionName"
                             Style="width:500px;" />
-                            <br/>
-            <button class="btn btn-primary"
-                    @onclick="(() => EditConnection())">
-                Edit
-            </button>
-            <button class="btn btn-primary"
+            <br />
+            @if (SelectedConnection != null)
+            {
+                <button class="btn btn-primary"
+                        @onclick="(() => EditConnection())">
+                    Edit
+                </button>
+            }
+            <button class="btn btn-success"
                     @onclick="(() => NewConnection())">
                 New Connection
             </button>
