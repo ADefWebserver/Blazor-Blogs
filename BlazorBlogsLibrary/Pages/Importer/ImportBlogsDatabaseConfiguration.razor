@@ -121,6 +121,29 @@
             </div>
         </div>
     </div>
+
+    @if (ConFirmDeletePopup)
+    {
+        <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Delete Connection?</h3>
+                    </div>
+                    <div class="modal-body">
+                        <button class="btn btn-primary"
+                                @onclick="DeleteYes">
+                            Yes
+                        </button>
+                        <button class="btn btn-danger"
+                                @onclick="DeleteNo">
+                            No
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 @code {
     // DatabaseConfigurationChanged is an EventCallback that will
@@ -131,6 +154,7 @@
 
     private DTOConnectionSetting connectionSetting = new DTOConnectionSetting();
     string IntegratedSecurityDisplay = "False";
+    public bool ConFirmDeletePopup = false;
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     string strStatusMessage = "";
     bool boolProcessing = false;
@@ -151,6 +175,7 @@
         DatabaseConnectionState = paramConnectionSetting.ConnectionState;
 
         strStatusMessage = "";
+        ConFirmDeletePopup = false;
 
         // Open the Popup
         ShowPopup = true;
@@ -187,21 +212,36 @@
         StateHasChanged();
     }
 
-    private async void deleteConnection()
+    void deleteConnection()
     {
-        // Close the Popup
-        ShowPopup = false;
-
-        connectionSetting.ConnectionState = ConnectionState.Delete;
-
-        // Notify parent component
-        await DatabaseConfigurationChanged.InvokeAsync(connectionSetting);
+        ConFirmDeletePopup = true;
     }
 
     void ClosePopup()
     {
         // Close the Popup
         ShowPopup = false;
+    }
+
+    void DeleteNo()
+    {
+        ConFirmDeletePopup = false;
+    }
+
+    async Task DeleteYes()
+    {
+        connectionSetting.DatabaseName = DatabaseName;
+        connectionSetting.IntegratedSecurity = Convert.ToBoolean(IntegratedSecurityDisplay);
+        connectionSetting.Password = DatabasePassword;
+        connectionSetting.ServerName = ServerName;
+        connectionSetting.Username = DatabaseUsername;
+        connectionSetting.ConnectionState = ConnectionState.Delete;
+
+        // Close the Popup
+        ShowPopup = false;
+
+        // Notify parent component
+        await DatabaseConfigurationChanged.InvokeAsync(connectionSetting);
     }
 
     // Utility
