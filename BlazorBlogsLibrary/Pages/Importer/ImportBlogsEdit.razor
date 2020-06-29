@@ -3,6 +3,9 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using System.Text.RegularExpressions;
+@using System.IO
+@using System.Drawing;
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -287,10 +290,25 @@
             objNewBlog.BlogUserName =
                 CurrentUser.Identity.Name;
 
-            var colImages = GetAllImages(objNewBlog.BlogContent);
-            foreach (var item in colImages)
+            // Make a Folder to hold the images for the Blog post
+            string path = Path.Combine(HostEnvironment.ContentRootPath,
+                $@"/blogs/",
+                "BlogID");
+
+            if (!Directory.Exists(path))
             {
-                var result = DownloadImageFromUrl(GetURLFromImageTag(item.ToString()));
+                Directory.CreateDirectory(path);
+
+                // Get the images in the Blog post
+                var colImages = GetAllImages(objNewBlog.BlogContent);
+
+                foreach (var item in colImages)
+                {
+                    string ImageURL = GetURLFromImageTag(item.ToString());
+                    string fileName = Path.GetFileName(ImageURL);
+                    Image image = DownloadImageFromUrl(ImageURL);
+                    image.Save(Path.Combine(path,fileName));
+                }
             }
 
             // Save the result
