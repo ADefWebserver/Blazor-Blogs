@@ -245,8 +245,19 @@
             objBlogDTO.BlogCategory = new List<BlogCategory>();
             objBlogDTO.BlogContent = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Entry));
             objBlogDTO.BlogDate = SelectedBlogEntry.AddedDate;
-            objBlogDTO.BlogSummary = ConvertToText(SelectedBlogEntry.Description);
             objBlogDTO.BlogTitle = SelectedBlogEntry.Title;
+
+            if (SelectedBlogEntry.Entry != null)
+            {
+                int intSummaryLength = SelectedBlogEntry.Entry.Length;
+
+                if (intSummaryLength > 500)
+                {
+                    intSummaryLength = 500;
+                }
+
+                objBlogDTO.BlogSummary = ConvertToText(HtmlDecode(SelectedBlogEntry.Entry)).Substring(0, intSummaryLength).Trim() + "...";
+            }
 
             ImportBlogsEditControl.EditBlog(objBlogDTO);
         }
@@ -298,7 +309,6 @@
         return myWriter.ToString();
     }
     #endregion
-
 
     #region ConvertToText
     public static string ConvertToText(string sHTML)
