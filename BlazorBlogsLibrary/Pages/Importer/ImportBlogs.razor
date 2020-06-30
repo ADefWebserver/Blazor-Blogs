@@ -95,23 +95,23 @@
     </NotAuthorized>
 </AuthorizeView>
 @code {
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-        ImportBlogsEdit ImportBlogsEditControl;
+    ImportBlogsEdit ImportBlogsEditControl;
 
-        ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
-        DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
+    ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
+    DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
 
-        string ADMINISTRATION_ROLE = "Administrators";
+    string ADMINISTRATION_ROLE = "Administrators";
 
-        List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
-        ExternalConnectionsDTO SelectedConnection;
+    List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
+    ExternalConnectionsDTO SelectedConnection;
 
-        List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
-        BlogEntries SelectedBlogEntry;
+    List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
+    BlogEntries SelectedBlogEntry;
 
-        ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     private bool ShowProgressBar = false;
 
     protected override async Task OnInitializedAsync()
@@ -245,7 +245,7 @@
             objBlogDTO.BlogCategory = new List<BlogCategory>();
             objBlogDTO.BlogContent = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Entry));
             objBlogDTO.BlogDate = SelectedBlogEntry.AddedDate;
-            objBlogDTO.BlogSummary = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Description));
+            objBlogDTO.BlogSummary = ConvertToText(SelectedBlogEntry.Description);
             objBlogDTO.BlogTitle = SelectedBlogEntry.Title;
 
             ImportBlogsEditControl.EditBlog(objBlogDTO);
@@ -296,6 +296,47 @@
         // Decode the encoded string.
         HttpUtility.HtmlDecode(param, myWriter);
         return myWriter.ToString();
+    }
+    #endregion
+
+
+    #region ConvertToText
+    public static string ConvertToText(string sHTML)
+    {
+        string sContent = sHTML;
+        sContent = sContent.Replace("<br />", Environment.NewLine);
+        sContent = sContent.Replace("<br>", Environment.NewLine);
+        sContent = FormatText(sContent, true);
+        return StripTags(sContent, true);
+    }
+    #endregion
+
+    #region FormatText
+    public static string FormatText(string HTML, bool RetainSpace)
+    {
+        //Match all variants of <br> tag (<br>, <BR>, <br/>, including embedded space
+        string brMatch = "\\s*<\\s*[bB][rR]\\s*/\\s*>\\s*";
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, brMatch, Environment.NewLine);
+    }
+    #endregion
+
+    #region StripTags
+    public static string StripTags(string HTML, bool RetainSpace)
+    {
+        //Set up Replacement String
+        string RepString;
+        if (RetainSpace)
+        {
+            RepString = " ";
+        }
+        else
+        {
+            RepString = "";
+        }
+
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, "<[^>]*>", RepString);
     }
     #endregion
 }
