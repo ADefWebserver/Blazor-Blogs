@@ -165,13 +165,24 @@
                     </div>
                     <br />
                     <!-- Button to save the Blog -->
-                    <button class="btn btn-primary"
-                            @onclick="SaveBlog">
-                        Save
-                    </button>
-                    <br />
-                    <span style="color:red">@strError</span>
-                </div>
+                    @if (ShowProgressBar)
+                    {
+                        <div style="max-width: 500px;">
+                            <RadzenProgressBar Value="100" ShowValue="false"
+                                               Mode="ProgressBarMode.Indeterminate"
+                                               Style="width: 500px;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary"
+                                @onclick="SaveBlog">
+                            Save
+                        </button>
+                    }
+                        <br />
+                        <span style="color:red">@strError</span>
+                    </div>
             </div>
         </div>
     </div>
@@ -194,6 +205,7 @@
     [Parameter] public EventCallback<bool> BlogUpdated { get; set; }
 
     BlogDTO SelectedBlog;
+    private bool ShowProgressBar = false;
     public bool ShowAdmin = false;
     public bool ConFirmDeletePopup = false;
 
@@ -256,6 +268,9 @@
     {
         try
         {
+            ShowProgressBar = true;
+            StateHasChanged();
+
             // Create new Blog
             BlogDTO objNewBlog = new BlogDTO();
 
@@ -338,9 +353,13 @@
         catch (Exception ex)
         {
             strError = ex.GetBaseException().Message;
+            ShowProgressBar = false;
+            StateHasChanged();
         }
-    }
 
+        ShowProgressBar = false;
+        StateHasChanged();
+    }
 
     //Summary
 
