@@ -291,12 +291,12 @@
                 CurrentUser.Identity.Name;
 
             // Save the result
-            var result = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
+            Blogs SavedBlog = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys).Result;
 
             // Make a Folder to hold the images for the Blog post
             string path = Path.Combine(HostEnvironment.WebRootPath,
             "blogs",
-            result.Result.BlogId.ToString());
+            SavedBlog.BlogId.ToString());
 
             if (!Directory.Exists(path))
             {
@@ -305,6 +305,7 @@
                 // Get the images in the Blog post
                 var colImages = GetAllImages(objNewBlog.BlogContent);
 
+                // Save all the images 
                 foreach (var item in colImages)
                 {
                     string ImageURL = GetURLFromImageTag(item.ToString());
@@ -312,6 +313,21 @@
                     Image image = DownloadImageFromUrl(ImageURL);
                     image.Save(Path.Combine(path, fileName));
                 }
+
+                // Re-write the image links to make them local
+                foreach (var item in colImages)
+                {
+                    string ImageURLOrginal = GetURLFromImageTag(item.ToString());
+                    string ImageFileName = Path.GetFileName(ImageURLOrginal);
+                    string ImageURLLocal = $@"/blogs/{SavedBlog.BlogId}/{ImageFileName}";
+
+                    objNewBlog.BlogSummary = objNewBlog.BlogSummary.Replace(ImageURLOrginal, ImageURLLocal);
+                    objNewBlog.BlogContent = objNewBlog.BlogContent.Replace(ImageURLOrginal, ImageURLLocal);
+                }
+
+                // Update the Blog post
+                objNewBlog.BlogId = SavedBlog.BlogId;
+                var updateResult = @Service.UpdateBlogAsync(objNewBlog, selectedBlogCategorys);
             }
 
             // Log

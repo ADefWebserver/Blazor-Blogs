@@ -95,23 +95,23 @@
     </NotAuthorized>
 </AuthorizeView>
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    ImportBlogsEdit ImportBlogsEditControl;
+        ImportBlogsEdit ImportBlogsEditControl;
 
-    ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
-    DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
+        ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
+        DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
 
-    string ADMINISTRATION_ROLE = "Administrators";
+        string ADMINISTRATION_ROLE = "Administrators";
 
-    List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
-    ExternalConnectionsDTO SelectedConnection;
+        List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
+        ExternalConnectionsDTO SelectedConnection;
 
-    List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
-    BlogEntries SelectedBlogEntry;
+        List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
+        BlogEntries SelectedBlogEntry;
 
-    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+        ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     private bool ShowProgressBar = false;
 
     protected override async Task OnInitializedAsync()
@@ -279,8 +279,11 @@
     #region private string FixImages(string domain, string content)
     private string FixImages(string domain, string content)
     {
-        content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}/");
-        content = content.Replace(@"src=""", @$"src=""{domain}");
+        if (content != null)
+        {
+            content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}/");
+            content = content.Replace(@"src=""", @$"src=""{domain}");
+        }
         return content;
     }
     #endregion
