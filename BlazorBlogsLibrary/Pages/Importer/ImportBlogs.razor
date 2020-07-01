@@ -256,10 +256,35 @@
                     intSummaryLength = 500;
                 }
 
-                objBlogDTO.BlogSummary = ConvertToText(HtmlDecode(SelectedBlogEntry.Entry)).Substring(0, intSummaryLength).Trim() + "...";
+                objBlogDTO.BlogSummary =
+                    ConvertToText(HtmlDecode(SelectedBlogEntry.Entry))
+                    .Substring(0, intSummaryLength).Trim() + "...";
             }
 
-            ImportBlogsEditControl.EditBlog(objBlogDTO);
+            // Get Blog Categories
+            List<CategoryDTO> ColCategories = new List<CategoryDTO>();
+            var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
+            optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
+
+            using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
+            {
+                var ColBlogTags = context.BlogTags.ToList();
+
+                var ColBlogEntryTags =
+                    context.BlogEntryTags.Where(x => x.EntryId == SelectedBlogEntry.EntryId).ToList();
+
+                foreach (var item in ColBlogEntryTags)
+                {
+                    var Tag = ColBlogTags.Where(x => x.TagId == item.TagId).FirstOrDefault();
+
+                    CategoryDTO ObjCategory = new CategoryDTO();
+                    ObjCategory.Title = Tag.Tag;
+
+                    ColCategories.Add(ObjCategory);
+                }
+            }
+
+            ImportBlogsEditControl.EditBlog(objBlogDTO, ColCategories);
         }
     }
 
