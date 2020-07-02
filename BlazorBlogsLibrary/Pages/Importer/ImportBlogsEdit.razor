@@ -293,8 +293,18 @@
 
             if (RichTextEditorMode)
             {
-                objNewBlog.BlogContent =
-                    await this.QuillHtml.GetHTML();
+                try
+                {
+                    objNewBlog.BlogContent =
+                        await this.QuillHtml.GetHTML();
+                }
+                catch
+                {
+                    // Errored out trying to get HTML
+                    // Just get Content
+                    objNewBlog.BlogContent =
+                    SelectedBlog.BlogContent;
+                }
             }
             else
             {
