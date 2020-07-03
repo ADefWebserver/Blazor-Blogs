@@ -258,8 +258,8 @@
         // Get Categories for the Blog
         foreach (var item in ColCategoryDTO)
         {
-            if(colCategorys
-                .Where(x => x.Title.ToLower() == item.Title)
+            if (colCategorys
+                .Where(x => x.Title.ToLower() == item.Title.ToLower())
                 .FirstOrDefault() == null)
             {
                 // Add the Catagory
@@ -267,6 +267,13 @@
 
                 // Select the Category
                 selectedBlogCategorys = selectedBlogCategorys.Append(item.Title);
+            }
+            else
+            {
+                // Select the Category
+                var SelectedCategory = colCategorys.Where(x => x.Title.ToLower() == item.Title.ToLower()).FirstOrDefault();
+
+                selectedBlogCategorys = selectedBlogCategorys.Append(SelectedCategory.CategoryId);
             }
         }
 
@@ -329,6 +336,43 @@
 
             objNewBlog.BlogUserName =
                 CurrentUser.Identity.Name;
+
+            // Save any new Catagories
+            foreach (var item in selectedBlogCategorys)
+            {
+                if (!Int32.TryParse(item, out int outParam))
+                {
+                    // Category needs to be added to the database
+
+                    // Create new Category
+                    CategoryDTO objNewCategory = new CategoryDTO();
+
+                    objNewCategory.Title = item;
+                    objNewCategory.Description = item;
+
+                    // Save the result
+                    var result = @Service.CreateCategoryAsync(objNewCategory);
+
+                    // Get the Categorys
+                    colCategorys = await @Service.GetCategorysAsync();
+
+                    // Find the Category just added
+                    var NewCategory = colCategorys.Where(x => x.Title == item).FirstOrDefault();
+
+                    // Remove the orginal Category
+                    selectedBlogCategorys = selectedBlogCategorys.Where(x => x != item).ToList();
+
+                    if (NewCategory != null)
+                    {
+                        // Add the new Category
+                        selectedBlogCategorys = selectedBlogCategorys.Append(NewCategory.CategoryId);
+                    }
+                    else
+                    {
+                        await LogAction($"Could find Category {item} after adding it durring import.");
+                    }
+                }
+            }
 
             // Save the result
             Blogs SavedBlog = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys).Result;
