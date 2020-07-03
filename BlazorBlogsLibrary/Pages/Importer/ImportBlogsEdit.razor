@@ -180,9 +180,9 @@
                             Save
                         </button>
                     }
-                        <br />
-                        <span style="color:red">@strError</span>
-                    </div>
+                    <br />
+                    <span style="color:red">@strError</span>
+                </div>
             </div>
         </div>
     </div>
@@ -249,11 +249,26 @@
         BlogUpdated.InvokeAsync(true);
     }
 
-    public void EditBlog(BlogDTO Blog, List<CategoryDTO> ColCategoryDTO)
+    public void EditBlog(BlogDTO paramBlog, List<CategoryDTO> ColCategoryDTO)
     {
         // Set the selected Blog
         // as the current Blog
-        SelectedBlog = Blog;
+        SelectedBlog = paramBlog;
+
+        // Get Categories for the Blog
+        foreach (var item in ColCategoryDTO)
+        {
+            if(colCategorys
+                .Where(x => x.Title.ToLower() == item.Title)
+                .FirstOrDefault() == null)
+            {
+                // Add the Catagory
+                colCategorys.Add(new CategoryDTO { CategoryId = item.Title, Title = item.Title });
+
+                // Select the Category
+                selectedBlogCategorys = selectedBlogCategorys.Append(item.Title);
+            }
+        }
 
         // Clear any error messages
         strError = "";
@@ -330,7 +345,7 @@
                 // Get the images in the Blog post
                 var colImages = GetAllImages(objNewBlog.BlogContent);
 
-                // Save all the images 
+                // Save all the images
                 foreach (var item in colImages)
                 {
                     string ImageURL = GetURLFromImageTag(item.ToString());
