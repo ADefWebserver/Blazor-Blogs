@@ -1,0 +1,562 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using System.Text.RegularExpressions;
+@using System.IO
+@using System.Drawing;
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IHttpContextAccessor httpContextAccessor
+@inject IConfiguration _configuration
+@inherits OwningComponentBase<BlogsService>
+
+@if (ShowAdmin)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Blog</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <!-- Edit form for the current Blog -->
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input class="form-control" type="date"
+                               @bind="SelectedBlog.BlogDate" />
+                    </div>
+                    <div>
+                        <h5>
+                            Categories <button type="button" class="btn btn-link"
+                                               @onclick="OpenCategoryManagerControl">
+                                [Edit]
+                            </button>
+                        </h5>
+                    </div>
+                    <div class="form-group">
+                        <RadzenDropDown AllowClear="true"
+                                        AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        @bind-Value="selectedBlogCategorys" Multiple="true"
+                                        Placeholder="Select..."
+                                        Data="@colCategorys" TextProperty="Title"
+                                        ValueProperty="CategoryId"
+                                        Style="width:400px;" />
+                    </div>
+                    <h5>Title</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="text"
+                               @bind="SelectedBlog.BlogTitle" />
+                    </div>
+                    <h5>Summary</h5>
+                    <div class="form-group">
+                        @if (!RichTextEditorModeSummary)
+                        {
+                            <textarea class="form-control" @bind="@SelectedBlog.BlogSummary" rows="2" />
+                        }
+                        else
+                        {
+                            <BlazoredTextEditor @ref="@QuillHtmlSummary">
+                                <ToolbarContent>
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="1"></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button class="btn btn-link" id="custom-button"
+                                                @onclick="InsertImageSummaryClick">
+                                            <img src="imageIcon.png" style="border:hidden" />
+                                        </button>
+                                    </span>
+                                </ToolbarContent>
+                                <EditorContent>
+                                    @((MarkupString)SelectedBlog.BlogSummary)
+                                </EditorContent>
+                            </BlazoredTextEditor>
+                        }
+                        @if (!RichTextEditorModeSummary)
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RichTextEditorSummary"><h6>[Rich Text Editor]</h6></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditorSummary"><h6>[Raw HTML Editor]</h6></button>
+                        }
+                    </div>
+                    <h5>Content</h5>
+                    <div class="form-group">
+                        @if (!RichTextEditorMode)
+                        {
+                            <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
+                        }
+                        else
+                        {
+                            <BlazoredTextEditor @ref="@QuillHtml">
+                                <ToolbarContent>
+                                    <select class="ql-header">
+                                        <option selected=""></option>
+                                        <option value="1"></option>
+                                        <option value="2"></option>
+                                        <option value="3"></option>
+                                        <option value="4"></option>
+                                        <option value="5"></option>
+                                    </select>
+                                    <span class="ql-formats">
+                                        <button class="ql-bold"></button>
+                                        <button class="ql-italic"></button>
+                                        <button class="ql-underline"></button>
+                                        <button class="ql-strike"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <select class="ql-color"></select>
+                                        <select class="ql-background"></select>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-list" value="ordered"></button>
+                                        <button class="ql-list" value="bullet"></button>
+                                    </span>
+                                    <span class="ql-formats">
+                                        <button class="ql-link"></button>
+                                        <button class="btn btn-link" id="custom-button"
+                                                @onclick="InsertImageClick">
+                                            <img src="imageIcon.png" style="border:hidden" />
+                                        </button>
+                                    </span>
+                                </ToolbarContent>
+                                <EditorContent>
+                                    @((MarkupString)SelectedBlog.BlogContent)
+                                </EditorContent>
+                            </BlazoredTextEditor>
+                        }
+                        @if (!RichTextEditorMode)
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
+                        }
+                    </div>
+                    <br />
+                    <!-- Button to save the Blog -->
+                    @if (ShowProgressBar)
+                    {
+                        <div style="max-width: 500px;">
+                            <RadzenProgressBar Value="100" ShowValue="false"
+                                               Mode="ProgressBarMode.Indeterminate"
+                                               Style="width: 500px;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="btn btn-primary"
+                                @onclick="SaveBlog">
+                            Save
+                        </button>
+                    }
+                    <br />
+                    <span style="color:red">@strError</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <FileManager @ref="FileManagerControlSummary"
+                 ImageSelected="InsertImageSummary" />
+
+    <FileManager @ref="FileManagerControl"
+                 ImageSelected="InsertImage" />
+
+    <CategoryManager @ref="CategoryManagerControl"
+                     CategoryUpdated="UpdateCategories" />
+}
+
+@code {
+    // AuthenticationState is available as a CascadingParameter
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Parameter] public EventCallback<bool> BlogUpdated { get; set; }
+
+    BlogDTO SelectedBlog;
+    private bool ShowProgressBar = false;
+    public bool ShowAdmin = false;
+    public bool ConFirmDeletePopup = false;
+
+    public System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    private FileManager FileManagerControlSummary;
+    private FileManager FileManagerControl;
+    private CategoryManager CategoryManagerControl;
+
+    BlazoredTextEditor QuillHtmlSummary;
+    BlazoredTextEditor QuillHtml;
+    bool RichTextEditorMode = true;
+    bool RichTextEditorModeSummary = true;
+
+    List<CategoryDTO> colCategorys = new List<CategoryDTO>();
+    IEnumerable<string> selectedBlogCategorys = new string[] { };
+    string strError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        colCategorys = await @Service.GetCategorysAsync();
+    }
+
+    //CategoryManagerControl
+
+    void OpenCategoryManagerControl()
+    {
+        // Open CategoryManagerControl
+        CategoryManagerControl.SetShowManager(true);
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowAdmin = false;
+
+        // Refresh collection on parent
+        BlogUpdated.InvokeAsync(true);
+    }
+
+    public void EditBlog(BlogDTO paramBlog, List<CategoryDTO> ColCategoryDTO)
+    {
+        // Set the selected Blog
+        // as the current Blog
+        SelectedBlog = paramBlog;
+
+        // Get Categories for the Blog
+        foreach (var item in ColCategoryDTO)
+        {
+            if (colCategorys
+                .Where(x => x.Title.ToLower() == item.Title.ToLower())
+                .FirstOrDefault() == null)
+            {
+                // Add the Catagory
+                colCategorys.Add(new CategoryDTO { CategoryId = item.Title, Title = item.Title });
+
+                // Select the Category
+                selectedBlogCategorys = selectedBlogCategorys.Append(item.Title);
+            }
+            else
+            {
+                // Select the Category
+                var SelectedCategory = colCategorys.Where(x => x.Title.ToLower() == item.Title.ToLower()).FirstOrDefault();
+
+                selectedBlogCategorys = selectedBlogCategorys.Append(SelectedCategory.CategoryId);
+            }
+        }
+
+        // Clear any error messages
+        strError = "";
+
+        // Open the Popup
+        ShowAdmin = true;
+
+        StateHasChanged();
+    }
+
+    async Task SaveBlog()
+    {
+        try
+        {
+            ShowProgressBar = true;
+            StateHasChanged();
+
+            // Create new Blog
+            BlogDTO objNewBlog = new BlogDTO();
+
+            objNewBlog.BlogDate =
+                SelectedBlog.BlogDate;
+
+            objNewBlog.BlogTitle =
+                SelectedBlog.BlogTitle;
+
+            if (RichTextEditorModeSummary)
+            {
+                objNewBlog.BlogSummary =
+                    await this.QuillHtmlSummary.GetHTML();
+            }
+            else
+            {
+                objNewBlog.BlogSummary =
+                    SelectedBlog.BlogSummary;
+            }
+
+            if (RichTextEditorMode)
+            {
+                try
+                {
+                    objNewBlog.BlogContent =
+                        await this.QuillHtml.GetHTML();
+                }
+                catch
+                {
+                    // Errored out trying to get HTML
+                    // Just get Content
+                    objNewBlog.BlogContent =
+                    SelectedBlog.BlogContent;
+                }
+            }
+            else
+            {
+                objNewBlog.BlogContent =
+                    SelectedBlog.BlogContent;
+            }
+
+            objNewBlog.BlogUserName =
+                CurrentUser.Identity.Name;
+
+            // Save any new Catagories
+            foreach (var item in selectedBlogCategorys)
+            {
+                if (!Int32.TryParse(item, out int outParam))
+                {
+                    // Category needs to be added to the database
+
+                    // Create new Category
+                    CategoryDTO objNewCategory = new CategoryDTO();
+
+                    objNewCategory.Title = item;
+                    objNewCategory.Description = item;
+
+                    // Save the result
+                    var result = @Service.CreateCategoryAsync(objNewCategory);
+
+                    // Get the Categorys
+                    colCategorys = await @Service.GetCategorysAsync();
+
+                    // Find the Category just added
+                    var NewCategory = colCategorys.Where(x => x.Title == item).FirstOrDefault();
+
+                    // Remove the orginal Category
+                    selectedBlogCategorys = selectedBlogCategorys.Where(x => x != item).ToList();
+
+                    if (NewCategory != null)
+                    {
+                        // Add the new Category
+                        selectedBlogCategorys = selectedBlogCategorys.Append(NewCategory.CategoryId);
+                    }
+                    else
+                    {
+                        await LogAction($"Could find Category {item} after adding it durring import.");
+                    }
+                }
+            }
+
+            // Save the result
+            Blogs SavedBlog = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys).Result;
+
+            // Make a Folder to hold the images for the Blog post
+            string path = Path.Combine(HostEnvironment.WebRootPath,
+            "blogs",
+            SavedBlog.BlogId.ToString());
+
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+
+                // Get the images in the Blog post
+                var colImages = GetAllImages(objNewBlog.BlogContent);
+
+                // Save all the images
+                foreach (var item in colImages)
+                {
+                    string ImageURL = GetURLFromImageTag(item.ToString());
+                    string fileName = Path.GetFileName(ImageURL);
+                    Image image = DownloadImageFromUrl(ImageURL);
+                    image.Save(Path.Combine(path, fileName));
+                }
+
+                // Re-write the image links to make them local
+                foreach (var item in colImages)
+                {
+                    string ImageURLOrginal = GetURLFromImageTag(item.ToString());
+                    string ImageFileName = Path.GetFileName(ImageURLOrginal);
+                    string ImageURLLocal = $@"/blogs/{SavedBlog.BlogId}/{ImageFileName}";
+
+                    objNewBlog.BlogSummary = objNewBlog.BlogSummary.Replace(ImageURLOrginal, ImageURLLocal);
+                    objNewBlog.BlogContent = objNewBlog.BlogContent.Replace(ImageURLOrginal, ImageURLLocal);
+                }
+
+                // Update the Blog post
+                objNewBlog.BlogId = SavedBlog.BlogId;
+                var updateResult = @Service.UpdateBlogAsync(objNewBlog, selectedBlogCategorys);
+            }
+
+            // Log
+            await LogAction($"Create Copied Blog #{objNewBlog.BlogId}");
+
+            ClosePopup();
+        }
+        catch (Exception ex)
+        {
+            strError = ex.GetBaseException().Message;
+            ShowProgressBar = false;
+            StateHasChanged();
+        }
+
+        ShowProgressBar = false;
+        StateHasChanged();
+    }
+
+    //Summary
+
+    private void RichTextEditorSummary()
+    {
+        RichTextEditorModeSummary = true;
+        StateHasChanged();
+    }
+
+    private async Task RawHTMLEditorSummary()
+    {
+        RichTextEditorModeSummary = false;
+        SelectedBlog.BlogSummary =
+            await this.QuillHtmlSummary.GetHTML();
+    }
+
+    private void RichTextEditor()
+    {
+        RichTextEditorMode = true;
+        StateHasChanged();
+    }
+
+    private async Task RawHTMLEditor()
+    {
+        RichTextEditorMode = false;
+        SelectedBlog.BlogContent =
+            await this.QuillHtml.GetHTML();
+    }
+
+    // Inserting Images
+
+    private void InsertImageSummaryClick()
+    {
+        FileManagerControlSummary.SetShowFileManager(true);
+    }
+
+    private void InsertImageClick()
+    {
+        FileManagerControl.SetShowFileManager(true);
+    }
+
+    async Task InsertImageSummary(string paramImageURL)
+    {
+        await this.QuillHtmlSummary.InsertImage(paramImageURL);
+
+        FileManagerControl.SetShowFileManager(false);
+    }
+
+    async Task InsertImage(string paramImageURL)
+    {
+        await this.QuillHtml.InsertImage(paramImageURL);
+
+        FileManagerControl.SetShowFileManager(false);
+    }
+
+    async Task UpdateCategories()
+    {
+        colCategorys = await @Service.GetCategorysAsync();
+    }
+
+    private async Task LogAction(string strAction)
+    {
+        // Get the current user
+        var CurrentUser = (await authenticationStateTask).User;
+
+        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
+        objLog.LogDate = DateTime.Now;
+        objLog.LogAction = strAction;
+        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        try
+        {
+            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        }
+        catch
+        {
+            objLog.LogIpaddress = "127.0.0.1";
+        }
+
+        var result = await @Service.CreateLogAsync(objLog);
+    }
+
+    // Utility
+
+    #region private MatchCollection GetAllImages(string param)
+    private MatchCollection GetAllImages(string param)
+    {
+        Regex r = new Regex(@"<img.+?src=""(.+?)"".+?/?>");
+        return r.Matches(param);
+    }
+    #endregion
+
+    #region private string GetURLFromImageTag(string param)
+    private string GetURLFromImageTag(string param)
+    {
+        int intStart = param.IndexOf(@"src=""") + 5;
+        int intEnd = param.IndexOf(@"""", intStart);
+
+
+        return param.Substring(intStart, (intEnd - intStart));
+    }
+    #endregion
+
+    #region public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+    public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+    {
+        System.Drawing.Image image = null;
+
+        try
+        {
+            System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
+            webRequest.AllowWriteStreamBuffering = true;
+            webRequest.Timeout = 30000;
+
+            System.Net.WebResponse webResponse = webRequest.GetResponse();
+
+            System.IO.Stream stream = webResponse.GetResponseStream();
+
+            image = System.Drawing.Image.FromStream(stream);
+
+            webResponse.Close();
+        }
+        catch
+        {
+            return null;
+        }
+
+        return image;
+    }
+    #endregion
+}
+

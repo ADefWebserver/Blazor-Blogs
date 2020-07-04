@@ -1,0 +1,377 @@
+﻿@page "/importblogs"
+@using System.IO;
+@using System.Text;
+@using System.Web;
+@using System.Security.Claims;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using Microsoft.AspNetCore.Hosting;
+@using BlazorBlogsLibrary.Classes;
+@using BlazorBlogsLibrary.Classes.Imports;
+@using DotNetNukeBlogs.Data;
+@using DotNetNukeBlogs.Data.Models;
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration _configuration
+@inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject NavigationManager NavigationManager
+@inherits OwningComponentBase
+<AuthorizeView>
+    <Authorized>
+        <h1>Import Blogs</h1>
+        <p>Works with: <a href="https://github.com/DNNCommunity/DNN.Blog">DotNetNuke Blog</a></p>
+        <br />
+        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            <!-- Connection Selection -->
+            <h4>Source</h4>
+            <RadzenDropDown AllowClear="false"
+                            AllowFiltering="false"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            @bind-Value="SelectedConnection" Multiple="false"
+                            Placeholder="Select Connection..."
+                            Data="@ColExternalConnections" TextProperty="ConnectionName"
+                            Style="width:500px;"
+                            Change="@(args => ChangeConnection(args, "DropDown"))" />
+            <br />
+            @if (SelectedConnection != null)
+            {
+                <button class="btn btn-primary"
+                        @onclick="(() => EditConnection())">
+                    Edit
+                </button>
+            }
+            <button class="btn btn-success"
+                    @onclick="(() => NewConnection())">
+                New Connection
+            </button>
+            <br /><br />
+            <!-- Blog Selection -->
+            @if (SelectedConnection != null)
+            {
+                <h4>Blog</h4>
+                @if (ShowProgressBar)
+                {
+                    <div style="max-width: 500px;">
+                        <RadzenProgressBar Value="100" ShowValue="false"
+                                           Mode="ProgressBarMode.Indeterminate"
+                                           Style="width: 500px;" />
+                    </div>
+                }
+                else
+                {
+                    <RadzenDropDown AllowClear="false"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="SelectedBlogEntry" Multiple="false"
+                                    Placeholder="Select Blog..."
+                                    Data="@ColBlogEntries" TextProperty="Title"
+                                    Style="width:500px;" />
+                    <br />
+                    @if (SelectedBlogEntry != null)
+                    {
+                        <button class="btn btn-primary"
+                                @onclick="(() => EditBlog())">
+                            Edit Blog
+                        </button>
+                    }
+                }
+            }
+
+            <!-- ImportBlogsEdit Popup -->
+            <ImportBlogsEdit @ref="ImportBlogsEditControl" />
+
+            <!-- Connection Popup -->
+            <ImportBlogsDatabaseConfiguration @ref="@objImportBlogsDatabaseConfiguration"
+                                              paramConnectionSetting="@objConnectionSetting"
+                                              DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h3>Administration</h3>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    ImportBlogsEdit ImportBlogsEditControl;
+
+    ImportBlogsDatabaseConfiguration objImportBlogsDatabaseConfiguration;
+    DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
+
+    string ADMINISTRATION_ROLE = "Administrators";
+
+    List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
+    ExternalConnectionsDTO SelectedConnection;
+
+    List<BlogEntries> ColBlogEntries = new List<BlogEntries>();
+    BlogEntries SelectedBlogEntry;
+
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    private bool ShowProgressBar = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current logged in user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+        await RefreshConnectionsAsync(null);
+    }
+
+    // Database Connection
+
+    private async Task RefreshConnectionsAsync(int? SelectedConnectionId)
+    {
+        ColExternalConnections = await _BlogsService.GetExternalConnectionsAsync();
+
+        if (SelectedConnectionId != null)
+        {
+            if (ColExternalConnections.Count > 0)
+            {
+                SelectedConnection = ColExternalConnections.FirstOrDefault();
+                StateHasChanged();
+            }
+        }
+        else
+        {
+            SelectedConnection = ColExternalConnections.Where(x => x.Id == SelectedConnectionId).FirstOrDefault();
+        }
+    }
+
+    public async Task DatabaseConfigurationComplete(DTOConnectionSetting paramConnectionSetting)
+    {
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Add)
+        {
+            SelectedConnection = new ExternalConnectionsDTO();
+
+            SelectedConnection.DatabaseName = paramConnectionSetting.DatabaseName;
+            SelectedConnection.ServerName = paramConnectionSetting.ServerName;
+            SelectedConnection.IntegratedSecurity = paramConnectionSetting.IntegratedSecurity.ToString();
+            SelectedConnection.DatabaseUsername = paramConnectionSetting.Username;
+            SelectedConnection.DatabasePassword = paramConnectionSetting.Password;
+
+            var result = await _BlogsService.CreateExternalConnectionsAsync(SelectedConnection);
+            await RefreshConnectionsAsync(result.Id);
+        }
+
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Update)
+        {
+            SelectedConnection.DatabaseName = paramConnectionSetting.DatabaseName;
+            SelectedConnection.ServerName = paramConnectionSetting.ServerName;
+            SelectedConnection.IntegratedSecurity = paramConnectionSetting.IntegratedSecurity.ToString();
+            SelectedConnection.DatabaseUsername = paramConnectionSetting.Username;
+            SelectedConnection.DatabasePassword = paramConnectionSetting.Password;
+
+            await _BlogsService.UpdateExternalConnectionsAsync(SelectedConnection);
+            await RefreshConnectionsAsync(SelectedConnection.Id);
+        }
+
+        if (paramConnectionSetting.ConnectionState == ConnectionState.Delete)
+        {
+            await _BlogsService.DeleteExternalConnectionsAsync(SelectedConnection);
+            SelectedConnection = new ExternalConnectionsDTO();
+            await RefreshConnectionsAsync(null);
+        }
+    }
+
+    async Task ChangeConnection(object value, string name)
+    {
+        ColBlogEntries = new List<BlogEntries>();
+        ShowProgressBar = true;
+        StateHasChanged();
+
+        var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
+        optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
+
+        using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
+        {
+            ColBlogEntries = await context.BlogEntries.ToListAsync();
+
+            if (ColBlogEntries.Count > 0)
+            {
+                SelectedBlogEntry = ColBlogEntries.FirstOrDefault();
+            }
+        }
+
+        ShowProgressBar = false;
+        StateHasChanged();
+    }
+
+    void EditConnection()
+    {
+        if (SelectedConnection != null)
+        {
+            objConnectionSetting.DatabaseName = SelectedConnection.DatabaseName;
+            objConnectionSetting.ServerName = SelectedConnection.ServerName;
+            objConnectionSetting.IntegratedSecurity = Convert.ToBoolean(SelectedConnection.IntegratedSecurity);
+            objConnectionSetting.Username = SelectedConnection.DatabaseUsername;
+            objConnectionSetting.Password = SelectedConnection.DatabasePassword;
+            objConnectionSetting.ConnectionState = ConnectionState.Update;
+
+            objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+        }
+    }
+
+    void NewConnection()
+    {
+        objConnectionSetting.DatabaseName = "DotNetNuke";
+        objConnectionSetting.ServerName = "(Local)";
+        objConnectionSetting.IntegratedSecurity = true;
+        objConnectionSetting.Username = "";
+        objConnectionSetting.Password = "";
+        objConnectionSetting.ConnectionState = ConnectionState.Add;
+
+        objImportBlogsDatabaseConfiguration.setConnectionParameter(objConnectionSetting);
+    }
+
+    // Edit Blog
+
+    void EditBlog()
+    {
+        if (SelectedBlogEntry != null)
+        {
+            Uri myUri = new Uri(SelectedBlogEntry.PermaLink);
+            string RootDomain = $"http://{myUri.Host}";
+
+            BlogDTO objBlogDTO = new BlogDTO();
+            objBlogDTO.BlogId = 0;
+            objBlogDTO.BlogCategory = new List<BlogCategory>();
+            objBlogDTO.BlogContent = HtmlDecode(FixImages(RootDomain,SelectedBlogEntry.Entry));
+            objBlogDTO.BlogDate = SelectedBlogEntry.AddedDate;
+            objBlogDTO.BlogTitle = SelectedBlogEntry.Title;
+
+            if (SelectedBlogEntry.Entry != null)
+            {
+                int intSummaryLength = SelectedBlogEntry.Entry.Length;
+
+                if (intSummaryLength > 500)
+                {
+                    intSummaryLength = 500;
+                }
+
+                objBlogDTO.BlogSummary =
+                    ConvertToText(HtmlDecode(SelectedBlogEntry.Entry))
+                    .Substring(0, intSummaryLength).Trim() + "...";
+            }
+
+            // Get Blog Categories
+            List<CategoryDTO> ColCategories = new List<CategoryDTO>();
+            var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
+            optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
+
+            using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
+            {
+                var ColBlogTags = context.BlogTags.ToList();
+
+                var ColBlogEntryTags =
+                    context.BlogEntryTags.Where(x => x.EntryId == SelectedBlogEntry.EntryId).ToList();
+
+                foreach (var item in ColBlogEntryTags)
+                {
+                    var Tag = ColBlogTags.Where(x => x.TagId == item.TagId).FirstOrDefault();
+
+                    CategoryDTO ObjCategory = new CategoryDTO();
+                    ObjCategory.Title = Tag.Tag;
+
+                    ColCategories.Add(ObjCategory);
+                }
+            }
+
+            ImportBlogsEditControl.EditBlog(objBlogDTO, ColCategories);
+        }
+    }
+
+    // Utility
+
+    #region private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    {
+        StringBuilder SB = new StringBuilder();
+        string strConnectionString = "";
+
+        string strUserInfo = (!Convert.ToBoolean(objConnectionSetting.IntegratedSecurity)) ?
+            String.Format("uid={0};pwd={1}",
+            objConnectionSetting.DatabaseUsername,
+            objConnectionSetting.DatabasePassword) :
+            "integrated security=True";
+
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+            SB.ToString(),
+            objConnectionSetting.ServerName,
+            objConnectionSetting.DatabaseName,
+            strUserInfo);
+
+        return strConnectionString;
+    }
+    #endregion
+
+    #region private string FixImages(string domain, string content)
+    private string FixImages(string domain, string content)
+    {
+        if (content != null)
+        {
+            content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}/");
+            content = content.Replace(@"src=""", @$"src=""{domain}");
+        }
+        return content;
+    }
+    #endregion
+
+    #region private string HtmlDecode(string param)
+    private string HtmlDecode(string param)
+    {
+        StringWriter myWriter = new StringWriter();
+
+        // Decode the encoded string.
+        HttpUtility.HtmlDecode(param, myWriter);
+        return myWriter.ToString();
+    }
+    #endregion
+
+    #region ConvertToText
+    public static string ConvertToText(string sHTML)
+    {
+        string sContent = sHTML;
+        sContent = sContent.Replace("<br />", Environment.NewLine);
+        sContent = sContent.Replace("<br>", Environment.NewLine);
+        sContent = FormatText(sContent, true);
+        return StripTags(sContent, true);
+    }
+    #endregion
+
+    #region FormatText
+    public static string FormatText(string HTML, bool RetainSpace)
+    {
+        //Match all variants of <br> tag (<br>, <BR>, <br/>, including embedded space
+        string brMatch = "\\s*<\\s*[bB][rR]\\s*/\\s*>\\s*";
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, brMatch, Environment.NewLine);
+    }
+    #endregion
+
+    #region StripTags
+    public static string StripTags(string HTML, bool RetainSpace)
+    {
+        //Set up Replacement String
+        string RepString;
+        if (RetainSpace)
+        {
+            RepString = " ";
+        }
+        else
+        {
+            RepString = "";
+        }
+
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, "<[^>]*>", RepString);
+    }
+    #endregion
+}
