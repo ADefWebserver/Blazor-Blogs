@@ -46,6 +46,7 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 
 * [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1008 "Installing Blazor-Blogs on Microsoft Azure")
 * [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
+* [Upgrading Blazor Blogs](https://blazorblogs.azurewebsites.net/ViewBlogPost/1011 "Upgrading Blazor Blogs")
 * [Uploading Images With The Blazor Rich Text Editor](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4369/Uploading-Images-With-The-Blazor-Rich-Text-Editor.aspx "Uploading Images With The Blazor Rich Text Editor")
 * [Creating Reusable Custom Blazor Controls](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4365/Creating-Reusable-Custom-Blazor-Controls.aspx "Creating Reusable Custom Blazor Controls")
 * [Creating A Rich Text Editor In Blazor Using Quill](http://blazorhelpwebsite.com/Blog/tabid/61/EntryId/4364/Creating-A-Rich-Text-Editor-In-Blazor-Using-Quill.aspx "Creating A Rich Text Editor In Blazor Using Quill")
