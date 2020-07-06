@@ -94,8 +94,6 @@
         // Subscribe to the StateChanged EventHandler
         DisqusState.StateChanged +=
         OnDisqusStateStateChanged;
-
-        await LoadGeneralSettingsAsync();
     }
 
     protected override async Task
@@ -103,6 +101,8 @@
     {
         if (firstRender)
         {
+            await LoadGeneralSettingsAsync();
+
             if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
                 await DisqusInterop.CreateDisqus(
