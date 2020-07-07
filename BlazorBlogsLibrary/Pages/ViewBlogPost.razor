@@ -59,47 +59,45 @@ else
     bool UserIsAdminOfBlogPost = false;
     string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
-            await LogAction($"View Blog #{SelectedBlog.BlogId}");
-
-            // Get the current user
-            CurrentUser = (await authenticationStateTask).User;
-
-            if (CurrentUser.Identity.IsAuthenticated)
-            {
-                if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
-                {
-                    UserIsAdminOfBlogPost = true;
-                }
-            }
-
-            await HeadElementHelper.SetMetaElementsAsync(
-            ByProp("og:description", SelectedBlog.BlogTitle),
-            ByName("description", SelectedBlog.BlogTitle)
-            );
-        }
-        catch
-        {
-            await LogAction($"Error Viewing Blog #{BlogPostId}");
-            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
-        }
-    }
-
     protected override async Task
         OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
-        {        
+        {
+            try
+            {
+                _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+                _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+                objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+                SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
+
+                // Get the current user
+                CurrentUser = (await authenticationStateTask).User;
+
+                if (CurrentUser.Identity.IsAuthenticated)
+                {
+                    if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
+                    {
+                        UserIsAdminOfBlogPost = true;
+                    }
+                }
+            }
+            catch
+            {
+                await LogAction($"Error Viewing Blog #{BlogPostId}");
+                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+            }
+
             if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
+                await LogAction($"View Blog #{SelectedBlog.BlogId}");
+
+                await HeadElementHelper.SetMetaElementsAsync(
+                    ByProp("og:description", SelectedBlog.BlogTitle),
+                    ByName("description", SelectedBlog.BlogTitle)
+                    );
+
                 string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
                 await DisqusInterop.ResetDisqus(
@@ -110,6 +108,8 @@ else
 
                 DisqusState.SetDisplayDisqus(true);
             }
+
+            StateHasChanged();
         }
     }
 
