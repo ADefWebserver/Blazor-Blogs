@@ -115,6 +115,13 @@ namespace BlazorBlogs
                                 "files",
                                 file.FileName);
 
+                        // Create directory if not exists
+                        string directoryName = Path.GetDirectoryName(path);
+                        if (!Directory.Exists(directoryName))
+                        {
+                            Directory.CreateDirectory(directoryName);
+                        }
+
                         using (var stream =
                             new FileStream(path, FileMode.Create))
                         {
