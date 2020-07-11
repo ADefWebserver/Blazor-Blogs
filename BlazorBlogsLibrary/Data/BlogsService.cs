@@ -35,11 +35,18 @@ namespace BlazorBlogs.Data
                 objBlogsPaged.BlogCount = await _context.Blogs
                     .CountAsync();
 
-                objBlogsPaged.Blogs = await _context.Blogs
+                objBlogsPaged.Blogs = await (from blog in _context.Blogs
                     .Include(x => x.BlogCategory)
-                    .OrderByDescending(x => x.BlogDate)
-                    .Skip(page * 5)
-                    .Take(5).ToListAsync();
+                                             select new Blogs
+                                             {
+                                                 BlogId = blog.BlogId,
+                                                 BlogTitle = blog.BlogTitle,
+                                                 BlogDate = blog.BlogDate,
+                                                 BlogUserName = blog.BlogUserName,
+                                                 BlogSummary = blog.BlogSummary,
+                                                 BlogContent = blog.BlogSummary,
+                                                 BlogCategory = blog.BlogCategory
+                                             }).OrderByDescending(x => x.BlogDate).Skip(page * 5).Take(5).ToListAsync();
             }
             else
             {
@@ -48,12 +55,19 @@ namespace BlazorBlogs.Data
                     .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
                     .CountAsync();
 
-                objBlogsPaged.Blogs = await _context.Blogs
+                objBlogsPaged.Blogs = await (from blog in _context.Blogs
                     .Include(x => x.BlogCategory)
                     .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
-                    .OrderByDescending(x => x.BlogDate)
-                    .Skip(page * 5)
-                    .Take(5).ToListAsync();
+                                             select new Blogs
+                                             {
+                                                 BlogId = blog.BlogId,
+                                                 BlogTitle = blog.BlogTitle,
+                                                 BlogDate = blog.BlogDate,
+                                                 BlogUserName = blog.BlogUserName,
+                                                 BlogSummary = blog.BlogSummary,
+                                                 BlogContent = blog.BlogSummary,
+                                                 BlogCategory = blog.BlogCategory
+                                             }).OrderByDescending(x => x.BlogDate).Skip(page * 5).Take(5).ToListAsync();
             }
 
             return objBlogsPaged;

@@ -52,19 +52,26 @@ else
 <br />
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 <LicenseTerms @ref="LicenseTermsControl" />
-@if (ShowPreviousButton)
+@if (!LoadingBlogs)
 {
-    <button class="btn btn-warning"
-            @onclick="Previous">
-        <b>&#x3C;</b>
-    </button>
+    @if (ShowPreviousButton)
+    {
+        <button class="btn btn-warning"
+                @onclick="Previous">
+            <b>&#x3C;</b>
+        </button>
+    }
+    @if (ShowNextButton)
+    {
+        <button class="btn btn-warning"
+                @onclick="Next">
+            <b>&#x3E;</b>
+        </button>
+    }
 }
-@if (ShowNextButton)
+else
 {
-    <button class="btn btn-warning"
-            @onclick="Next">
-        <b>&#x3E;</b>
-    </button>
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
 }
 <br />
 <br />
@@ -84,6 +91,7 @@ else
 
     BlogAdministration BlogAdministrationControl;
     LicenseTerms LicenseTermsControl;
+    bool LoadingBlogs = false;
 
     string ADMINISTRATION_ROLE = "Administrators";
     List<CategoryDTO> colCategorys = new List<CategoryDTO>();
@@ -153,15 +161,27 @@ else
 
     async Task BlogUpdatedEvent()
     {
+        LoadingBlogs = true;
+        StateHasChanged();
+
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 
     async Task ChangeCategory(object value, string name)
     {
+        LoadingBlogs = true;
+        StateHasChanged();
+
         SearchState.CurrentPage = 1;
         SearchState.CurrentCategoryID = (value == null) ? "0" : value.ToString();
 
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 
     void showTermsOfUse()
@@ -176,16 +196,28 @@ else
 
     async Task Previous()
     {
+        LoadingBlogs = true;
+        StateHasChanged();
+
         if (SearchState.CurrentPage > 1)
         {
             SearchState.CurrentPage = SearchState.CurrentPage - 1;
             colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
         }
+
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 
     async Task Next()
     {
+        LoadingBlogs = true;
+        StateHasChanged();
+
         SearchState.CurrentPage = SearchState.CurrentPage + 1;
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 }
