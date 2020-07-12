@@ -256,6 +256,13 @@
                     intSummaryLength = 500;
                 }
 
+                int DecodeLength = ConvertToText(HtmlDecode(SelectedBlogEntry.Entry)).Length;
+
+                if(DecodeLength < intSummaryLength)
+                {
+                    intSummaryLength = DecodeLength;
+                }
+
                 objBlogDTO.BlogSummary =
                     ConvertToText(HtmlDecode(SelectedBlogEntry.Entry))
                     .Substring(0, intSummaryLength).Trim() + "...";
@@ -268,19 +275,29 @@
 
             using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
             {
-                var ColBlogTags = context.BlogTags.ToList();
-
-                var ColBlogEntryTags =
-                    context.BlogEntryTags.Where(x => x.EntryId == SelectedBlogEntry.EntryId).ToList();
-
-                foreach (var item in ColBlogEntryTags)
+                try
                 {
-                    var Tag = ColBlogTags.Where(x => x.TagId == item.TagId).FirstOrDefault();
+                    var ColBlogTags = context.BlogTags.ToList();
 
-                    CategoryDTO ObjCategory = new CategoryDTO();
-                    ObjCategory.Title = Tag.Tag;
+                    var ColBlogEntryTags =
+                        context.BlogEntryTags.Where(x => x.EntryId == SelectedBlogEntry.EntryId).ToList();
 
-                    ColCategories.Add(ObjCategory);
+                    foreach (var item in ColBlogEntryTags)
+                    {
+                        var Tag = ColBlogTags.Where(x => x.TagId == item.TagId).FirstOrDefault();
+
+                        CategoryDTO ObjCategory = new CategoryDTO();
+                        ObjCategory.Title = Tag.Tag;
+
+                        ColCategories.Add(ObjCategory);
+                    }
+                }
+                catch
+                {
+                    // If the site does not have a BlogTags table 
+                    // this will throw an error
+                    // return an empty collection
+                    ColCategories = new List<CategoryDTO>();
                 }
             }
 
