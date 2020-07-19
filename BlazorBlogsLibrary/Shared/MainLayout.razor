@@ -90,10 +90,6 @@
         {
             NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
         }
-
-        // Subscribe to the StateChanged EventHandler
-        DisqusState.StateChanged +=
-        OnDisqusStateStateChanged;
     }
 
     protected override async Task
@@ -109,6 +105,12 @@
                     JSRuntime,
                     disqusBody,
                     @$"https://{objGeneralSettings.DisqusShortName.Trim()}.disqus.com/embed.js");
+
+                // Subscribe to the StateChanged EventHandler
+                DisqusState.StateChanged +=
+                OnDisqusStateStateChanged;
+
+                StateHasChanged();
             }
         }
     }
@@ -157,9 +159,12 @@
 
     void IDisposable.Dispose()
     {
-        // When this control is disposed of
-        // unsubscribe from the StateChanged EventHandler
-        DisqusState.StateChanged -=
-        OnDisqusStateStateChanged;
+        if (DisqusState != null)
+        {
+            // When this control is disposed of
+            // unsubscribe from the StateChanged EventHandler
+            DisqusState.StateChanged -=
+            OnDisqusStateStateChanged;
+        }
     }
 }
