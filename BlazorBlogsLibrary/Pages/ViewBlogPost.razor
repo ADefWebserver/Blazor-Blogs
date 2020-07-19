@@ -82,17 +82,18 @@ else
                         UserIsAdminOfBlogPost = true;
                     }
                 }
+
+                await LogAction($"View Blog #{SelectedBlog.BlogId}");
             }
             catch
             {
                 await LogAction($"Error Viewing Blog #{BlogPostId}");
                 SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+                return;
             }
 
             if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
-                await LogAction($"View Blog #{SelectedBlog.BlogId}");
-
                 await HeadElementHelper.SetMetaElementsAsync(
                     ByProp("og:description", SelectedBlog.BlogTitle),
                     ByName("description", SelectedBlog.BlogTitle)
