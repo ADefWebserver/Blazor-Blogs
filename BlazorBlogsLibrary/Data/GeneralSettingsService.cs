@@ -40,7 +40,10 @@ namespace BlazorBlogs.Data
             objGeneralSettings.DisqusEnabled = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
             objGeneralSettings.DisqusShortName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusShortName").SettingValue);
 
+            objGeneralSettings.GoogleTrackingID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID").SettingValue);
+
             objGeneralSettings.VersionNumber = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "VersionNumber").SettingValue);
+
             return objGeneralSettings;
         }
         #endregion
@@ -222,6 +225,20 @@ namespace BlazorBlogs.Data
                          select Settings;
 
             resuts.FirstOrDefault().SettingValue = Convert.ToString(DisqusShortName);
+            _context.SaveChanges();
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region UpdateGoogleTrackingID
+        public Task<bool> UpdateGoogleTrackingIDAsync(string GoogleTrackingID)
+        {
+            var resuts = from Settings in _context.Settings
+                         where Settings.SettingName == "GoogleTrackingID"
+                         select Settings;
+
+            resuts.FirstOrDefault().SettingValue = Convert.ToString(GoogleTrackingID);
             _context.SaveChanges();
 
             return Task.FromResult(true);

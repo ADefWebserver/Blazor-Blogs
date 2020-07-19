@@ -212,6 +212,13 @@
                                    @bind="objGeneralSettings.DisqusShortName" />
                         </td>
                     </tr>
+                    <tr>
+                        <td>Google Tracking ID</td>
+                        <td>
+                            <input class="form-control" type="text"
+                                   @bind="objGeneralSettings.GoogleTrackingID" />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <br />
@@ -403,6 +410,8 @@
 
         var UpdateDisqusEnabledResult = _GeneralSettingsService.UpdateDisqusEnabledAsync(Convert.ToBoolean(DisqusEnabled));
         var UpdateDisqusShortNameResult = _GeneralSettingsService.UpdateDisqusShortNameAsync(objGeneralSettings.DisqusShortName);
+
+        var UpdateGoogleTrackingIDResult = _GeneralSettingsService.UpdateGoogleTrackingIDAsync(objGeneralSettings.GoogleTrackingID);
 
         if (RichTextEditorMode)
         {

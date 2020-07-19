@@ -92,15 +92,23 @@ else
                 return;
             }
 
+            await HeadElementHelper.SetMetaElementsAsync(
+                ByProp("og:description", SelectedBlog.BlogTitle),
+                ByName("description", SelectedBlog.BlogTitle)
+                );
+
+            string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
+
+            if (objGeneralSettings.GoogleTrackingID.Trim() != "")
+            {
+                await GoogleInterop.gaTracking(
+                    JSRuntime,
+                    objGeneralSettings.GoogleTrackingID.Trim()
+                    );
+            }
+
             if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
             {
-                await HeadElementHelper.SetMetaElementsAsync(
-                    ByProp("og:description", SelectedBlog.BlogTitle),
-                    ByName("description", SelectedBlog.BlogTitle)
-                    );
-
-                string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
-
                 await DisqusInterop.ResetDisqus(
                     JSRuntime,
                     BlogPostId.ToString(),
