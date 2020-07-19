@@ -40,7 +40,14 @@ namespace BlazorBlogs.Data
             objGeneralSettings.DisqusEnabled = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
             objGeneralSettings.DisqusShortName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusShortName").SettingValue);
 
-            objGeneralSettings.GoogleTrackingID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID").SettingValue);
+            if (resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID") != null)
+            {
+                objGeneralSettings.GoogleTrackingID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID").SettingValue);
+            }
+            else
+            {
+                objGeneralSettings.GoogleTrackingID = "";
+            }
 
             objGeneralSettings.VersionNumber = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "VersionNumber").SettingValue);
 
