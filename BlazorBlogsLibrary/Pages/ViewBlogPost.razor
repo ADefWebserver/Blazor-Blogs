@@ -44,7 +44,7 @@
 
     [Parameter] public string BlogPostId { get; set; }
 
-    BlogDTO SelectedBlog = new BlogDTO() { BlogId = 0 };
+    BlogDTO SelectedBlog = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
 
@@ -55,24 +55,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-        SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
-    }
-
-    protected override async Task
-        OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        try
         {
-            try
-            {
-                // Get the current user
-                CurrentUser = (await authenticationStateTask).User;
+            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
-                if (CurrentUser.Identity.IsAuthenticated)
+            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
+
+            // Get the current user
+            CurrentUser = (await authenticationStateTask).User;
+
+            if (CurrentUser.Identity.IsAuthenticated)
+            {
+                if (SelectedBlog.BlogId != 0)
                 {
                     if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
                     {
@@ -80,17 +76,19 @@
                     }
                 }
             }
-            catch
-            {
-                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
-                return;
-            }
+        }
+        catch
+        {
+            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+            return;
+        }
+    }
 
-            await HeadElementHelper.SetMetaElementsAsync(
-                ByProp("og:description", SelectedBlog.BlogTitle),
-                ByName("description", SelectedBlog.BlogTitle)
-                );
-
+    protected override async Task
+        OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
             string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
             if (objGeneralSettings.GoogleTrackingID.Trim() != "")
