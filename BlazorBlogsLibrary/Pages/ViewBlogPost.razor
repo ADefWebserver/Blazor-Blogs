@@ -14,36 +14,30 @@
 @inject DisqusState DisqusState
 @inherits OwningComponentBase
 
-@if (SelectedBlog.BlogId != 0)
-{
-    <Title>@SelectedBlog.BlogTitle</Title>
-    <Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
-    <Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
-    <h4>
-        <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
-        @if (UserIsAdminOfBlogPost)
-        {
-            <button type="button" class="btn btn-secondary" @onclick="EditBlog">[Edit Blog]</button>
-        }
-    </h4>
-    <br />
-    <i>@SelectedBlog.BlogDate.ToShortDateString()</i>
-    <span><b>@SelectedBlog.BlogDisplayName</b></span>
+<Title>@SelectedBlog.BlogTitle</Title>
+<Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
+<Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
+<h4>
+    <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
+    @if (UserIsAdminOfBlogPost)
+    {
+        <button type="button" class="btn btn-secondary" @onclick="EditBlog">[Edit Blog]</button>
+    }
+</h4>
+<br />
+<i>@SelectedBlog.BlogDate.ToShortDateString()</i>
+<span><b>@SelectedBlog.BlogDisplayName</b></span>
+<div>
+    <h1>@SelectedBlog.BlogTitle</h1>
+</div>
+<hr />
+<div>
     <div>
-        <h1>@SelectedBlog.BlogTitle</h1>
+        @((MarkupString)SelectedBlog.BlogContent)
     </div>
-    <hr />
-    <div>
-        <div>
-            @((MarkupString)SelectedBlog.BlogContent)
-        </div>
-    </div>
-    <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
-}
-else
-{
-    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-}
+</div>
+<BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
+
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
@@ -59,6 +53,15 @@ else
     bool UserIsAdminOfBlogPost = false;
     string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
+    protected override async Task OnInitializedAsync()
+    {
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
+    }
+
     protected override async Task
         OnAfterRenderAsync(bool firstRender)
     {
@@ -66,12 +69,6 @@ else
         {
             try
             {
-                _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-                _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-                objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-                SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
-
                 // Get the current user
                 CurrentUser = (await authenticationStateTask).User;
 
@@ -82,12 +79,9 @@ else
                         UserIsAdminOfBlogPost = true;
                     }
                 }
-
-                await LogAction($"View Blog #{SelectedBlog.BlogId}");
             }
             catch
             {
-                await LogAction($"Error Viewing Blog #{BlogPostId}");
                 SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
                 return;
             }
@@ -144,26 +138,5 @@ else
             // Blog was deleted
             Back();
         }
-    }
-
-    private async Task LogAction(string strAction)
-    {
-        // Get the current user
-        var CurrentUser = (await authenticationStateTask).User;
-
-        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
-        objLog.LogDate = DateTime.Now;
-        objLog.LogAction = strAction;
-        objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";
-        try
-        {
-            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-        }
-        catch
-        {
-            objLog.LogIpaddress = "127.0.0.1";
-        }
-
-        var result = await _BlogsService.CreateLogAsync(objLog);
     }
 }
