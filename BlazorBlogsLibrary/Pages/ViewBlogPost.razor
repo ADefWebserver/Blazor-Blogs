@@ -6,13 +6,12 @@
 @using static Toolbelt.Blazor.HeadElement.MetaElement
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject GeneralSettingsService _GeneralSettingsService
 @inject BlogsService _BlogsService
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
 @inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
-@inherits OwningComponentBase
+@inherits OwningComponentBase<BlogsService>
 
 <Title>@SelectedBlog.BlogTitle</Title>
 <Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
@@ -46,8 +45,6 @@
 
     BlogDTO SelectedBlog = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
 
-    GeneralSettings objGeneralSettings = new GeneralSettings();
-
     BlogAdministration BlogAdministrationControl;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     bool UserIsAdminOfBlogPost = false;
@@ -57,11 +54,7 @@
     {
         try
         {
-            _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-            _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-            objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
+            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
 
             // Get the current user
             CurrentUser = (await authenticationStateTask).User;
@@ -87,31 +80,44 @@
     protected override async Task
         OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
-
-            if (objGeneralSettings.GoogleTrackingID.Trim() != "")
+        //if (firstRender)
+        //{
+            try
             {
-                await GoogleInterop.gaTracking(
-                    JSRuntime,
-                    objGeneralSettings.GoogleTrackingID.Trim()
-                    );
-            }
+                SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
 
-            if (Convert.ToBoolean(objGeneralSettings.DisqusEnabled))
+                if (SelectedBlog.BlogId > 0)
+                {
+                    string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
+
+                    if (SelectedBlog.GoogleTrackingID.Trim() != "")
+                    {
+                        await GoogleInterop.gaTracking(
+                            JSRuntime,
+                            SelectedBlog.GoogleTrackingID.Trim()
+                            );
+                    }
+
+                    if (Convert.ToBoolean(SelectedBlog.DisqusEnabled))
+                    {
+                        await DisqusInterop.ResetDisqus(
+                            JSRuntime,
+                            BlogPostId.ToString(),
+                            url,
+                            SelectedBlog.BlogTitle);
+
+                        DisqusState.SetDisplayDisqus(true);
+                    }
+
+                    //StateHasChanged();
+                }
+            }
+            catch
             {
-                await DisqusInterop.ResetDisqus(
-                    JSRuntime,
-                    BlogPostId.ToString(),
-                    url,
-                    SelectedBlog.BlogTitle);
-
-                DisqusState.SetDisplayDisqus(true);
+                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+                return;
             }
-
-            StateHasChanged();
-        }
+        //}
     }
 
     void EditBlog()

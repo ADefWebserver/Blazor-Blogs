@@ -115,6 +115,20 @@ namespace BlazorBlogs.Data
                 }
             }
 
+            // Get GoogleTrackingID and DisqusEnabled
+            var Settings = await _context.Settings.AsNoTracking().ToListAsync();
+
+            objBlog.DisqusEnabled = Convert.ToBoolean(Settings.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
+
+            if (Settings.FirstOrDefault(x => x.SettingName == "GoogleTrackingID") != null)
+            {
+                objBlog.GoogleTrackingID = Convert.ToString(Settings.FirstOrDefault(x => x.SettingName == "GoogleTrackingID").SettingValue);
+            }
+            else
+            {
+                objBlog.GoogleTrackingID = "";
+            }
+
             return objBlog;
         }
         #endregion

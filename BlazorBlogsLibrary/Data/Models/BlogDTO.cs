@@ -14,6 +14,8 @@ namespace BlazorBlogs.Data.Models
         public string BlogContent { get; set; }
         public string BlogUserName { get; set; }
         public string BlogDisplayName { get; set; }
+        public string GoogleTrackingID { get; set; }
+        public bool DisqusEnabled { get; set; }
         public List<BlogCategory> BlogCategory { get; set; }
     }
 }
