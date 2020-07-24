@@ -80,44 +80,41 @@
     protected override async Task
         OnAfterRenderAsync(bool firstRender)
     {
-        //if (firstRender)
-        //{
-            try
-            {
-                SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+        try
+        {
+            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
 
-                if (SelectedBlog.BlogId > 0)
+            if (SelectedBlog.BlogId > 0)
+            {
+                string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
+
+                if (SelectedBlog.GoogleTrackingID.Trim() != "")
                 {
-                    string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
-
-                    if (SelectedBlog.GoogleTrackingID.Trim() != "")
-                    {
-                        await GoogleInterop.gaTracking(
-                            JSRuntime,
-                            SelectedBlog.GoogleTrackingID.Trim()
-                            );
-                    }
-
-                    if (Convert.ToBoolean(SelectedBlog.DisqusEnabled))
-                    {
-                        await DisqusInterop.ResetDisqus(
-                            JSRuntime,
-                            BlogPostId.ToString(),
-                            url,
-                            SelectedBlog.BlogTitle);
-
-                        DisqusState.SetDisplayDisqus(true);
-                    }
-
-                    //StateHasChanged();
+                    await GoogleInterop.gaTracking(
+                        JSRuntime,
+                        SelectedBlog.GoogleTrackingID.Trim()
+                        );
                 }
+
+                if (Convert.ToBoolean(SelectedBlog.DisqusEnabled))
+                {
+                    await DisqusInterop.ResetDisqus(
+                        JSRuntime,
+                        BlogPostId.ToString(),
+                        url,
+                        SelectedBlog.BlogTitle);
+
+                    DisqusState.SetDisplayDisqus(true);
+                }
+
+                //StateHasChanged();
             }
-            catch
-            {
-                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
-                return;
-            }
-        //}
+        }
+        catch
+        {
+            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+            return;
+        }
     }
 
     void EditBlog()
