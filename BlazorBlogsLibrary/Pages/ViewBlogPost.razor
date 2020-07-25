@@ -54,7 +54,7 @@
     {
         try
         {
-            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
+            SelectedBlog = @Service.GetBlog(Convert.ToInt32(BlogPostId));
 
             // Get the current user
             CurrentUser = (await authenticationStateTask).User;
@@ -80,40 +80,44 @@
     protected override async Task
         OnAfterRenderAsync(bool firstRender)
     {
-        try
+        if (SelectedBlog.BlogId > 0)
         {
-            SelectedBlog = await @Service.GetBlogAsync(Convert.ToInt32(BlogPostId));
-
-            if (SelectedBlog.BlogId > 0)
+            try
             {
                 string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
 
                 if (SelectedBlog.GoogleTrackingID.Trim() != "")
                 {
-                    await GoogleInterop.gaTracking(
-                        JSRuntime,
-                        SelectedBlog.GoogleTrackingID.Trim()
-                        );
+                    try
+                    {
+                        await GoogleInterop.gaTracking(
+                            JSRuntime,
+                            SelectedBlog.GoogleTrackingID.Trim()
+                            );
+                    }
+                    catch { }
                 }
 
                 if (Convert.ToBoolean(SelectedBlog.DisqusEnabled))
                 {
-                    await DisqusInterop.ResetDisqus(
-                        JSRuntime,
-                        BlogPostId.ToString(),
-                        url,
-                        SelectedBlog.BlogTitle);
+                    try
+                    {
+                        await DisqusInterop.ResetDisqus(
+                            JSRuntime,
+                            BlogPostId.ToString(),
+                            url,
+                            SelectedBlog.BlogTitle);
 
-                    DisqusState.SetDisplayDisqus(true);
+                        DisqusState.SetDisplayDisqus(true);
+                    }
+                    catch { }
                 }
-
-                //StateHasChanged();
             }
-        }
-        catch
-        {
-            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
-            return;
+            catch
+            {
+                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+                return;
+            }
         }
     }
 
@@ -128,11 +132,11 @@
         NavigationManager.NavigateTo(url);
     }
 
-    async Task BlogUpdatedEvent()
+    void BlogUpdatedEvent()
     {
         try
         {
-            SelectedBlog = await _BlogsService.GetBlogAsync(Convert.ToInt32(BlogPostId));
+            SelectedBlog = _BlogsService.GetBlog(Convert.ToInt32(BlogPostId));
         }
         catch
         {

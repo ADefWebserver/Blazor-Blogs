@@ -74,28 +74,28 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task<BlogDTO> GetBlogAsync(int BlogId)
-        public async Task<BlogDTO> GetBlogAsync(int BlogId)
+        #region public BlogDTO GetBlog(int BlogId)
+        public BlogDTO GetBlog(int BlogId)
         {
-            BlogDTO objBlog = await (from blog in _context.Blogs
+            BlogDTO objBlog = (from blog in _context.Blogs
                                      .Where(x => x.BlogId == BlogId)
-                                     select new BlogDTO
-                                     {
-                                         BlogId = blog.BlogId,
-                                         BlogTitle = blog.BlogTitle,
-                                         BlogDate = blog.BlogDate,
-                                         BlogUserName = blog.BlogUserName,
-                                         BlogSummary = blog.BlogSummary,
-                                         BlogContent = blog.BlogContent,
-                                         BlogDisplayName = "",
-                                     }).AsNoTracking().FirstOrDefaultAsync();
+                               select new BlogDTO
+                               {
+                                   BlogId = blog.BlogId,
+                                   BlogTitle = blog.BlogTitle,
+                                   BlogDate = blog.BlogDate,
+                                   BlogUserName = blog.BlogUserName,
+                                   BlogSummary = blog.BlogSummary,
+                                   BlogContent = blog.BlogContent,
+                                   BlogDisplayName = "",
+                               }).AsNoTracking().FirstOrDefault();
 
             // Add Blog Categories
             objBlog.BlogCategory = new List<BlogCategory>();
 
-            var BlogCategories = await _context.BlogCategory
+            var BlogCategories = _context.BlogCategory
                 .Where(x => x.BlogId == objBlog.BlogId)
-                .AsNoTracking().ToListAsync();
+                .AsNoTracking().ToList();
 
             foreach (var item in BlogCategories)
             {
@@ -103,9 +103,9 @@ namespace BlazorBlogs.Data
             }
 
             // Try to get name
-            var objUser = await _context.AspNetUsers
+            var objUser = _context.AspNetUsers
                 .Where(x => x.Email.ToLower() == objBlog.BlogUserName).AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
 
             if (objUser != null)
             {
@@ -116,7 +116,7 @@ namespace BlazorBlogs.Data
             }
 
             // Get GoogleTrackingID and DisqusEnabled
-            var Settings = await _context.Settings.AsNoTracking().ToListAsync();
+            var Settings = _context.Settings.AsNoTracking().ToList();
 
             objBlog.DisqusEnabled = Convert.ToBoolean(Settings.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
 
