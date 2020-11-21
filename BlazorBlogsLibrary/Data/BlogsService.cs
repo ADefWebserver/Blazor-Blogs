@@ -185,10 +185,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(objBlogs);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -259,10 +259,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -321,10 +321,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -358,10 +358,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -450,10 +450,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -490,10 +490,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -561,10 +561,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(objExternalConnections);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -607,10 +607,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
