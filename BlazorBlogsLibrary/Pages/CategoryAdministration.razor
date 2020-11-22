@@ -1,20 +1,15 @@
 ﻿@page "/categories"
-@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
-@using BlazorBlogsLibrary.Classes;
-@using BlazorBlogsLibrary.Classes.Imports;
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IHttpContextAccessor httpContextAccessor
-@inject IConfiguration _configuration
 @inherits OwningComponentBase<BlogsService>
 @if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
 {
     <div>
-        <h3>Category Administration <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit]</button></h3>
+        <h3>Blog Category Administration <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit Categories]</button></h3>
     </div>
     <div class="form-group">
         <RadzenDropDown AllowClear="false"
@@ -40,7 +35,7 @@
             </div>
             <br />
             <div class="form-group">
-                <button class="btn btn-primary"
+                <button class="btn btn-success"
                         @onclick="SaveBlog">
                     Update
                 </button>
