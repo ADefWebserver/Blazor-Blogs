@@ -24,6 +24,30 @@ namespace BlazorBlogs.Data
 
         // Blogs
 
+        #region public async Task<List<Blogs>> GetAllBlogsAsync(string BlogUserName)
+        public async Task<List<Blogs>> GetAllBlogsAsync(string BlogUserName)
+        {
+            List<Blogs> colBlogs = new List<Blogs>();
+
+            colBlogs = await (from blog in _context.Blogs
+                .Include(x => x.BlogCategory)
+                              select new Blogs
+                              {
+                                  BlogId = blog.BlogId,
+                                  BlogTitle = blog.BlogTitle,
+                                  BlogDate = blog.BlogDate,
+                                  BlogUserName = blog.BlogUserName,
+                                  BlogSummary = blog.BlogSummary,
+                                  BlogContent = blog.BlogSummary,
+                                  BlogCategory = blog.BlogCategory
+                              }).OrderBy(x => x.BlogTitle)
+                              .Where(x => x.BlogUserName.ToLower() == BlogUserName)
+                              .ToListAsync();
+
+            return colBlogs;
+        }
+        #endregion
+
         #region public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
         public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
         {
@@ -246,6 +270,49 @@ namespace BlazorBlogs.Data
                     }
                     else
                     {
+                        ExistingBlogs.BlogCategory =
+                            GetSelectedBlogCategories(objBlogs, BlogCategories);
+                    }
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> UpdateBlogCategoriesAsync(Blogs objBlog, IEnumerable<String> BlogCategories)
+        public Task<bool> UpdateBlogCategoriesAsync(Blogs objBlog, IEnumerable<String> BlogCategories)
+        {
+            try
+            {
+                var ExistingBlogs =
+                    _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogId == objBlog.BlogId)
+                    .FirstOrDefault();
+
+                if (ExistingBlogs != null)
+                {
+                    if (BlogCategories == null)
+                    {
+                        ExistingBlogs.BlogCategory = null;
+                    }
+                    else
+                    {
+                        BlogDTO objBlogs = new BlogDTO();
+                        objBlogs.BlogId = objBlog.BlogId;
+
                         ExistingBlogs.BlogCategory =
                             GetSelectedBlogCategories(objBlogs, BlogCategories);
                     }
@@ -672,8 +739,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task<bool> DelteLogsAsync(string UserName)
-        public async Task<bool> DelteLogsAsync(string UserName)
+        #region public async Task<bool> DeleteLogsAsync(string UserName)
+        public async Task<bool> DeleteLogsAsync(string UserName)
         {
             await _context.Logs.AsNoTracking().DeleteAsync();
 
