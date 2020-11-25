@@ -225,9 +225,9 @@
             <button class="btn btn-primary" @onclick="Save">Save</button>
             <button class="btn btn-success" @onclick="SendTestEmail">Send Test Email</button>
             <br /><br />
-            <FileManager @ref="FileManagerControl"
+            <FileSelector @ref="FileManagerControl"
                          ImageSelected="InsertImage" />
-            <FileManager @ref="FileManagerApplicationHeaderControl"
+            <FileSelector @ref="FileManagerApplicationHeaderControl"
                          ImageSelected="InsertApplicationHeaderImage" />
 
             @if (ShowProgressBarPopup)
@@ -280,8 +280,8 @@
     string ADMINISTRATION_ROLE = "Administrators";
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
-    private FileManager FileManagerControl;
-    private FileManager FileManagerApplicationHeaderControl;
+    private FileSelector FileManagerControl;
+    private FileSelector FileManagerApplicationHeaderControl;
 
     private bool ReadyToContinue = false;
     private bool Upgrading = false;
