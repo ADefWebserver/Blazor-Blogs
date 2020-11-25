@@ -1,79 +1,60 @@
-﻿@using System.IO
+﻿@page "/filemanager"
+@using System.IO
 @using System.Drawing;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 
-@if (ShowFileManager)
+@if (UserIsAnAdmin)
 {
-    <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <b class="modal-title">Insert Image</b>
-                    <!-- Close Button -->
-                    <button type="button" class="close"
-                            @onclick="() => { ShowFileManager = false; }">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <RadzenUpload ChooseText="Upload Files" Multiple="true"
-                                      Accept="image/*"
-                                      Url=@($"api/upload/multiple?CurrentDirectory={CurrentDirectory}")
-                                      Style="margin-bottom: 20px;height: 45px"
-                                      Progress="@((args) => OnProgress(args))" />
+    <h1>File Manager</h1>
+    <br />
+    <div class="row">
+        <RadzenUpload ChooseText="Upload Files" Multiple="true"
+                      Accept="image/*"
+                      Url=@($"api/upload/multiple?CurrentDirectory={CurrentDirectory}")
+                      Style="margin-bottom: 20px;height: 45px"
+                      Progress="@((args) => OnProgress(args))" />
 
-                        <RadzenSplitButton Click="(args) => FolderAction(args)"
-                                           Text="Folder"
-                                           ButtonStyle="ButtonStyle.Info"
-                                           Style="margin-bottom: 20px;height: 35px">
-                            <ChildContent>
-                                <RadzenSplitButtonItem Text="Add Folder" Value="Add" />
-                                <RadzenSplitButtonItem Text="Delete Folder" Value="Delete" />
-                            </ChildContent>
-                        </RadzenSplitButton>
+        <RadzenSplitButton Click="(args) => FolderAction(args)"
+                           Text="Folder"
+                           ButtonStyle="ButtonStyle.Info"
+                           Style="margin-bottom: 20px;height: 35px">
+            <ChildContent>
+                <RadzenSplitButtonItem Text="Add Folder" Value="Add" />
+                <RadzenSplitButtonItem Text="Delete Folder" Value="Delete" />
+            </ChildContent>
+        </RadzenSplitButton>
 
-                        <RadzenButton Disabled="@(SelectedFile.FileName == null)"
-                                      Text="Delete"
-                                      Click="DeleteSelectedFile"
-                                      ButtonStyle="ButtonStyle.Danger"
-                                      Style="margin-bottom: 20px;height: 35px" />
-
-                        <RadzenButton Disabled="@(SelectedFile.FileName == null)"
-                                      Text="Select"
-                                      Click="SelectFile"
-                                      ButtonStyle="ButtonStyle.Success"
-                                      Style="margin-bottom: 20px;height: 35px" />
-                    </div>
-                    <div class="row">
-                        <div class="col-md-4" style="margin-bottom: 16px">
-                            <RadzenTree Change="@LogChange" Data="@Directories"
-                                        Expand="@LoadDirectory"
-                                        Style="width: 100%; height: 300px">
-                                <RadzenTreeLevel Text="@GetTextForNode"
-                                                 Template="@FileOrFolderTemplate" />
-                            </RadzenTree>
-                        </div>
-                        <div class="col-md-8" style="margin-bottom: 16px">
-                            <RadzenDataList @ref="FileDataList" Data="@Files"
-                                            AllowPaging="true" TItem="FileObject"
-                                            WrapItems="true" PageSize="6">
-                                <Template Context="file">
-                                    <RadzenImage Path="@file.FilePath"
-                                                 Style="@((file.FileName == SelectedFile.FileName)
+        <RadzenButton Disabled="@(SelectedFile.FileName == null)"
+                      Text="Delete"
+                      Click="DeleteSelectedFile"
+                      ButtonStyle="ButtonStyle.Danger"
+                      Style="margin-bottom: 20px;height: 35px" />
+    </div>
+    <div class="row">
+        <div class="col-md-4" style="margin-bottom: 16px">
+            <RadzenTree Change="@LogChange" Data="@Directories"
+                        Expand="@LoadDirectory"
+                        Style="width: 100%; height: 300px">
+                <RadzenTreeLevel Text="@GetTextForNode"
+                                 Template="@FileOrFolderTemplate" />
+            </RadzenTree>
+        </div>
+        <div class="col-md-8" style="margin-bottom: 16px">
+            <RadzenDataList @ref="FileDataList" Data="@Files"
+                            AllowPaging="true" TItem="FileObject"
+                            WrapItems="true" PageSize="6">
+                <Template Context="file">
+                    <RadzenImage Path="@file.FilePath"
+                                 Style="@((file.FileName == SelectedFile.FileName)
                                                           ? $"height:{file.ThumbnailHeight}px;" +
                                                           $"width:{file.ThumbnailWidth}px;" +
                                                           $"padding:10px;background-color:darkgrey;"
                                                           : $"height:{file.ThumbnailHeight}px;" +
                                                           $"width:{file.ThumbnailWidth}px;" +
                                                           $"padding:10px;background-color:white;")"
-                                                 Click="@((args) => SelectImage(file))" />
-                                </Template>
-                            </RadzenDataList>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                 Click="@((args) => SelectImage(file))" />
+                </Template>
+            </RadzenDataList>
         </div>
     </div>
 }
@@ -124,10 +105,12 @@
 }
 
 @code {
-    // ImageSelected is an EventCallback that will
-    // notify the parent component when an image is selected
-    // passing the url of the image to the parent component
-    [Parameter] public EventCallback<string> ImageSelected { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    bool UserIsAnAdmin = false;
 
     private RadzenDataList<FileObject> FileDataList;
     private bool ShowFileManager = false;
@@ -145,10 +128,17 @@
     private Dictionary<DateTime, string> events =
         new Dictionary<DateTime, string>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        CurrentRoot =
-            Path.Combine(HostEnvironment.WebRootPath, "uploads");
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+
+        if (CurrentUser.Identity.IsAuthenticated)
+        {
+            UserIsAnAdmin = CurrentUser.IsInRole(ADMINISTRATION_ROLE);
+        }
+
+        CurrentRoot = Path.Combine(HostEnvironment.WebRootPath, "uploads");
         CurrentDirectory = CurrentRoot;
         Directories.Add(CurrentDirectory);
         LoadFiles();
@@ -157,13 +147,6 @@
     public void SetShowFileManager(bool paramSetting)
     {
         ShowFileManager = paramSetting;
-    }
-
-    //SelectFile
-
-    private async Task SelectFile()
-    {
-        await ImageSelected.InvokeAsync(SelectedFile.FilePath);
     }
 
     // Files
