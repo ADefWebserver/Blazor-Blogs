@@ -265,15 +265,22 @@
 
     private async void OnProgress(UploadProgressArgs args)
     {
-        ShowProgressBarPopup = true;
-        this.info = $"{args.Loaded} of {args.Total} bytes.";
-        this.progress = args.Progress;
-        StateHasChanged();
-        if (args.Loaded == args.Total)
+        try
         {
-            // Delay to give files time to be saved
-            // before reloading file view
-            await LoadFilesAsync();
+            ShowProgressBarPopup = true;
+            this.info = $"{args.Loaded} of {args.Total} bytes.";
+            this.progress = args.Progress;
+            StateHasChanged();
+            if (args.Loaded == args.Total)
+            {
+                // Delay to give files time to be saved
+                // before reloading file view
+                await LoadFilesAsync();
+            }
+        }
+        catch
+        {
+            ShowProgressBarPopup = false;
         }
     }
 

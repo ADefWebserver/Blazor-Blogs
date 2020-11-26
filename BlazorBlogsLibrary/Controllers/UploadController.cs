@@ -60,6 +60,12 @@ namespace BlazorBlogs
                     {
                         // reconstruct the path to ensure everything 
                         // goes to uploads directory
+
+                        if(CurrentDirectory == null)
+                        {
+                            CurrentDirectory = "";
+                        }
+
                         string RequestedPath =
                             CurrentDirectory.ToLower()
                             .Replace(environment.WebRootPath.ToLower(), "");
