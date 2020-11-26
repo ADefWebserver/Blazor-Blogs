@@ -1,5 +1,7 @@
 ﻿@page "/filemanager"
 @using System.IO
+@using System.Text
+@using System.Web
 @using System.Drawing;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 
@@ -10,10 +12,9 @@
     <div class="row">
         <RadzenUpload ChooseText="Upload Files" Multiple="true"
                       Accept="image/*"
-                      Url=@($"api/upload/multiple?CurrentDirectory={CurrentDirectory}")
+                      Url=@($"api/upload/multiple?CurrentDirectory={HttpUtility.UrlEncode(CurrentDirectory.ToLower().Replace(CurrentRoot.ToLower(), ""))}")
                       Style="margin-bottom: 20px;height: 45px"
                       Progress="@((args) => OnProgress(args))" />
-
         <RadzenSplitButton Click="(args) => FolderAction(args)"
                            Text="Folder"
                            ButtonStyle="ButtonStyle.Info"

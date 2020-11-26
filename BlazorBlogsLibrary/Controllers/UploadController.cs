@@ -69,15 +69,20 @@ namespace BlazorBlogs
                             RequestedPath =
                                 RequestedPath.Replace("\\uploads\\", "");
                         }
-                        else
+
+                        // If RequestedPath begins with \\ remove them
+                        if (RequestedPath.Length > 1)
                         {
-                            RequestedPath = "";
+                            if (RequestedPath.Substring(0, 1) == @"\")
+                            {
+                                RequestedPath = RequestedPath.Remove(0, 1);
+                            }
                         }
 
                         string path =
                             Path.Combine(
                                 environment.WebRootPath,
-                                "uploads",
+                                "uploads\\",
                                 RequestedPath,
                                 file.FileName);
 
@@ -148,9 +153,10 @@ namespace BlazorBlogs
             {
                 return StatusCode(500, ex.Message);
             }
-        } 
+        }
         #endregion
 
+        #region public async Task<IActionResult> UpgradeAsync(IFormFile file, string FileTitle)
         [HttpPost("[action]")]
         public async Task<IActionResult> UpgradeAsync(
             IFormFile file, string FileTitle)
@@ -215,7 +221,7 @@ namespace BlazorBlogs
                         catch (Exception ex)
                         {
                             return Ok(ex.ToString());
-                        } 
+                        }
                         #endregion
 
                         #region Show error if needed and delete upgrade files 
@@ -250,8 +256,8 @@ namespace BlazorBlogs
             }
 
             return Ok();
-        }
-
+        } 
+        #endregion
 
         // Upgrade Code
 
