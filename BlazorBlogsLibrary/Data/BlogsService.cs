@@ -24,6 +24,30 @@ namespace BlazorBlogs.Data
 
         // Blogs
 
+        #region public async Task<List<Blogs>> GetAllBlogsAsync(string BlogUserName)
+        public async Task<List<Blogs>> GetAllBlogsAsync(string BlogUserName)
+        {
+            List<Blogs> colBlogs = new List<Blogs>();
+
+            colBlogs = await (from blog in _context.Blogs
+                .Include(x => x.BlogCategory)
+                              select new Blogs
+                              {
+                                  BlogId = blog.BlogId,
+                                  BlogTitle = blog.BlogTitle,
+                                  BlogDate = blog.BlogDate,
+                                  BlogUserName = blog.BlogUserName,
+                                  BlogSummary = blog.BlogSummary,
+                                  BlogContent = blog.BlogSummary,
+                                  BlogCategory = blog.BlogCategory
+                              }).OrderBy(x => x.BlogTitle)
+                              .Where(x => x.BlogUserName.ToLower() == BlogUserName)
+                              .ToListAsync();
+
+            return colBlogs;
+        }
+        #endregion
+
         #region public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
         public async Task<BlogsPaged> GetBlogsAsync(int page, int CategoryID)
         {
@@ -155,6 +179,35 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public Task<Blogs> CreateBlogAsync(BlogDTO newBlog)
+        public Task<Blogs> CreateBlogAsync(BlogDTO newBlog)
+        {
+            try
+            {
+                Blogs objBlogs = new Blogs();
+
+                objBlogs.BlogId = 0;
+                objBlogs.BlogContent = newBlog.BlogContent;
+                objBlogs.BlogDate = newBlog.BlogDate;
+                objBlogs.BlogSummary = newBlog.BlogSummary;
+                objBlogs.BlogTitle = newBlog.BlogTitle;
+                objBlogs.BlogUserName = newBlog.BlogUserName;
+                objBlogs.BlogContent = newBlog.BlogContent;
+                objBlogs.BlogCategory = null;
+
+                _context.Blogs.Add(objBlogs);
+                _context.SaveChanges();
+
+                return Task.FromResult(objBlogs);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
+        }
+        #endregion
+
         #region public Task<Blogs> CreateBlogAsync(BlogDTO newBlog, IEnumerable<String> BlogCatagories)
         public Task<Blogs> CreateBlogAsync(BlogDTO newBlog, IEnumerable<String> BlogCatagories)
         {
@@ -185,10 +238,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(objBlogs);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -212,6 +265,48 @@ namespace BlazorBlogs.Data
             }
 
             return Task.FromResult(true);
+        }
+        #endregion
+
+        #region public Task<bool> UpdateBlogAsync(BlogDTO objBlogs)
+        public Task<bool> UpdateBlogAsync(BlogDTO objBlogs)
+        {
+            try
+            {
+                var ExistingBlogs =
+                    _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogId == objBlogs.BlogId)
+                    .FirstOrDefault();
+
+                if (ExistingBlogs != null)
+                {
+                    ExistingBlogs.BlogDate =
+                        objBlogs.BlogDate;
+
+                    ExistingBlogs.BlogTitle =
+                        objBlogs.BlogTitle;
+
+                    ExistingBlogs.BlogSummary =
+                        objBlogs.BlogSummary;
+
+                    ExistingBlogs.BlogContent =
+                        objBlogs.BlogContent;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
         }
         #endregion
 
@@ -259,10 +354,53 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> UpdateBlogCategoriesAsync(Blogs objBlog, IEnumerable<String> BlogCategories)
+        public Task<bool> UpdateBlogCategoriesAsync(Blogs objBlog, IEnumerable<String> BlogCategories)
+        {
+            try
+            {
+                var ExistingBlogs =
+                    _context.Blogs
+                    .Include(x => x.BlogCategory)
+                    .Where(x => x.BlogId == objBlog.BlogId)
+                    .FirstOrDefault();
+
+                if (ExistingBlogs != null)
+                {
+                    if (BlogCategories == null)
+                    {
+                        ExistingBlogs.BlogCategory = null;
+                    }
+                    else
+                    {
+                        BlogDTO objBlogs = new BlogDTO();
+                        objBlogs.BlogId = objBlog.BlogId;
+
+                        ExistingBlogs.BlogCategory =
+                            GetSelectedBlogCategories(objBlogs, BlogCategories);
+                    }
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
             }
         }
         #endregion
@@ -321,10 +459,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -358,10 +496,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -450,10 +588,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -490,10 +628,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -561,10 +699,10 @@ namespace BlazorBlogs.Data
                 _context.SaveChanges();
                 return Task.FromResult(objExternalConnections);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -607,10 +745,10 @@ namespace BlazorBlogs.Data
 
                 return Task.FromResult(true);
             }
-            catch (Exception ex)
+            catch
             {
                 DetachAllEntities();
-                throw ex;
+                throw;
             }
         }
         #endregion
@@ -672,8 +810,8 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task<bool> DelteLogsAsync(string UserName)
-        public async Task<bool> DelteLogsAsync(string UserName)
+        #region public async Task<bool> DeleteLogsAsync(string UserName)
+        public async Task<bool> DeleteLogsAsync(string UserName)
         {
             await _context.Logs.AsNoTracking().DeleteAsync();
 

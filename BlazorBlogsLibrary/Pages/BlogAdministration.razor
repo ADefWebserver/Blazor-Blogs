@@ -28,19 +28,6 @@
                         <input class="form-control" type="date"
                                @bind="SelectedBlog.BlogDate" />
                     </div>
-                    <div>
-                        <h5>Categories <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit]</button></h5>
-                    </div>
-                    <div class="form-group">
-                        <RadzenDropDown AllowClear="true"
-                                        AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        @bind-Value="selectedBlogCategorys" Multiple="true"
-                                        Placeholder="Select..."
-                                        Data="@colCategorys" TextProperty="Title"
-                                        ValueProperty="CategoryId"
-                                        Style="width:400px;" />
-                    </div>
                     <h5>Title</h5>
                     <div class="form-group">
                         <input class="form-control" type="text"
@@ -159,7 +146,7 @@
                     <button class="btn btn-primary"
                             @onclick="SaveBlog">
                         Save
-                    </button>
+                    </button>&nbsp;
                     <!-- Only show delete button if not a new record -->
                     @if (SelectedBlog.BlogId.ToString() != "0")
                     {
@@ -201,14 +188,11 @@
         </div>
     }
 
-    <FileManager @ref="FileManagerControlSummary"
+    <FileSelector @ref="FileManagerControlSummary"
                  ImageSelected="InsertImageSummary" />
 
-    <FileManager @ref="FileManagerControl"
+    <FileSelector @ref="FileManagerControl"
                  ImageSelected="InsertImage" />
-
-    <CategoryManager @ref="CategoryManagerControl"
-                     CategoryUpdated="UpdateCategories" />
 }
 
 @code {
@@ -224,34 +208,21 @@
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    private FileManager FileManagerControlSummary;
-    private FileManager FileManagerControl;
-    private CategoryManager CategoryManagerControl;
+    private FileSelector FileManagerControlSummary;
+    private FileSelector FileManagerControl;
 
     BlazoredTextEditor QuillHtmlSummary;
     BlazoredTextEditor QuillHtml;
     bool RichTextEditorMode = true;
     bool RichTextEditorModeSummary = true;
 
-    List<CategoryDTO> colCategorys = new List<CategoryDTO>();
-    IEnumerable<string> selectedBlogCategorys = new string[] { };
     string strError;
 
     protected override async Task OnInitializedAsync()
     {
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
-
-        colCategorys = await @Service.GetCategorysAsync();
-    }
-
-    //CategoryManagerControl
-
-    void OpenCategoryManagerControl()
-    {
-        // Open CategoryManagerControl
-        CategoryManagerControl.SetShowManager(true);
-    }
+    }   
 
     void ClosePopup()
     {
@@ -270,8 +241,7 @@
         SelectedBlog.BlogDate = DateTime.Now;
         // Set Id to 0 so we know it is a new record
         SelectedBlog.BlogId = 0;
-        // Set the selected Blog Categorys
-        selectedBlogCategorys = new string[] { };
+
         // Clear any error messages
         strError = "";
         // Open the Popup
@@ -283,10 +253,6 @@
         // Set the selected Blog
         // as the current Blog
         SelectedBlog = Blog;
-
-        // Set the selected Blog Categorys
-        List<string> BlogCatagories = SelectedBlog.BlogCategory.Select(x => x.CategoryId.ToString()).ToList();
-        selectedBlogCategorys = BlogCatagories.ToArray<string>();
 
         // Clear any error messages
         strError = "";
@@ -338,7 +304,7 @@
 
                 // Save the result
                 var result =
-                @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
+                @Service.CreateBlogAsync(objNewBlog);
 
                 // Log
                 await LogAction($"Create Blog #{objNewBlog.BlogId}");
@@ -360,7 +326,7 @@
                 }
 
                 var result =
-                @Service.UpdateBlogAsync(SelectedBlog, selectedBlogCategorys);
+                @Service.UpdateBlogAsync(SelectedBlog);
 
                 // Log
                 await LogAction($"Update Blog #{SelectedBlog.BlogId}");
@@ -456,11 +422,6 @@
         await this.QuillHtml.InsertImage(paramImageURL);
 
         FileManagerControl.SetShowFileManager(false);
-    }
-
-    async Task UpdateCategories()
-    {
-        colCategorys = await @Service.GetCategorysAsync();
     }
 
     private async Task LogAction(string strAction)

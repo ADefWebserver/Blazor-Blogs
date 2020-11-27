@@ -602,6 +602,10 @@ namespace BlazorBlogs
 
             throw new Exception("Bad user name or password");
         }
+        public Task<Tag[]> GetTagsAsync(string blogid, string username, string password)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         // Utility

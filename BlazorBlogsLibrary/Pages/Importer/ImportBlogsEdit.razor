@@ -187,10 +187,10 @@
         </div>
     </div>
 
-    <FileManager @ref="FileManagerControlSummary"
+    <FileSelector @ref="FileManagerControlSummary"
                  ImageSelected="InsertImageSummary" />
 
-    <FileManager @ref="FileManagerControl"
+    <FileSelector @ref="FileManagerControl"
                  ImageSelected="InsertImage" />
 
     <CategoryManager @ref="CategoryManagerControl"
@@ -211,8 +211,8 @@
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    private FileManager FileManagerControlSummary;
-    private FileManager FileManagerControl;
+    private FileSelector FileManagerControlSummary;
+    private FileSelector FileManagerControl;
     private CategoryManager CategoryManagerControl;
 
     BlazoredTextEditor QuillHtmlSummary;

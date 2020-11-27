@@ -17,10 +17,10 @@
 <Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
 <Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
 <h4>
-    <button type="button" class="btn btn-primary" @onclick="Back">[Back]</button>
+    <button type="button" class="btn btn-primary" @onclick="Back">Back</button>&nbsp;
     @if (UserIsAdminOfBlogPost)
     {
-        <button type="button" class="btn btn-secondary" @onclick="EditBlog">[Edit Blog]</button>
+        <button type="button" class="btn btn-secondary" @onclick="EditBlog">Edit Blog</button>
     }
 </h4>
 <br />

@@ -168,7 +168,7 @@
         try
         {
             // Delete the Logs
-            var result = await @Service.DelteLogsAsync(CurrentUser.Identity.Name);
+            var result = await @Service.DeleteLogsAsync(CurrentUser.Identity.Name);
           
             CurrentPage = 1;
             colLogs = await @Service.GetLogsAsync(CurrentPage);

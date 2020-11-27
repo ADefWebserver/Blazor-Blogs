@@ -97,7 +97,7 @@
                                                 class="btn btn-success"
                                                 @onclick="setConnection">
                                             Set Connection
-                                        </button>
+                                        </button> <span>&nbsp;</span>
                                         @if (DatabaseConnectionState == ConnectionState.Update)
                                         {
                                             <button type="button" label="Delete Database Connection"
@@ -134,7 +134,7 @@
                         <button class="btn btn-primary"
                                 @onclick="DeleteYes">
                             Yes
-                        </button>
+                        </button> <span>&nbsp;</span>
                         <button class="btn btn-danger"
                                 @onclick="DeleteNo">
                             No
