@@ -1,9 +1,7 @@
 # Blazor-Blogs
 #### Simple blogging application written in Microsoft Server Side Blazor
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FADefWebserver%2FBlazor-Blogs%2Fmain%2Fazuredeploy.json)
-
-See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1008 "Installing Blazor-Blogs on Microsoft Azure")
+See: [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 
 ## Live example site: https://blazorblogs.azurewebsites.net
 #### Also see: [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
@@ -44,7 +42,6 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 
 ### Helpful Articles
 
-* [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1008 "Installing Blazor-Blogs on Microsoft Azure")
 * [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 * [Upgrading Blazor Blogs](https://blazorblogs.azurewebsites.net/ViewBlogPost/1011 "Upgrading Blazor Blogs")
 * [Upgrading Blazor Blogs (Version 1.0 to Version 2.0)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1013)
