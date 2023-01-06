@@ -1,3 +1,4 @@
+// .Net 7
 using System;
 using System.IO;
 using System.Runtime.Loader;
