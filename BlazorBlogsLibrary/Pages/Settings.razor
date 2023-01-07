@@ -387,11 +387,11 @@
         try
         {
             await SaveSettings();
-            toastService.ShowSuccess("", "Saved!");
+            toastService.ShowSuccess("Saved!");
         }
         catch (Exception ex)
         {
-            toastService.ShowSuccess("Error", ex.GetBaseException().Message);
+            toastService.ShowSuccess(ex.GetBaseException().Message);
         }
     }
 
@@ -486,16 +486,16 @@
 
             if (strError == "")
             {
-                toastService.ShowSuccess("", "Test Email Sent");
+                toastService.ShowSuccess("Test Email Sent");
             }
             else
             {
-                toastService.ShowError("", strError);
+                toastService.ShowError(strError);
             }
         }
         catch (Exception ex)
         {
-            toastService.ShowError("", ex.GetBaseException().Message);
+            toastService.ShowError(ex.GetBaseException().Message);
         }
     }
 }
