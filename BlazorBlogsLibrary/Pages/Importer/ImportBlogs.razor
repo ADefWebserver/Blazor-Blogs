@@ -20,6 +20,7 @@
 @inherits OwningComponentBase
 <AuthorizeView>
     <Authorized>
+        <p style="color:red;">@error</p>
         <h1>Import Blogs</h1>
         <p>Works with: <a href="https://github.com/DNNCommunity/DNN.Blog">DotNetNuke Blog</a></p>
         <br />
@@ -105,7 +106,7 @@
     DTOConnectionSetting objConnectionSetting = new DTOConnectionSetting();
 
     string ADMINISTRATION_ROLE = "Administrators";
-
+    string error = "";
     List<ExternalConnectionsDTO> ColExternalConnections = new List<ExternalConnectionsDTO>();
     ExternalConnectionsDTO SelectedConnection;
 
@@ -184,21 +185,29 @@
 
     async Task ChangeConnection(object value, string name)
     {
+        error = "";
         ColBlogEntries = new List<BlogEntries>();
         ShowProgressBar = true;
         StateHasChanged();
 
-        var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
-        optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
-
-        using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
+        try
         {
-            ColBlogEntries = await context.BlogEntries.ToListAsync();
+            var optionsBuilder = new DbContextOptionsBuilder<DotNetNukeBlogsContext>();
+            optionsBuilder.UseSqlServer(CreateDatabaseConnectionString(SelectedConnection));
 
-            if (ColBlogEntries.Count > 0)
+            using (var context = new DotNetNukeBlogsContext(optionsBuilder.Options))
             {
-                SelectedBlogEntry = ColBlogEntries.FirstOrDefault();
+                ColBlogEntries = await context.BlogEntries.ToListAsync();
+
+                if (ColBlogEntries.Count > 0)
+                {
+                    SelectedBlogEntry = ColBlogEntries.FirstOrDefault();
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            error = ex.GetBaseException().Message;
         }
 
         ShowProgressBar = false;
@@ -207,6 +216,7 @@
 
     void EditConnection()
     {
+        error = "";
         if (SelectedConnection != null)
         {
             objConnectionSetting.DatabaseName = SelectedConnection.DatabaseName;
@@ -222,6 +232,7 @@
 
     void NewConnection()
     {
+        error = "";
         objConnectionSetting.DatabaseName = "DotNetNuke";
         objConnectionSetting.ServerName = "(Local)";
         objConnectionSetting.IntegratedSecurity = true;
@@ -236,6 +247,7 @@
 
     void EditBlog()
     {
+        error = "";
         if (SelectedBlogEntry != null)
         {
             Uri myUri = new Uri(SelectedBlogEntry.PermaLink);
@@ -320,7 +332,7 @@
             objConnectionSetting.DatabasePassword) :
             "integrated security=True";
 
-        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3};TrustServerCertificate=True",
             SB.ToString(),
             objConnectionSetting.ServerName,
             objConnectionSetting.DatabaseName,

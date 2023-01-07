@@ -30,13 +30,6 @@
                 <tbody>
                     <tr>
                         <td>Application Version: <b>@objGeneralSettings.VersionNumber</b></td>
-                        <td>
-                            <RadzenUpload ChooseText="Upload Upgrade Package"
-                                          Multiple="false"
-                                          Accept="application/x-zip-compressed"
-                                          Url=@($"api/upload/upgrade?FileTitle=BlazorBlogsUpgrade.zip")
-                                          Progress="@((args) => OnProgress(args))" />
-                        </td>
                     </tr>
                     <tr>
                         <td>Application Name</td>
