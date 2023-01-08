@@ -13,18 +13,22 @@
 @inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 @inherits OwningComponentBase<BlogsService>
-<Title>Blazor-Blogs</Title>
+<PageTitle>Blazor-Blogs</PageTitle>
 <Meta Property="og:title" Content="Blazor-Blogs" />
 <RadzenDropDown AllowClear="true"
                 AllowFiltering="true"
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 @bind-Value="SearchState.CurrentCategoryID" Multiple="false"
-                Placeholder="Search Category..."
+                Placeholder="Filter Category..."
                 Data="@colCategorys" TextProperty="Title"
                 ValueProperty="CategoryId"
                 Style="width:200px;"
                 Change="@(args => ChangeCategory(args, "DropDown"))" />
+                &nbsp;                
+<RadzenTextBox @bind-Value="SearchText" Placeholder="Search..." Style="width:200px;" />
+<RadzenButton Text="Search" Click="@(args => Search())" />
 <br />
 <br />
 <!-- Show the blogs -->
@@ -92,7 +96,7 @@ else
     BlogAdministration BlogAdministrationControl;
     LicenseTerms LicenseTermsControl;
     bool LoadingBlogs = false;
-
+    string SearchText = "";
     string ADMINISTRATION_ROLE = "Administrators";
     List<CategoryDTO> colCategorys = new List<CategoryDTO>();
 
@@ -219,5 +223,14 @@ else
 
         LoadingBlogs = false;
         StateHasChanged();
+    }
+    
+    private async Task Search()
+    {
+        // get the url of the current site
+        var uri = new Uri(NavigationManager.Uri);
+        SearchText = SearchText + $" site:{uri.DnsSafeHost}";
+        // redirect user to google search
+        await JSRuntime.InvokeVoidAsync("window.open", "https://www.google.com/search?q=" + SearchText, "_self");
     }
 }

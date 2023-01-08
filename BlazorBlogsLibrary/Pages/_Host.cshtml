@@ -1,30 +1,27 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
 @namespace BlazorBlogs.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
-@{
-    Layout = null;
-}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Blazor-Blogs</title>
     <base href="~/" />
-    <meta name="revised" content="Saturday, November 21st, 2020, 5:00 am" />
+    <meta name="revised" content="Saturday, January 7th, 2023, 5:00 am" />
     <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/default.css">
-    <link href="_content/Blazored.Toast/blazored-toast.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
+    <link href="BlazorBlogs.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
-    <app>
-        <component type="typeof(BlazorBlogsLibrary.App)" render-mode="ServerPrerendered" />
-    </app>
-
+    <component type="typeof(BlazorBlogsLibrary.App)" render-mode="ServerPrerendered" />
+    
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
             An error has occurred. This application may no longer respond until reloaded.

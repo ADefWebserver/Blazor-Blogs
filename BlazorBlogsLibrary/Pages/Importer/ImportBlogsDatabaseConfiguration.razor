@@ -306,7 +306,7 @@
             objConnectionSetting.Password) :
             "integrated security=True";
 
-        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3};TrustServerCertificate=False;",
             SB.ToString(),
             objConnectionSetting.ServerName,
             objConnectionSetting.DatabaseName,

@@ -1,106 +1,112 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>aspnet-BlazorBlogs-A4274235-47DB-4E99-B6E2-7037D91ED90A</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-BlazorBlogs-A4274235-47DB-4E99-B6E2-7037D91ED90A</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Uploads\Placeholder.txt" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Uploads\Placeholder.txt" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Uploads\Placeholder.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Uploads\Placeholder.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
-    <None Include="wwwroot\css\open-iconic\FONT-LICENSE" />
-    <None Include="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
-    <None Include="wwwroot\css\open-iconic\ICON-LICENSE" />
-    <None Include="wwwroot\css\open-iconic\README.md" />
-  </ItemGroup>
+	<ItemGroup>
+	  <None Include="wwwroot\css\bootstrap\bootstrap.min.css.map" />
+	  <None Include="wwwroot\css\open-iconic\FONT-LICENSE" />
+	  <None Include="wwwroot\css\open-iconic\font\fonts\open-iconic.svg" />
+	  <None Include="wwwroot\css\open-iconic\ICON-LICENSE" />
+	  <None Include="wwwroot\css\open-iconic\README.md" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Blazored.TextEditor" Version="1.0.3" />
-    <PackageReference Include="Blazored.Toast" Version="3.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.0" />
-    <PackageReference Include="Radzen.Blazor" Version="2.17.7" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
-    <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
-    <PackageReference Include="Toolbelt.Blazor.HeadElement" Version="5.0.0" />
-    <PackageReference Include="Toolbelt.Blazor.HeadElement.ServerPrerendering" Version="1.2.2" />
-    <PackageReference Include="WilderMinds.MetaWeblog" Version="5.0.0" />
-    <PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="5.1.2" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Blazored.TextEditor" Version="1.0.8" />
+		<PackageReference Include="Blazored.Toast" Version="4.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.AzureAppServices.HostingStartup" Version="7.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="7.0.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.1" />
+		<PackageReference Include="Radzen.Blazor" Version="4.4.9" />
+		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+		<PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
+		<PackageReference Include="Toolbelt.Blazor.HeadElement" Version="7.3.1" />
+		<PackageReference Include="Toolbelt.Blazor.HeadElement.ServerPrerendering" Version="7.3.1" />
+		<PackageReference Include="WilderMinds.MetaWeblog" Version="5.1.0" />
+		<PackageReference Include="Z.EntityFramework.Plus.EFCore" Version="7.18.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="BlazorBlogsLibrary.StaticWebAssets.xml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="CustomModules\BlazorBlogsLibrary.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="CustomModules\BlazorBlogsLibrary.Views.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="CustomModules\Placeholder.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\00.10.00.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\00.20.00.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.30.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.00.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.20.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.40.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.50.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.60.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.70.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.80.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.00.90.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.01.00.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\01.01.10.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\02.00.00.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\BlazorBlogsLibrary\BlazorBlogsLibrary.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="BlazorBlogsLibrary.StaticWebAssets.xml">
+			<CopyToOutputDirectory>Never</CopyToOutputDirectory>
+		</None>
+		<None Update="CustomModules\BlazorBlogsLibrary.dll">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CustomModules\Placeholder.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\00.10.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\00.20.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.30.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.20.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.40.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.50.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.60.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.70.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.80.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.00.90.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.01.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\01.01.10.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\02.00.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="SQLScripts\03.00.00.sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

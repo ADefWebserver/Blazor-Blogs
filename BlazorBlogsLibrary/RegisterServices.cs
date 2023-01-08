@@ -5,6 +5,7 @@ using BlazorBlogs.Areas.Identity;
 using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
 using Blazored.Toast;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -18,54 +19,52 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class RegisterServices
     {
-        public static IServiceCollection AddBlazorBlogsServices(
-            this IServiceCollection services, 
-            IConfiguration configuration)
+        public static IServiceCollection AddBlazorBlogsServices(WebApplicationBuilder builder)
         {
-            if (services is null)
+            if (builder is null)
             {
-                throw new ArgumentNullException(nameof(services));
+                throw new ArgumentNullException(nameof(builder));
             }
 
-            services.AddDbContext<ApplicationDbContext>(options =>
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    configuration.GetConnectionString("DefaultConnection")));
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDbContext<BlazorBlogsContext>(options =>
+            builder.Services.AddDbContext<BlazorBlogsContext>(options =>
             options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection")));
+                builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<ApplicationUser>(
+            builder.Services.AddDefaultIdentity<ApplicationUser>(
                   options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            services.AddRazorPages();
-            services.AddServerSideBlazor()
+            builder.Services.AddRazorPages();
+            builder.Services.AddServerSideBlazor()
                 .AddCircuitOptions(options => { options.DetailedErrors = true; });
 
-            services.AddScoped<AuthenticationStateProvider,
+            builder.Services.AddScoped<AuthenticationStateProvider,
                 RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 
             // Allows appsettings.json to be updated programatically
-            services.ConfigureWritable<ConnectionStrings>(configuration.GetSection("ConnectionStrings"));
-            services.AddSingleton<IConfiguration>(configuration);
+            builder.Services.ConfigureWritable<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
+            builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
-            services.AddScoped<BlogsService>();
-            services.AddScoped<GeneralSettingsService>();
-            services.AddScoped<EmailService>();
-            services.AddTransient<IEmailSender, EmailSender>();
-            services.AddScoped<SearchState>();
-            services.AddScoped<DisqusState>();
-            services.AddScoped<InstallUpdateState>();
-            services.AddMetaWeblog<BlazorBlogs.MetaWeblogService>();
-            services.AddHttpContextAccessor();
-            services.AddScoped<HttpContextAccessor>();
-            services.AddScoped<HttpClient>();
-            services.AddBlazoredToast();
-            services.AddHeadElementHelper();
+            builder.Services.AddScoped<BlogsService>();
+            builder.Services.AddScoped<GeneralSettingsService>();
+            builder.Services.AddScoped<EmailService>();
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
+            builder.Services.AddScoped<SearchState>();
+            builder.Services.AddScoped<DisqusState>();
+            builder.Services.AddScoped<InstallUpdateState>();
+            builder.Services.AddMetaWeblog<BlazorBlogs.MetaWeblogService>();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<HttpContextAccessor>();
+            builder.Services.AddScoped<HttpClient>();
+            builder.Services.AddBlazoredToast();
+            builder.Services.AddHeadElementHelper();
 
-            return services;
-        }        
+            return builder.Services;
+        }
     }
 }

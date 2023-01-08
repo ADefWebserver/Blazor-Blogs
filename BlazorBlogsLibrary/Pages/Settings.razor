@@ -30,13 +30,6 @@
                 <tbody>
                     <tr>
                         <td>Application Version: <b>@objGeneralSettings.VersionNumber</b></td>
-                        <td>
-                            <RadzenUpload ChooseText="Upload Upgrade Package"
-                                          Multiple="false"
-                                          Accept="application/x-zip-compressed"
-                                          Url=@($"api/upload/upgrade?FileTitle=BlazorBlogsUpgrade.zip")
-                                          Progress="@((args) => OnProgress(args))" />
-                        </td>
                     </tr>
                     <tr>
                         <td>Application Name</td>
@@ -387,11 +380,11 @@
         try
         {
             await SaveSettings();
-            toastService.ShowSuccess("", "Saved!");
+            toastService.ShowSuccess("Saved!");
         }
         catch (Exception ex)
         {
-            toastService.ShowSuccess("Error", ex.GetBaseException().Message);
+            toastService.ShowSuccess(ex.GetBaseException().Message);
         }
     }
 
@@ -486,16 +479,16 @@
 
             if (strError == "")
             {
-                toastService.ShowSuccess("", "Test Email Sent");
+                toastService.ShowSuccess("Test Email Sent");
             }
             else
             {
-                toastService.ShowError("", strError);
+                toastService.ShowError(strError);
             }
         }
         catch (Exception ex)
         {
-            toastService.ShowError("", ex.GetBaseException().Message);
+            toastService.ShowError(ex.GetBaseException().Message);
         }
     }
 }

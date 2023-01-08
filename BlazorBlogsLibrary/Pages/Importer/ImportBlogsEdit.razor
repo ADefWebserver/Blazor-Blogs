@@ -5,6 +5,7 @@
 @using System.Text.RegularExpressions;
 @using System.IO
 @using System.Drawing;
+@using System.Net;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
@@ -531,6 +532,8 @@
     }
     #endregion
 
+    HttpClient client = new HttpClient();
+
     #region public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
     public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
     {
@@ -538,17 +541,29 @@
 
         try
         {
-            System.Net.HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create(imageUrl);
-            webRequest.AllowWriteStreamBuffering = true;
-            webRequest.Timeout = 30000;
+            var response = client.GetAsync(new Uri(imageUrl)).Result;
 
-            System.Net.WebResponse webResponse = webRequest.GetResponse();
-
-            System.IO.Stream stream = webResponse.GetResponseStream();
-
-            image = System.Drawing.Image.FromStream(stream);
-
-            webResponse.Close();
+            if (response != null && response.StatusCode == HttpStatusCode.OK)
+            {
+                //download images to photos and save
+                try
+                {
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        var buffer = response.Content.ReadAsStreamAsync();
+                        buffer.Result.CopyTo(stream);
+                        image = Image.FromStream(stream, false, true);
+                    }
+                }
+                catch 
+                {
+                    return null;
+                }
+            } 
+            else
+            {
+                return null;
+            }
         }
         catch
         {
