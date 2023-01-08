@@ -614,7 +614,7 @@ namespace BlazorBlogs
         private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
         {
             // Get user
-            var objApplicationUser = await _userManager.FindByEmailAsync(username);
+            var objApplicationUser = await _userManager.FindByEmailAsync(username.ToLower());
 
             // MUst be an Administrator
             if (await _userManager.IsInRoleAsync(objApplicationUser, ADMINISTRATION_ROLE))
