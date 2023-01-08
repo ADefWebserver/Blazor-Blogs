@@ -48,8 +48,16 @@ namespace BlazorBlogs.Controllers
                 string BlogURL = $"{GetBaseUrl()}/ViewBlogPost/{item.BlogId}";
                 var postUrl = Url.Action("Article", "Blog", new { id = BlogURL }, HttpContext.Request.Scheme);
                 var title = item.BlogTitle;
-                var description = SyndicationContent.CreateHtmlContent(item.BlogSummary.Replace("  ", " "));
-                items.Add(new SyndicationItem(title, description, new Uri(BlogURL), item.BlogId.ToString(), item.BlogDate));
+                var description = SyndicationContent.CreateHtmlContent(StripTags(item.BlogSummary.Replace("  ", " "), true));
+
+                var BlogItem = new SyndicationItem();
+                BlogItem.Title = new TextSyndicationContent(StripTags(title, true));
+                BlogItem.Content = description;
+                BlogItem.Id = BlogURL;
+                BlogItem.PublishDate = item.BlogDate;
+                BlogItem.LastUpdatedTime = item.BlogDate;
+                BlogItem.Links.Add(new SyndicationLink(new Uri(BlogURL)));
+                items.Add(BlogItem);               
             }
 
             feed.Items = items;
@@ -87,5 +95,24 @@ namespace BlazorBlogs.Controllers
 
             return $"{request.Scheme}://{host}{pathBase}";
         }
+
+        #region StripTags
+        public static string StripTags(string HTML, bool RetainSpace)
+        {
+            //Set up Replacement String
+            string RepString;
+            if (RetainSpace)
+            {
+                RepString = " ";
+            }
+            else
+            {
+                RepString = "";
+            }
+
+            //Replace Tags by replacement String and return mofified string
+            return System.Text.RegularExpressions.Regex.Replace(HTML, "<[^>]*>", RepString);
+        }
+        #endregion
     }
 }
