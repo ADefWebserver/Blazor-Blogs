@@ -59,7 +59,7 @@ namespace BlazorBlogs.Data
                 objBlogsPaged.BlogCount = await _context.Blogs
                     .CountAsync();
 
-                objBlogsPaged.Blogs = await (from blog in _context.Blogs
+                objBlogsPaged.Blogs = await (from blog in _context.Blogs.AsNoTracking()
                     .Include(x => x.BlogCategory)
                                              select new Blogs
                                              {
@@ -74,12 +74,12 @@ namespace BlazorBlogs.Data
             }
             else
             {
-                objBlogsPaged.BlogCount = await _context.Blogs
+                objBlogsPaged.BlogCount = await _context.Blogs.AsNoTracking()
                     .Include(x => x.BlogCategory)
                     .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
                     .CountAsync();
 
-                objBlogsPaged.Blogs = await (from blog in _context.Blogs
+                objBlogsPaged.Blogs = await (from blog in _context.Blogs.AsNoTracking()
                     .Include(x => x.BlogCategory)
                     .Where(x => x.BlogCategory.Any(y => y.CategoryId == CategoryID))
                                              select new Blogs

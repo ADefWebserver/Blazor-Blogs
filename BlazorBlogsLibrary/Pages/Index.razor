@@ -26,7 +26,7 @@
                 ValueProperty="CategoryId"
                 Style="width:200px;"
                 Change="@(args => ChangeCategory(args, "DropDown"))" />
-                &nbsp;                
+                &nbsp;
 <RadzenTextBox @bind-Value="SearchText" Placeholder="Search..." Style="width:200px;" />
 <RadzenButton Text="Search" Click="@(args => Search())" />
 <br />
@@ -38,21 +38,16 @@
     <br />
     <br />
 }
-@if (colBlogs.Blogs.Count == 0)
+
+@foreach (var blog in colBlogs.Blogs)
 {
-    <h2>No items returned</h2>
+    <a href="ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
+    <div class="form-group">
+        @((MarkupString)blog.BlogSummary)
+    </div>
+    <hr />
 }
-else
-{
-    @foreach (var blog in colBlogs.Blogs)
-    {
-        <a href="ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
-        <div class="form-group">
-            @((MarkupString)blog.BlogSummary)
-        </div>
-        <hr />
-    }
-}
+
 <br />
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 <LicenseTerms @ref="LicenseTermsControl" />
@@ -61,14 +56,14 @@ else
     @if (ShowPreviousButton)
     {
         <button class="btn btn-warning"
-                @onclick="Previous">
+        @onclick="Previous">
             <b>&#x3C;</b>
         </button>
     }
     @if (ShowNextButton)
     {
         <button class="btn btn-warning"
-                @onclick="Next">
+        @onclick="Next">
             <b>&#x3E;</b>
         </button>
     }
@@ -102,10 +97,10 @@ else
 
     BlogsPaged colBlogs =
         new BlogsPaged()
-        {
-            Blogs = new List<Blogs>(),
-            BlogCount = 0
-        };
+            {
+                Blogs = new List<Blogs>(),
+                BlogCount = 0
+            };
 
     bool ShowPreviousButton
     {
@@ -140,6 +135,9 @@ else
             SearchState.CurrentCategoryID = "0";
         }
 
+        LoadingBlogs = true;
+        StateHasChanged();
+
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
 
@@ -156,6 +154,9 @@ else
         colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
 
         DisqusState.SetDisplayDisqus(false);
+
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 
     void NewBlog()
@@ -224,7 +225,7 @@ else
         LoadingBlogs = false;
         StateHasChanged();
     }
-    
+
     private async Task Search()
     {
         // get the url of the current site

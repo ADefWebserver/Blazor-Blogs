@@ -283,7 +283,7 @@
     private string info;
 
     BlazoredTextEditor QuillHtml;
-    bool RichTextEditorMode = true;
+    bool RichTextEditorMode = false;
 
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     List<string> OptionsSMTP = new List<string>() { "Anonymous", "Basic", "NTLM" };
@@ -302,17 +302,8 @@
         _EmailService = (EmailService)ScopedServices.GetService(typeof(EmailService));
 
         await LoadGeneralSettingsAsync();
-        DisqusState.SetDisplayDisqus(false);
-    }
 
-    protected override async Task
-        OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-            await this.QuillHtml.LoadHTMLContent(GeneralSettings.ApplicationHeader);
-        }
+        DisqusState.SetDisplayDisqus(false);
     }
 
     protected async Task LoadGeneralSettingsAsync()
