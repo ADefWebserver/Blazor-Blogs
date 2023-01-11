@@ -39,15 +39,16 @@
     <br />
 }
 
+<div style="width:90%">
 @foreach (var blog in colBlogs.Blogs)
 {
-    <a href="ViewBlogPost/@blog.BlogId"><h2>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h2></a>
+    <a href="ViewBlogPost/@blog.BlogId"><h3>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h3></a>
     <div class="form-group">
         @((MarkupString)blog.BlogSummary)
     </div>
     <hr />
 }
-
+</div>
 <br />
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 <LicenseTerms @ref="LicenseTermsControl" />

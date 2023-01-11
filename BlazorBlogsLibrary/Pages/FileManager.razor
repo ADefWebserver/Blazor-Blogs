@@ -11,14 +11,14 @@
     <br />
     <div class="row">
         <RadzenUpload ChooseText="Upload Files" Multiple="true"
-                      Accept="image/*"
-                      Url=@($"api/upload/multiple?CurrentDirectory={HttpUtility.UrlEncode(CurrentDirectory.ToLower().Replace(CurrentRoot.ToLower(), ""))}")
-                      Style="margin-bottom: 20px;height: 45px"
-                      Progress="@((args) => OnProgress(args))" />
+                  Accept="image/*"
+                  Url=@($"api/upload/multiple?CurrentDirectory={HttpUtility.UrlEncode(CurrentDirectory.ToLower().Replace(CurrentRoot.ToLower(), ""))}")
+                  Style="margin-bottom: 20px;height: 45px"
+                  Progress="@((args) => OnProgress(args))" />
         <RadzenSplitButton Click="(args) => FolderAction(args)"
-                           Text="Folder"
-                           ButtonStyle="ButtonStyle.Info"
-                           Style="margin-bottom: 20px;height: 35px">
+                       Text="Folder"
+                       ButtonStyle="ButtonStyle.Info"
+                       Style="margin-bottom: 20px;height: 35px">
             <ChildContent>
                 <RadzenSplitButtonItem Text="Add Folder" Value="Add" />
                 <RadzenSplitButtonItem Text="Delete Folder" Value="Delete" />
@@ -26,34 +26,34 @@
         </RadzenSplitButton>
 
         <RadzenButton Disabled="@(SelectedFile.FileName == null)"
-                      Text="Delete"
-                      Click="DeleteSelectedFile"
-                      ButtonStyle="ButtonStyle.Danger"
-                      Style="margin-bottom: 20px;height: 35px" />
+                  Text="Delete"
+                  Click="DeleteSelectedFile"
+                  ButtonStyle="ButtonStyle.Danger"
+                  Style="margin-bottom: 20px;height: 35px" />
     </div>
     <div class="row">
         <div class="col-md-4" style="margin-bottom: 16px">
             <RadzenTree Change="@LogChange" Data="@Directories"
-                        Expand="@LoadDirectory"
-                        Style="width: 100%; height: 300px">
+                    Expand="@LoadDirectory"
+                    Style="width: 100%; height: 300px">
                 <RadzenTreeLevel Text="@GetTextForNode"
-                                 Template="@FileOrFolderTemplate" />
+                             Template="@FileOrFolderTemplate" />
             </RadzenTree>
         </div>
         <div class="col-md-8" style="margin-bottom: 16px">
             <RadzenDataList @ref="FileDataList" Data="@Files"
-                            AllowPaging="true" TItem="FileObject"
-                            WrapItems="true" PageSize="6">
+                        AllowPaging="true" TItem="FileObject"
+                        WrapItems="true" PageSize="6">
                 <Template Context="file">
                     <RadzenImage Path="@file.FilePath"
-                                 Style="@((file.FileName == SelectedFile.FileName)
+                             Style="@((file.FileName == SelectedFile.FileName)
                                                           ? $"height:{file.ThumbnailHeight}px;" +
                                                           $"width:{file.ThumbnailWidth}px;" +
                                                           $"padding:10px;background-color:darkgrey;"
                                                           : $"height:{file.ThumbnailHeight}px;" +
                                                           $"width:{file.ThumbnailWidth}px;" +
                                                           $"padding:10px;background-color:white;")"
-                                 Click="@((args) => SelectImage(file))" />
+                             Click="@((args) => SelectImage(file))" />
                 </Template>
             </RadzenDataList>
         </div>
@@ -70,9 +70,9 @@
                 </div>
                 <div align="center">
                     <RadzenProgressBar Value="@progress"
-                                       Unit="@info"
-                                       Visible="@(progress > 0)"
-                                       Style="margin-bottom: 20px" />
+                                   Unit="@info"
+                                   Visible="@(progress > 0)"
+                                   Style="margin-bottom: 20px" />
                 </div>
             </div>
         </div>
@@ -87,18 +87,18 @@
                 <div class="modal-header">
                     <h4 class="modal-title">New Folder Name</h4>
                     <button type="button" class="close"
-                            @onclick="CloseFolderPopup">
+                        @onclick="CloseFolderPopup">
                         <span aria-hidden="true">X</span>
                     </button>
                 </div>
                 <div align="center">
                     <RadzenTextBox Placeholder="Folder Name"
-                                   @bind-Value="NewFolderName"
-                                   Style="margin-bottom: 20px" />
+                               @bind-Value="NewFolderName"
+                               Style="margin-bottom: 20px" />
                     <RadzenButton Text="Add Folder"
-                                  Click="AddFolderName"
-                                  ButtonStyle="ButtonStyle.Success"
-                                  Style="margin-bottom: 20px;height: 35px" />
+                              Click="AddFolderName"
+                              ButtonStyle="ButtonStyle.Success"
+                              Style="margin-bottom: 20px;height: 35px" />
                 </div>
             </div>
         </div>
@@ -227,30 +227,47 @@
 
         foreach (var item in FileNames)
         {
-            using (var image = Image.FromFile(item))
+            try
             {
-                // Calculate Thumbnail
-                int thumbnailHeight = 100;
-                int thumbnailWidth = 100;
-                double x = image.Height / 100;
-                if (x > 0)
+                using (var image = Image.FromFile(item))
                 {
-                    thumbnailHeight = Convert.ToInt32(image.Height / x);
-                    thumbnailWidth = Convert.ToInt32(image.Width / x);
-                }
+                    // Calculate Thumbnail
+                    int thumbnailHeight = 100;
+                    int thumbnailWidth = 100;
+                    double x = image.Height / 100;
+                    if (x > 0)
+                    {
+                        thumbnailHeight = Convert.ToInt32(image.Height / x);
+                        thumbnailWidth = Convert.ToInt32(image.Width / x);
+                    }
 
+                    Files.Add(new FileObject()
+                        {
+                            FileName =
+                                    Path.GetFileName(item),
+                            FilePath =
+                                    item.Replace(HostEnvironment.WebRootPath, "")
+                                    .Replace("\\uploads", "uploads"),
+                            Height = image.Height,
+                            Width = image.Width,
+                            ThumbnailHeight = Convert.ToInt32(thumbnailHeight),
+                            ThumbnailWidth = Convert.ToInt32(thumbnailWidth)
+                        });
+                }
+            }
+            catch
+            {
+                // Just show the image
                 Files.Add(new FileObject()
-                {
-                    FileName =
-                    Path.GetFileName(item),
-                    FilePath =
-                    item.Replace(HostEnvironment.WebRootPath, "")
-                    .Replace("\\uploads", "uploads"),
-                    Height = image.Height,
-                    Width = image.Width,
-                    ThumbnailHeight = Convert.ToInt32(thumbnailHeight),
-                    ThumbnailWidth = Convert.ToInt32(thumbnailWidth)
-                });
+                    {
+                        FileName = Path.GetFileName(item),
+                        FilePath = item.Replace(HostEnvironment.WebRootPath, "")
+                                .Replace("\\uploads", "uploads"),
+                        Height = 100,
+                        Width = 100,
+                        ThumbnailHeight = Convert.ToInt32(100),
+                        ThumbnailWidth = Convert.ToInt32(100)
+                    });
             }
         }
 
