@@ -107,6 +107,9 @@
 		<None Update="SQLScripts\03.00.00.sql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="SQLScripts\04.00.00.sql">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>
