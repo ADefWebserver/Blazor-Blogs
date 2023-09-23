@@ -1,4 +1,5 @@
-﻿SET ANSI_NULLS ON
+﻿/****** Object:  Table [dbo].[Newsletters]    Script Date: 9/23/2023 1:06:07 PM ******/
+SET ANSI_NULLS ON
 
 SET QUOTED_IDENTIFIER ON
 
@@ -18,6 +19,7 @@ CREATE TABLE [dbo].[Newsletters](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 END
 
+/****** Object:  Table [dbo].[NewslettersCampain]    Script Date: 9/23/2023 1:06:07 PM ******/
 SET ANSI_NULLS ON
 
 SET QUOTED_IDENTIFIER ON
@@ -37,6 +39,7 @@ CREATE TABLE [dbo].[NewslettersCampain](
 ) ON [PRIMARY]
 END
 
+/****** Object:  Table [dbo].[NewslettersLogs]    Script Date: 9/23/2023 1:06:07 PM ******/
 SET ANSI_NULLS ON
 
 SET QUOTED_IDENTIFIER ON
@@ -44,11 +47,15 @@ SET QUOTED_IDENTIFIER ON
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[NewslettersLogs]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[NewslettersLogs](
-	[Id] [int] NOT NULL,
+	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[NewsletterCampainId] [int] NOT NULL,
 	[LogType] [nvarchar](50) NULL,
 	[UserName] [nvarchar](500) NULL,
-	[LogDetails] [nvarchar](4000) NULL
+	[LogDetails] [nvarchar](4000) NULL,
+ CONSTRAINT [PK_NewslettersLogs] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 END
 
