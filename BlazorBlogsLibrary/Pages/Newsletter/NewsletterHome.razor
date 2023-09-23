@@ -25,8 +25,12 @@
         <br />
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            
- 
+            <button class="btn btn-primary"
+            @onclick="(() => CreateNewsletter())">
+                Create Newsletter
+            </button>
+
+            <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" />
         }
     </Authorized>
     <NotAuthorized>
@@ -40,8 +44,10 @@
 
     string ADMINISTRATION_ROLE = "Administrators";
     string error = "";
-   
+
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+    Newsletters SelectedNewsletter;
+    NewsletterEdit NewsletterEditControl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,31 +56,26 @@
 
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-    }   
+    }
+
+    void CreateNewsletter()
+    {
+        NewsletterEditControl.AddNewBlog();
+
+    }
+
+    async Task NewsletterUpdatedEvent()
+    {
+        // LoadingBlogs = true;
+        // StateHasChanged();
+
+        // colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+
+        // LoadingBlogs = false;
+        //StateHasChanged();
+    }
 
     // Utility
-
-    #region private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
-    private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
-    {
-        StringBuilder SB = new StringBuilder();
-        string strConnectionString = "";
-
-        string strUserInfo = (!Convert.ToBoolean(objConnectionSetting.IntegratedSecurity)) ?
-            String.Format("uid={0};pwd={1}",
-            objConnectionSetting.DatabaseUsername,
-            objConnectionSetting.DatabasePassword) :
-            "integrated security=True";
-
-        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3};TrustServerCertificate=True",
-            SB.ToString(),
-            objConnectionSetting.ServerName,
-            objConnectionSetting.DatabaseName,
-            strUserInfo);
-
-        return strConnectionString;
-    }
-    #endregion
 
     #region private string FixImages(string domain, string content)
     private string FixImages(string domain, string content)
