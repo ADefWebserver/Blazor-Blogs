@@ -1,0 +1,141 @@
+﻿@page "/newsletter"
+@using System.IO;
+@using System.Text;
+@using System.Web;
+@using System.Security.Claims;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@using Microsoft.AspNetCore.Hosting;
+@using BlazorBlogsLibrary.Classes;
+@using BlazorBlogsLibrary.Classes.Imports;
+@using DotNetNukeBlogs.Data;
+@using DotNetNukeBlogs.Data.Models;
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.Extensions.Configuration;
+@inject IConfiguration _configuration
+@inject GeneralSettingsService _GeneralSettingsService
+@inject BlogsService _BlogsService
+@inject IWebHostEnvironment _IWebHostEnvironment
+@inject NavigationManager NavigationManager
+@inherits OwningComponentBase
+<AuthorizeView>
+    <Authorized>
+        <p style="color:red;">@error</p>
+        <h1>Newsletters</h1>
+        <br />
+        @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
+        {
+            
+ 
+        }
+    </Authorized>
+    <NotAuthorized>
+        <h3>Administration</h3>
+        <p>You are not logged in.</p>
+    </NotAuthorized>
+</AuthorizeView>
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    string ADMINISTRATION_ROLE = "Administrators";
+    string error = "";
+   
+    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current logged in user
+        CurrentUser = (await authenticationStateTask).User;
+
+        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+    }   
+
+    // Utility
+
+    #region private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    private string CreateDatabaseConnectionString(ExternalConnectionsDTO objConnectionSetting)
+    {
+        StringBuilder SB = new StringBuilder();
+        string strConnectionString = "";
+
+        string strUserInfo = (!Convert.ToBoolean(objConnectionSetting.IntegratedSecurity)) ?
+            String.Format("uid={0};pwd={1}",
+            objConnectionSetting.DatabaseUsername,
+            objConnectionSetting.DatabasePassword) :
+            "integrated security=True";
+
+        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3};TrustServerCertificate=True",
+            SB.ToString(),
+            objConnectionSetting.ServerName,
+            objConnectionSetting.DatabaseName,
+            strUserInfo);
+
+        return strConnectionString;
+    }
+    #endregion
+
+    #region private string FixImages(string domain, string content)
+    private string FixImages(string domain, string content)
+    {
+        if (content != null)
+        {
+            content = content.Replace(@"src=&quot;/", @$"src=&quot;{domain}/");
+            content = content.Replace(@"src=""", @$"src=""{domain}");
+        }
+        return content;
+    }
+    #endregion
+
+    #region private string HtmlDecode(string param)
+    private string HtmlDecode(string param)
+    {
+        StringWriter myWriter = new StringWriter();
+
+        // Decode the encoded string.
+        HttpUtility.HtmlDecode(param, myWriter);
+        return myWriter.ToString();
+    }
+    #endregion
+
+    #region ConvertToText
+    public static string ConvertToText(string sHTML)
+    {
+        string sContent = sHTML;
+        sContent = sContent.Replace("<br />", Environment.NewLine);
+        sContent = sContent.Replace("<br>", Environment.NewLine);
+        sContent = FormatText(sContent, true);
+        return StripTags(sContent, true);
+    }
+    #endregion
+
+    #region FormatText
+    public static string FormatText(string HTML, bool RetainSpace)
+    {
+        //Match all variants of <br> tag (<br>, <BR>, <br/>, including embedded space
+        string brMatch = "\\s*<\\s*[bB][rR]\\s*/\\s*>\\s*";
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, brMatch, Environment.NewLine);
+    }
+    #endregion
+
+    #region StripTags
+    public static string StripTags(string HTML, bool RetainSpace)
+    {
+        //Set up Replacement String
+        string RepString;
+        if (RetainSpace)
+        {
+            RepString = " ";
+        }
+        else
+        {
+            RepString = "";
+        }
+
+        //Replace Tags by replacement String and return mofified string
+        return System.Text.RegularExpressions.Regex.Replace(HTML, "<[^>]*>", RepString);
+    }
+    #endregion
+}
