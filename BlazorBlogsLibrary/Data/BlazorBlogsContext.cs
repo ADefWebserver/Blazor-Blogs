@@ -29,8 +29,52 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Logs> Logs { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
 
+        public virtual DbSet<Newsletters> Newsletters { get; set; }
+
+        public virtual DbSet<NewslettersCampain> NewslettersCampain { get; set; }
+
+        public virtual DbSet<NewslettersLogs> NewslettersLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<Newsletters>(entity =>
+            {
+                entity.Property(e => e.Created).HasColumnType("datetime");
+                entity.Property(e => e.NewsletterContent).IsRequired();
+                entity.Property(e => e.NewsletterDate).HasColumnType("datetime");
+                entity.Property(e => e.NewsletterTitle)
+                    .IsRequired()
+                    .HasMaxLength(500);
+                entity.Property(e => e.Updated).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<NewslettersCampain>(entity =>
+            {
+                entity.Property(e => e.Created).HasColumnType("datetime");
+                entity.Property(e => e.NewsletterCampainName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                entity.Property(e => e.Updated).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Newsletter).WithMany(p => p.NewslettersCampain)
+                    .HasForeignKey(d => d.NewsletterId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NewslettersCampain_Newsletters");
+            });
+
+            modelBuilder.Entity<NewslettersLogs>(entity =>
+            {
+                entity.Property(e => e.LogDetails).HasMaxLength(4000);
+                entity.Property(e => e.LogType).HasMaxLength(50);
+                entity.Property(e => e.UserName).HasMaxLength(500);
+
+                entity.HasOne(d => d.NewsletterCampain).WithMany(p => p.NewslettersLogs)
+                    .HasForeignKey(d => d.NewsletterCampainId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_NewslettersLogs_NewslettersCampain");
+            });
+
             modelBuilder.Entity<AspNetRoles>(entity =>
             {
                 entity.HasIndex(e => e.NormalizedName)
