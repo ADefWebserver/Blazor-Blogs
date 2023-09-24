@@ -519,6 +519,42 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        // Campains
+
+        #region public async Task<List<NewslettersCampain>> GetCampainsAsync(int paramNewsletterId)
+        public async Task<List<NewslettersCampain>> GetCampainsAsync(int paramNewsletterId)
+        {
+            return await _context.NewslettersCampain
+                .Where(x => x.NewsletterId == paramNewsletterId)
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+        }
+        #endregion
+
+        #region public Task<bool> CreateCampainsAsync(BlogDTO paramNewslettersCampain)
+        public Task<bool> CreateCampainsAsync(BlogDTO paramNewslettersCampain)
+        {
+            try
+            {
+                NewslettersCampain objNewslettersCampain = new NewslettersCampain();
+
+                objNewslettersCampain.Id = 0;
+                objNewslettersCampain.NewsletterId = paramNewslettersCampain.BlogId;
+                objNewslettersCampain.NewsletterCampainName = $"{DateTime.Now.ToShortDateString()} - {DateTime.Now.ToShortTimeString()}";
+                objNewslettersCampain.Created = DateTime.Now;    
+
+                _context.NewslettersCampain.Add(objNewslettersCampain);
+                _context.SaveChanges();
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
+        }
+        #endregion
+
         // Category
 
         #region public async Task<CategoryDTO> GetCategorysAsync()

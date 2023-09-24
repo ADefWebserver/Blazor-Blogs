@@ -35,14 +35,31 @@
                 @if (colNewsletters.Count() > 0)
                 {
                     <br/><br/>
-                    <RadzenDropDown AllowClear="false"
+                    <b>Newsletters:</b> <RadzenDropDown AllowClear="false"
                                     AllowFiltering="false"
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                     @bind-Value="SelectedNewsletter" Multiple="false"
                                     Placeholder="Select Newsletter..."
                                     Data="@colNewsletters" TextProperty="BlogTitle"
+                                    Change="@(args => ChangeNewsletter(args, "DropDown"))"
                                     Style="width:500px;" />
                     <button type="button" class="btn btn-secondary" @onclick="EditNewsletter">Edit Newsletter</button>
+
+                    <span>&nbsp;&nbsp;</span>
+                    <button class="btn btn-success" @onclick="CreateCampain">Create Campain</button>
+                }
+
+                @if (colNewslettersCampains.Count() > 0)
+                {
+                    <br /><br />
+                    <b>Campains:</b> <RadzenDropDown AllowClear="false"
+                                    AllowFiltering="false"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="SelectedNewslettersCampains" Multiple="false"
+                                    Placeholder="Select Campain..."
+                                    Data="@colNewslettersCampains" TextProperty="NewsletterCampainName"
+                                    Style="width:500px;" />
+                    <button type="button" class="btn btn-secondary" @onclick="EditCampain">Edit Campain</button>
                 }
 
                 <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" />
@@ -70,8 +87,10 @@
 
     bool LoadingBlogs = false;
     BlogDTO SelectedNewsletter = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
+    NewslettersCampain SelectedNewslettersCampains = new NewslettersCampain();
     NewsletterEdit NewsletterEditControl;
     List<BlogDTO> colNewsletters = new List<BlogDTO>();
+    List<NewslettersCampain> colNewslettersCampains = new List<NewslettersCampain>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -119,6 +138,33 @@
 
         LoadingBlogs = false;
         StateHasChanged();
+    }
+
+    async Task ChangeNewsletter(object value, string name)
+    {
+        error = "";
+        colNewslettersCampains = await _BlogsService.GetCampainsAsync(SelectedNewsletter.BlogId);
+        StateHasChanged();
+    }
+
+    async Task CreateCampain()
+    {
+        LoadingBlogs = true;
+        StateHasChanged();
+
+        // Create Campain
+        await _BlogsService.CreateCampainsAsync(SelectedNewsletter);
+
+        // Refresh list
+        colNewslettersCampains = await _BlogsService.GetCampainsAsync(SelectedNewsletter.BlogId);
+
+        LoadingBlogs = false;
+        StateHasChanged();
+    }
+
+    private void EditCampain()
+    {
+        
     }
 
     // Utility
