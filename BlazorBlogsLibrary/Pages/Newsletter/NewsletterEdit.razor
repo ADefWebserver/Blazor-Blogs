@@ -252,11 +252,7 @@
             {
                 // Get HTML Content
 
-                if (RichTextEditorModeSummary)
-                {
-                    SelectedBlog.BlogSummary =
-                        await this.QuillHtmlSummary.GetHTML();
-                }
+                SelectedBlog.BlogSummary = "";
 
                 if (RichTextEditorMode)
                 {

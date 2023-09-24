@@ -25,17 +25,33 @@
         <br />
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            <button class="btn btn-primary"
-            @onclick="(() => CreateNewsletter())">
-                Create Newsletter
-            </button>
-            
-            @if (true)
+            @if (!LoadingBlogs)
             {
-                <button type="button" class="btn btn-secondary" @onclick="EditNewsletter">Edit Newsletter</button>
-            }
+                <button class="btn btn-primary"
+                @onclick="(() => CreateNewsletter())">
+                    Create Newsletter
+                </button>
 
-            <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" />
+                @if (colNewsletters.Count() > 0)
+                {
+                    <br/><br/>
+                    <RadzenDropDown AllowClear="false"
+                                    AllowFiltering="false"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    @bind-Value="SelectedNewsletter" Multiple="false"
+                                    Placeholder="Select Newsletter..."
+                                    Data="@colNewsletters" TextProperty="BlogTitle"
+                                    Style="width:500px;" />
+                    <button type="button" class="btn btn-secondary" @onclick="EditNewsletter">Edit Newsletter</button>
+                }
+
+                <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" />
+
+            }
+            else
+            {
+                <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+            }
         }
     </Authorized>
     <NotAuthorized>
@@ -51,9 +67,11 @@
     string error = "";
 
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
-    
+
+    bool LoadingBlogs = false;
     BlogDTO SelectedNewsletter = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
     NewsletterEdit NewsletterEditControl;
+    List<BlogDTO> colNewsletters = new List<BlogDTO>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,6 +80,8 @@
 
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
+
+        colNewsletters = await _BlogsService.GetNewslettersAsync();
     }
 
     void CreateNewsletter()
@@ -76,13 +96,13 @@
 
     async Task NewsletterUpdatedEvent()
     {
-        // LoadingBlogs = true;
-        // StateHasChanged();
+        LoadingBlogs = true;
+        StateHasChanged();
 
-        // colBlogs = await @Service.GetBlogsAsync(SearchState.CurrentPage, Convert.ToInt32(SearchState.CurrentCategoryID));
+        colNewsletters = await _BlogsService.GetNewslettersAsync();
 
-        // LoadingBlogs = false;
-        //StateHasChanged();
+        LoadingBlogs = false;
+        StateHasChanged();
     }
 
     // Utility
