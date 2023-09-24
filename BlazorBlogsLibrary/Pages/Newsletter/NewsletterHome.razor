@@ -29,6 +29,11 @@
             @onclick="(() => CreateNewsletter())">
                 Create Newsletter
             </button>
+            
+            @if (true)
+            {
+                <button type="button" class="btn btn-secondary" @onclick="EditNewsletter">Edit Newsletter</button>
+            }
 
             <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" />
         }
@@ -46,7 +51,8 @@
     string error = "";
 
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
-    Newsletters SelectedNewsletter;
+    
+    BlogDTO SelectedNewsletter = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
     NewsletterEdit NewsletterEditControl;
 
     protected override async Task OnInitializedAsync()
@@ -61,7 +67,11 @@
     void CreateNewsletter()
     {
         NewsletterEditControl.AddNewBlog();
+    }
 
+    void EditNewsletter()
+    {
+        NewsletterEditControl.EditBlog(SelectedNewsletter);
     }
 
     async Task NewsletterUpdatedEvent()

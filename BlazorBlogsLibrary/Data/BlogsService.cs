@@ -405,6 +405,98 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        // Newsletters
+
+        #region public Task<Newsletters> CreateNewslettersAsync(BlogDTO newBlog)
+        public Task<Newsletters> CreateNewslettersAsync(BlogDTO newBlog)
+        {
+            try
+            {
+                Newsletters objNewsletters = new Newsletters();
+
+                objNewsletters.Id = 0;
+                objNewsletters.NewsletterContent = newBlog.BlogContent;
+                objNewsletters.NewsletterDate = newBlog.BlogDate;
+                objNewsletters.NewsletterTitle = newBlog.BlogTitle;
+                objNewsletters.Created = DateTime.Now;
+
+                _context.Newsletters.Add(objNewsletters);
+                _context.SaveChanges();
+
+                return Task.FromResult(objNewsletters);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
+        }
+        #endregion
+
+        #region public Task<bool> DeleteNewslettersAsync(BlogDTO objBlog)
+        public Task<bool> DeleteNewslettersAsync(BlogDTO objBlog)
+        {
+            var ExistingNewsletters =
+                _context.Newsletters
+                .Where(x => x.Id == objBlog.BlogId)
+                .FirstOrDefault();
+
+            if (ExistingNewsletters != null)
+            {
+                _context.Newsletters.Remove(ExistingNewsletters);
+                _context.SaveChanges();
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+        #endregion
+
+        #region public Task<bool> UpdateNewslettersAsync(BlogDTO objBlog)
+        public Task<bool> UpdateNewslettersAsync(BlogDTO objBlog)
+        {
+            try
+            {
+                var ExistingNewsletters =
+                    _context.Newsletters
+                    .Where(x => x.Id == objBlog.BlogId)
+                    .FirstOrDefault();
+
+                if (ExistingNewsletters != null)
+                {
+                    ExistingNewsletters.NewsletterDate =
+                        objBlog.BlogDate;
+
+                    ExistingNewsletters.NewsletterTitle =
+                        objBlog.BlogTitle;
+
+                    ExistingNewsletters.NewsletterContent =
+                        objBlog.BlogContent;
+
+                    ExistingNewsletters.Updated =
+                        DateTime.Now;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    return Task.FromResult(false);
+                }
+
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                DetachAllEntities();
+                throw;
+            }
+        }
+        #endregion
+
+
         // Category
 
         #region public async Task<CategoryDTO> GetCategorysAsync()

@@ -18,7 +18,7 @@
                     <h3 class="modal-title">Edit Newsletter</h3>
                     <!-- Button to close the popup -->
                     <button type="button" class="close"
-                            @onclick="ClosePopup">
+                    @onclick="ClosePopup">
                         <span aria-hidden="true">X</span>
                     </button>
                 </div>
@@ -26,66 +26,12 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <input class="form-control" type="date"
-                               @bind="SelectedBlog.BlogDate" />
+                        @bind="SelectedBlog.BlogDate" />
                     </div>
-                    <h5>Title</h5>
+                    <h5>Subject</h5>
                     <div class="form-group">
                         <input class="form-control" type="text"
-                               @bind="SelectedBlog.BlogTitle" />
-                    </div>
-                    <h5>Summary</h5>
-                    <div class="form-group">
-                        @if (!RichTextEditorModeSummary)
-                        {
-                            <textarea class="form-control" @bind="@SelectedBlog.BlogSummary" rows="2" />
-                        }
-                        else
-                        {
-                            <BlazoredTextEditor @ref="@QuillHtmlSummary">
-                                <ToolbarContent>
-                                    <select class="ql-header">
-                                        <option selected=""></option>
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                    </select>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="btn btn-link" id="custom-button"
-                                                @onclick="InsertImageSummaryClick">
-                                            <img src="imageIcon.png" style="border:hidden" />
-                                        </button>
-                                    </span>
-                                </ToolbarContent>
-                                <EditorContent>
-                                    @((MarkupString)SelectedBlog.BlogSummary)
-                                </EditorContent>
-                            </BlazoredTextEditor>
-                        }
-                        @if (!RichTextEditorModeSummary)
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RichTextEditorSummary"><h6>[Rich Text Editor]</h6></button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditorSummary"><h6>[Raw HTML Editor]</h6></button>
-                        }
+                        @bind="SelectedBlog.BlogTitle" />
                     </div>
                     <h5>Content</h5>
                     <div class="form-group">
@@ -122,7 +68,7 @@
                                     <span class="ql-formats">
                                         <button class="ql-link"></button>
                                         <button class="btn btn-link" id="custom-button"
-                                                @onclick="InsertImageClick">
+                                        @onclick="InsertImageClick">
                                             <img src="imageIcon.png" style="border:hidden" />
                                         </button>
                                     </span>
@@ -144,7 +90,7 @@
                     <br />
                     <!-- Button to save the user -->
                     <button class="btn btn-primary"
-                            @onclick="SaveBlog">
+                    @onclick="SaveBlog">
                         Save
                     </button>&nbsp;
                     <!-- Only show delete button if not a new record -->
@@ -152,7 +98,7 @@
                     {
                         <!-- Button to delete the Blog -->
                         <button class="btn btn-danger"
-                                @onclick="DeleteBlog">
+                        @onclick="DeleteBlog">
                             Delete
                         </button>
                     }
@@ -173,11 +119,11 @@
                     </div>
                     <div class="modal-body">
                         <button class="btn btn-primary"
-                                @onclick="DeleteYes">
+                        @onclick="DeleteYes">
                             Yes
                         </button>
                         <button class="btn btn-danger"
-                                @onclick="DeleteNo">
+                        @onclick="DeleteNo">
                             No
                         </button>
                         <br />
@@ -189,10 +135,10 @@
     }
 
     <FileSelector @ref="FileManagerControlSummary"
-                 ImageSelected="InsertImageSummary" />
+                  ImageSelected="InsertImageSummary" />
 
     <FileSelector @ref="FileManagerControl"
-                 ImageSelected="InsertImage" />
+                  ImageSelected="InsertImage" />
 }
 
 @code {
@@ -222,7 +168,7 @@
     {
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
-    }   
+    }
 
     void ClosePopup()
     {
@@ -241,6 +187,8 @@
         SelectedBlog.BlogDate = DateTime.Now;
         // Set Id to 0 so we know it is a new record
         SelectedBlog.BlogId = 0;
+
+        SelectedBlog.BlogContent = "<br /><br /><p><h4 class='ql-align-center'>[UNSUBSCRIBE LINK]</h4></p>";
 
         // Clear any error messages
         strError = "";
@@ -277,16 +225,7 @@
                 objNewBlog.BlogTitle =
                     SelectedBlog.BlogTitle;
 
-                if (RichTextEditorModeSummary)
-                {
-                    objNewBlog.BlogSummary =
-                        await this.QuillHtmlSummary.GetHTML();
-                }
-                else
-                {
-                    objNewBlog.BlogSummary =
-                        SelectedBlog.BlogSummary;
-                }
+                objNewBlog.BlogSummary = "";
 
                 if (RichTextEditorMode)
                 {
@@ -304,10 +243,10 @@
 
                 // Save the result
                 var result =
-                @Service.CreateBlogAsync(objNewBlog);
+                @Service.CreateNewslettersAsync(objNewBlog);
 
                 // Log
-                await LogAction($"Create Blog #{objNewBlog.BlogId}");
+                await LogAction($"Create Newsletter #{objNewBlog.BlogId}");
             }
             else
             {
@@ -326,10 +265,10 @@
                 }
 
                 var result =
-                @Service.UpdateBlogAsync(SelectedBlog);
+                @Service.UpdateNewslettersAsync(SelectedBlog);
 
                 // Log
-                await LogAction($"Update Blog #{SelectedBlog.BlogId}");
+                await LogAction($"Update Newsletter #{SelectedBlog.BlogId}");
             }
 
             ClosePopup();
@@ -357,10 +296,10 @@
             int BlogId = SelectedBlog.BlogId;
 
             // Delete the Blog
-            var result = @Service.DeleteBlogAsync(SelectedBlog);
+            var result = @Service.DeleteNewslettersAsync(SelectedBlog);
 
             // Log
-            await LogAction($"Delete Blog #{BlogId}");
+            await LogAction($"Delete Newsletter #{BlogId}");
 
             ClosePopup();
         }
