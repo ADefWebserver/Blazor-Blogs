@@ -496,8 +496,6 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        // Get Newsletters
-
         #region public async Task<List<BlogDTO>> GetNewslettersAsync()
         public async Task<List<BlogDTO>> GetNewslettersAsync()
         {

@@ -82,6 +82,14 @@
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
         colNewsletters = await _BlogsService.GetNewslettersAsync();
+
+        if (colNewsletters != null)
+        {
+            if (colNewsletters.Count() > 0)
+            {
+                SelectedNewsletter = colNewsletters[0];
+            }
+        }
     }
 
     void CreateNewsletter()
@@ -100,6 +108,14 @@
         StateHasChanged();
 
         colNewsletters = await _BlogsService.GetNewslettersAsync();
+
+        if (colNewsletters != null)
+        {
+            if (colNewsletters.Count() > 0)
+            {
+                SelectedNewsletter = colNewsletters[0];
+            }
+        }
 
         LoadingBlogs = false;
         StateHasChanged();
