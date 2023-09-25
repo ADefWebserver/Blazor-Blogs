@@ -5,6 +5,7 @@
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject BlogsService _BlogsService
+@inject GeneralSettingsService _GeneralSettingsService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IHttpContextAccessor httpContextAccessor
 @inject IConfiguration _configuration
@@ -27,7 +28,12 @@
                 <div class="modal-body">
                     <b>Campaign: </b><i>@SelectedNewslettersCampain.NewsletterCampainName</i>
                     <br /><br />
-                    <b>Emails Not sent:</b> @colUsersNotInCampaign.Count()
+                    <b>Emails to send:</b> @EmailsToSend
+                    <br /><br />
+                    <button class="btn btn-danger"
+                    @onclick="ProcessCampain">
+                        Process Campain
+                    </button>
                     <span style="color:red">@strError</span>
                 </div>
             </div>
@@ -48,6 +54,9 @@
     List<string> colUsers = new List<string>();
     List<string> colSubscriberUsersInCampaign = new List<string>();
     List<string> colUsersNotInCampaign = new List<string>();
+
+    Dictionary<string, string> EmailContents = new Dictionary<string, string>();
+    int EmailsToSend = 0;
 
     string strError;
 
@@ -85,9 +94,41 @@
             }
         }
 
+        EmailsToSend = colUsersNotInCampaign.Count();
+
+        // Get the contents of the email
+        EmailContents = await _BlogsService.GetNewslettersCampainEmailContentsAsync(SelectedNewslettersCampain.Id);
+
         // Open the Popup
         ShowCampainEditPopup = true;
         StateHasChanged();
+    }
+
+    private async Task ProcessCampain()
+    {
+        var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        var SendEmailCounter = EmailsToSend;
+        string NewsletterEmailContents = EmailContents.FirstOrDefault().Value;
+        string NewsletterEmailSubject = EmailContents.FirstOrDefault().Key;
+
+        for (int i = 0; i < SendEmailCounter; i++)
+        {
+            try
+            {
+                // Pause for one second
+                await Task.Delay(1000);
+
+                // Send the email
+                await _BlogsService.SendNewslettersCampainEmailAsync(colUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
+                
+                StateHasChanged();
+                EmailsToSend--;
+            }
+            catch(Exception ex)
+            {
+                await LogAction("Newsletter Campain Email: " + colUsersNotInCampaign[i] + " " + ex.Message);
+            }
+        }           
     }
 
     private async Task LogAction(string strAction)

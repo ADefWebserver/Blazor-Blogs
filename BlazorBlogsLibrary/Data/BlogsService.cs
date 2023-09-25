@@ -7,6 +7,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Hosting;
 using Z.EntityFramework.Plus;
 using BlazorBlogsLibrary.Classes;
+using AngleSharp.Dom;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Text.Encodings.Web;
+using Blazored.Toast.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace BlazorBlogs.Data
 {
@@ -14,12 +19,15 @@ namespace BlazorBlogs.Data
     {
         private readonly BlazorBlogsContext _context;
         private readonly IWebHostEnvironment _environment;
+        private readonly EmailService _emailService;
 
         public BlogsService(BlazorBlogsContext context,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,
+            EmailService emailService)
         {
             _context = context;
             _environment = environment;
+            _emailService = emailService;
         }
 
         // Blogs
@@ -596,6 +604,80 @@ namespace BlazorBlogs.Data
             }
 
             return colSubscriberUsers;
+        }
+        #endregion
+
+        #region public async Task<string> GetNewslettersCampainEmailContentsAsync(int paramCampainId)
+        public async Task<Dictionary<string, string>> GetNewslettersCampainEmailContentsAsync(int paramCampainId)
+        {
+            Dictionary<string,string> EmailContents = new Dictionary<string, string>();
+
+            var objNewslettersCampain = await _context.NewslettersCampain
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
+                 .Where(x => x.Id == paramCampainId).FirstOrDefaultAsync();
+
+            if (objNewslettersCampain != null)
+            {
+                var objNewsletters = await _context.Newsletters
+                     // Use AsNoTracking to disable EF change tracking
+                     .AsNoTracking()
+                     .Where(x => x.Id == objNewslettersCampain.NewsletterId).FirstOrDefaultAsync();
+
+                if (objNewsletters != null)
+                {
+                    EmailContents.Add(objNewsletters.NewsletterTitle, objNewsletters.NewsletterContent);
+                }
+            }
+
+            return EmailContents;
+        }
+        #endregion
+
+        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, string EmailSubject, string EmailSender)
+        public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, string EmailSubject, string EmailSender)
+        {
+            try
+            {
+                // Send Email
+                string strError = await _emailService.SendMailAsync(
+                     false,
+                     paramUser,
+                     paramUser,
+                     "", "",
+                     EmailSender,
+                     EmailSubject,
+                     $"{EmailContents}");
+
+                if (strError == "")
+                {
+                    LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Email Sent", "");
+                }
+                else
+                {
+                    LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Error:SendMailAsync", strError);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Error:SendNewslettersCampainEmailAsync", ex.Message);
+            }
+        } 
+        #endregion
+
+        #region public void LogToNewslettersLogs(int paramCampainId, string paramUser, string LogType, string LogDetails)
+        public void LogToNewslettersLogs(int paramCampainId, string paramUser, string LogType, string LogDetails)
+        {
+            NewslettersLogs objNewslettersLogs = new NewslettersLogs();
+
+            objNewslettersLogs.Id = 0;
+            objNewslettersLogs.NewsletterCampainId = paramCampainId;
+            objNewslettersLogs.UserName = paramUser;
+            objNewslettersLogs.LogType = LogType;
+            objNewslettersLogs.LogDetails = LogDetails;
+
+            _context.NewslettersLogs.Add(objNewslettersLogs);
+            _context.SaveChanges();
         }
         #endregion
 

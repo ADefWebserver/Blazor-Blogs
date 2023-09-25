@@ -12,6 +12,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BlazorBlogs
 {
@@ -35,16 +36,19 @@ namespace BlazorBlogs
         private readonly BlazorBlogsContext blogsContext;
         private readonly GeneralSettingsService generalSettingsService;
         private IHostApplicationLifetime applicationLifetime;
+        private EmailService emailService;
 
         public UploadController(IWebHostEnvironment environment, 
             BlazorBlogsContext context,
             GeneralSettingsService generalSettingsService,
-            IHostApplicationLifetime appLifetime)
+            IHostApplicationLifetime appLifetime,
+            EmailService emailService)
         {
             this.environment = environment;
             this.blogsContext = context;
             this.generalSettingsService = generalSettingsService;
             this.applicationLifetime = appLifetime;
+            this.emailService = emailService;
         }
 
         #region public async Task<IActionResult> MultipleAsync(IFormFile[] files, string CurrentDirectory)    
@@ -149,7 +153,7 @@ namespace BlazorBlogs
                         objFilesDTO.FileName = FileTitle;
                         objFilesDTO.FilePath = file.FileName;
 
-                        BlogsService objBlogsService = new BlogsService(blogsContext, environment);
+                        BlogsService objBlogsService = new BlogsService(blogsContext, environment, emailService);
                         await objBlogsService.CreateFilesAsync(objFilesDTO);
                     }
                 }
