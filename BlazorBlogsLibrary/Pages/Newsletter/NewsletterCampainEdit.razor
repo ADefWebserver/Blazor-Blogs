@@ -27,17 +27,7 @@
                 <div class="modal-body">
                     <b>Campaign: </b><i>@SelectedNewslettersCampain.NewsletterCampainName</i>
                     <br /><br />
-                    <b>Users:</b>
-                    @foreach (var strUser in colUsers)
-                    {
-                        <p>@strUser</p>
-                    }
-                    <br /><br />
-                    <b>Users in Campaign:</b>
-                    @foreach (var strUser in colSubscriberUsers)
-                    {
-                        <p>@strUser</p>
-                    }
+                    <b>Emails Not sent:</b> @colUsersNotInCampaign.Count()
                     <span style="color:red">@strError</span>
                 </div>
             </div>
@@ -56,7 +46,8 @@
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
     List<string> colUsers = new List<string>();
-    List<string> colSubscriberUsers = new List<string>();
+    List<string> colSubscriberUsersInCampaign = new List<string>();
+    List<string> colUsersNotInCampaign = new List<string>();
 
     string strError;
 
@@ -82,7 +73,17 @@
         strError = "";
 
         colUsers = await _BlogsService.GetSubscriberUsersAsync();
-        colSubscriberUsers = await _BlogsService.GetSubscriberUsersInCampaignAsync(SelectedNewslettersCampain.Id);
+        colSubscriberUsersInCampaign = await _BlogsService.GetSubscriberUsersInCampaignAsync(SelectedNewslettersCampain.Id);
+
+        // Create a list of users that are not in the campaign
+        colUsersNotInCampaign = new List<string>();
+        foreach (var strUser in colUsers)
+        {
+            if (!colSubscriberUsersInCampaign.Contains(strUser))
+            {
+                colUsersNotInCampaign.Add(strUser);
+            }
+        }
 
         // Open the Popup
         ShowCampainEditPopup = true;

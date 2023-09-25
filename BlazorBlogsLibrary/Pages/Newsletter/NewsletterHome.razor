@@ -193,9 +193,9 @@
         StateHasChanged();
     }
 
-    private void EditCampain()
+    private async Task EditCampain()
     {
-        NewsletterCampainEditControl.EditNewslettersCampain(SelectedNewslettersCampains);
+        await NewsletterCampainEditControl.EditNewslettersCampain(SelectedNewslettersCampains);
     }
 
     // Utility
