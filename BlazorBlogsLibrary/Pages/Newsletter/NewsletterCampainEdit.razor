@@ -1,0 +1,93 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity;
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject UserManager<ApplicationUser> _UserManager
+@inject RoleManager<IdentityRole> _RoleManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IHttpContextAccessor httpContextAccessor
+@inject IConfiguration _configuration
+@inherits OwningComponentBase<BlogsService>
+
+@if (ShowCampainEditPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
+        <div class="modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit Newsletter Campaign</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                    @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <!-- Edit form for the current Blog -->
+                <div class="modal-body">                  
+                    <b>Campaign: </b><i>@SelectedNewslettersCampain.NewsletterCampainName</i>
+                    <br />
+
+                    <span style="color:red">@strError</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // AuthenticationState is available as a CascadingParameter
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    NewslettersCampain SelectedNewslettersCampain;
+    public bool ShowCampainEditPopup = false;
+
+    public System.Security.Claims.ClaimsPrincipal CurrentUser;
+
+    string strError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Get the current user
+        CurrentUser = (await authenticationStateTask).User;
+    }
+
+    void ClosePopup()
+    {
+        // Close the Popup
+        ShowCampainEditPopup = false;
+    }
+
+    public void EditNewslettersCampain(NewslettersCampain paramNewslettersCampain)
+    {
+        SelectedNewslettersCampain = paramNewslettersCampain;
+
+        // Clear any error messages
+        strError = "";
+
+        // Open the Popup
+        ShowCampainEditPopup = true;
+        StateHasChanged();
+    }  
+
+    private async Task LogAction(string strAction)
+    {
+        // Get the current user
+        var CurrentUser = (await authenticationStateTask).User;
+
+        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
+        objLog.LogDate = DateTime.Now;
+        objLog.LogAction = strAction;
+        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        try
+        {
+            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+        }
+        catch
+        {
+            objLog.LogIpaddress = "127.0.0.1";
+        }
+
+        var result = await @Service.CreateLogAsync(objLog);
+    }
+}

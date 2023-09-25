@@ -134,9 +134,6 @@
         </div>
     }
 
-    <FileSelector @ref="FileManagerControlSummary"
-                  ImageSelected="InsertImageSummary" />
-
     <FileSelector @ref="FileManagerControl"
                   ImageSelected="InsertImage" />
 }
@@ -154,13 +151,10 @@
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
-    private FileSelector FileManagerControlSummary;
     private FileSelector FileManagerControl;
 
-    BlazoredTextEditor QuillHtmlSummary;
     BlazoredTextEditor QuillHtml;
     bool RichTextEditorMode = true;
-    bool RichTextEditorModeSummary = true;
 
     string strError;
 
@@ -305,21 +299,6 @@
         }
     }
 
-    //Summary
-
-    private void RichTextEditorSummary()
-    {
-        RichTextEditorModeSummary = true;
-        StateHasChanged();
-    }
-
-    private async Task RawHTMLEditorSummary()
-    {
-        RichTextEditorModeSummary = false;
-        SelectedBlog.BlogSummary =
-            await this.QuillHtmlSummary.GetHTML();
-    }
-
     private void RichTextEditor()
     {
         RichTextEditorMode = true;
@@ -335,21 +314,9 @@
 
     // Inserting Images
 
-    private void InsertImageSummaryClick()
-    {
-        FileManagerControlSummary.SetShowFileManager(true);
-    }
-
     private void InsertImageClick()
     {
         FileManagerControl.SetShowFileManager(true);
-    }
-
-    async Task InsertImageSummary(string paramImageURL)
-    {
-        await this.QuillHtmlSummary.InsertImage(paramImageURL);
-
-        FileManagerControl.SetShowFileManager(false);
     }
 
     async Task InsertImage(string paramImageURL)
