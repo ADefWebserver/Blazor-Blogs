@@ -4,6 +4,7 @@
 @using BlazorBlogs.Data.Models;
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
+@inject BlogsService _BlogsService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IHttpContextAccessor httpContextAccessor
 @inject IConfiguration _configuration
@@ -23,10 +24,20 @@
                     </button>
                 </div>
                 <!-- Edit form for the current Blog -->
-                <div class="modal-body">                  
+                <div class="modal-body">
                     <b>Campaign: </b><i>@SelectedNewslettersCampain.NewsletterCampainName</i>
-                    <br />
-
+                    <br /><br />
+                    <b>Users:</b>
+                    @foreach (var strUser in colUsers)
+                    {
+                        <p>@strUser</p>
+                    }
+                    <br /><br />
+                    <b>Users in Campaign:</b>
+                    @foreach (var strUser in colSubscriberUsers)
+                    {
+                        <p>@strUser</p>
+                    }
                     <span style="color:red">@strError</span>
                 </div>
             </div>
@@ -44,12 +55,17 @@
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
 
+    List<string> colUsers = new List<string>();
+    List<string> colSubscriberUsers = new List<string>();
+
     string strError;
 
     protected override async Task OnInitializedAsync()
     {
         // Get the current user
         CurrentUser = (await authenticationStateTask).User;
+
+        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
     }
 
     void ClosePopup()
@@ -58,17 +74,20 @@
         ShowCampainEditPopup = false;
     }
 
-    public void EditNewslettersCampain(NewslettersCampain paramNewslettersCampain)
+    public async Task EditNewslettersCampain(NewslettersCampain paramNewslettersCampain)
     {
         SelectedNewslettersCampain = paramNewslettersCampain;
 
         // Clear any error messages
         strError = "";
 
+        colUsers = await _BlogsService.GetSubscriberUsersAsync();
+        colSubscriberUsers = await _BlogsService.GetSubscriberUsersInCampaignAsync(SelectedNewslettersCampain.Id);
+
         // Open the Popup
         ShowCampainEditPopup = true;
         StateHasChanged();
-    }  
+    }
 
     private async Task LogAction(string strAction)
     {

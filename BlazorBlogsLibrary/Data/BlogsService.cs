@@ -541,7 +541,7 @@ namespace BlazorBlogs.Data
                 objNewslettersCampain.Id = 0;
                 objNewslettersCampain.NewsletterId = paramNewslettersCampain.BlogId;
                 objNewslettersCampain.NewsletterCampainName = $"{DateTime.Now.ToShortDateString()} - {DateTime.Now.ToShortTimeString()}";
-                objNewslettersCampain.Created = DateTime.Now;    
+                objNewslettersCampain.Created = DateTime.Now;
 
                 _context.NewslettersCampain.Add(objNewslettersCampain);
                 _context.SaveChanges();
@@ -552,6 +552,50 @@ namespace BlazorBlogs.Data
                 DetachAllEntities();
                 throw;
             }
+        }
+        #endregion
+
+        #region public async Task<List<string>> GetSubscriberUsersAsync()
+        public async Task<List<string>> GetSubscriberUsersAsync()
+        {
+            List<string> colSubscriberUsers = new List<string>();
+
+            var users = await _context.AspNetUsers
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
+                 .Where(x => x.EmailConfirmed).ToListAsync();
+
+            foreach (var item in users)
+            {
+                if (item.NewsletterSubscriber != null)
+                {
+                    if (item.NewsletterSubscriber.Value)
+                    {
+                        colSubscriberUsers.Add(item.UserName.ToLower());
+                    }
+                }
+            }
+
+            return colSubscriberUsers;
+        }
+        #endregion
+
+        #region public async Task<List<string>> GetSubscriberUsersInCampaignAsync(int paramCampainId)
+        public async Task<List<string>> GetSubscriberUsersInCampaignAsync(int paramCampainId)
+        {
+            List<string> colSubscriberUsers = new List<string>();
+
+            var users = await _context.NewslettersLogs
+                 // Use AsNoTracking to disable EF change tracking
+                 .AsNoTracking()
+                 .Where(x => x.NewsletterCampainId == paramCampainId).ToListAsync();
+
+            foreach (var item in users)
+            {
+                colSubscriberUsers.Add(item.UserName.ToLower());
+            }
+
+            return colSubscriberUsers;
         }
         #endregion
 
