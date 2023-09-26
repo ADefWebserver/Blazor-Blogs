@@ -634,11 +634,19 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, string EmailSubject, string EmailSender)
-        public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, string EmailSubject, string EmailSender)
+        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, Dictionary<string, object> colImages, string EmailSubject, string EmailSender)
+        public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, Dictionary<string, object> colImages, string EmailSubject, string EmailSender)
         {
             try
             {
+                // Create HTML Email Content
+
+                // Replace the images (from colImages) in the EmailContents
+                foreach (var item in colImages)
+                {
+                    //EmailContents = EmailContents.Replace(item.Key, item.Value.ToString());
+                }
+
                 // Send Email
                 string strError = await _emailService.SendMailAsync(
                      false,

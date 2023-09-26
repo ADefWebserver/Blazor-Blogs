@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Http
+﻿@using BlazorBlogsLibrary.Data.Models;
+@using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
@@ -111,6 +112,9 @@
         string NewsletterEmailContents = EmailContents.FirstOrDefault().Value;
         string NewsletterEmailSubject = EmailContents.FirstOrDefault().Key;
 
+        // Get the URL of web appliacation from the http context
+        string strWebApplicationUrl = httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host.Value;
+
         for (int i = 0; i < SendEmailCounter; i++)
         {
             try
@@ -118,8 +122,26 @@
                 // Pause for one second
                 await Task.Delay(1000);
 
+                // Get the images in the Newsletter
+                Dictionary<string, object> colImages = new Dictionary<string, object>();
+
+                NewsletterParser objNewsletterParser = new NewsletterParser();
+                var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");
+
+                // Loop through the images and download them
+                foreach (var objNewsletterContent in colNewsletterContents)
+                {
+                    // Get the image
+                    string ImageURL = $"{strWebApplicationUrl}//{objNewsletterContent.Content}";
+
+                    // Download the image
+                    var objDownloadedImage = objNewsletterParser.DownloadImageFromUrl(ImageURL);
+
+                    colImages.Add(objNewsletterContent.Content, objDownloadedImage);
+                }
+
                 // Send the email
-                await _BlogsService.SendNewslettersCampainEmailAsync(colUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
+                await _BlogsService.SendNewslettersCampainEmailAsync(colUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
                 
                 StateHasChanged();
                 EmailsToSend--;
