@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# Default severity for analyzer diagnostics with category 'Interoperability'
+dotnet_analyzer_diagnostic.category-Interoperability.severity = silent

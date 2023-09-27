@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
+using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -271,6 +273,50 @@ namespace BlazorBlogsLibrary.Data.Models
         }
         #endregion
 
+        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages)
+        {
+            AlternateView alternateView = null;
+
+            try
+            {
+                List<LinkedResource> linkedResources = new List<LinkedResource>();
+
+                // Loop through each image
+                foreach (var item in colImages)
+                {
+                    string ImageName = item.Key;
+                    Image ImageData = item.Value;
+
+                    var objImage = PngImageToByteArray(ImageData);
+                    LinkedResource LinkResource = new LinkedResource(new MemoryStream(objImage));
+                    LinkResource.ContentId = Guid.NewGuid().ToString();
+                    LinkResource.ContentType = new ContentType(MediaTypeNames.Image.Jpeg);
+
+                    linkedResources.Add(LinkResource);
+
+                    string URLTagToReplace = $"<img src=\"{ImageName}\"";
+
+                    EmailContent = EmailContent.Replace(URLTagToReplace, "<img src='cid:" + LinkResource.ContentId + @"'");
+                }
+
+                alternateView = AlternateView.CreateAlternateViewFromString(EmailContent, Encoding.UTF8, MediaTypeNames.Text.Html);
+
+                // Add the images to the email
+                foreach (var item in linkedResources)
+                {
+                    alternateView.LinkedResources.Add(item);
+                }                
+            }
+            catch
+            {
+                return null;
+            }
+
+            return alternateView;
+        }
+
+        // Utility
+
         #region public static string ScrubHtml(string value)
         public static string ScrubHtml(string value)
         {
@@ -319,5 +365,15 @@ namespace BlazorBlogsLibrary.Data.Models
             return image;
         }
         #endregion
+
+        #region public byte[] PngImageToByteArray(Image imageIn)
+        public byte[] PngImageToByteArray(Image imageIn)
+        {
+            MemoryStream ms = new MemoryStream();
+            imageIn.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            return ms.ToArray();
+        }
+        #endregion
+
     }
 }

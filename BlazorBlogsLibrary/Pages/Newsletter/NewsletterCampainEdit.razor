@@ -3,6 +3,7 @@
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
+@using System.Drawing;
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject BlogsService _BlogsService
@@ -123,7 +124,7 @@
                 await Task.Delay(1000);
 
                 // Get the images in the Newsletter
-                Dictionary<string, object> colImages = new Dictionary<string, object>();
+                Dictionary<string, Image> colImages = new Dictionary<string, Image>();
 
                 NewsletterParser objNewsletterParser = new NewsletterParser();
                 var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");

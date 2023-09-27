@@ -35,13 +35,33 @@ namespace BlazorBlogs.Data
                 GeneralSettings.SMTPFromEmail, MailTo, MailToDisplayName,
                 Cc, Bcc, ReplyTo, System.Net.Mail.MailPriority.Normal,
                 Subject, Encoding.UTF8, Body, arrAttachments, "", "", "", "",
-                GeneralSettings.SMTPSecure);
+                GeneralSettings.SMTPSecure, null);
         }
         #endregion
 
-        #region private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority, string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL)
+        #region public async Task<string> SendMailAlternateViewAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body, AlternateView objAlternateView)
+        public async Task<string> SendMailAlternateViewAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body, AlternateView objAlternateView)
+        {
+            GeneralSettings GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
+
+            if (GeneralSettings.SMTPServer.Trim().Length == 0)
+            {
+                return "Error: Cannot send email - SMTPServer not set";
+            }
+
+            string[] arrAttachments = new string[0];
+
+            return await SendMailAsync(SendAsync,
+                GeneralSettings.SMTPFromEmail, MailTo, MailToDisplayName,
+                Cc, Bcc, ReplyTo, System.Net.Mail.MailPriority.Normal,
+                Subject, Encoding.UTF8, Body, arrAttachments, "", "", "", "",
+                GeneralSettings.SMTPSecure, objAlternateView);
+        }
+        #endregion
+
+        #region private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority, string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL, AlternateView objAlternateView)
         private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority,
-            string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL)
+            string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL, AlternateView objAlternateView)
         {
             string strSendMail = "";
             GeneralSettings GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
@@ -117,13 +137,20 @@ namespace BlazorBlogs.Data
 
                 objMail.AlternateViews.Add(PlainView);
 
-                //if body contains html, add html part
-                if (IsHTMLMail(Body))
+                if (objAlternateView != null)
                 {
-                    System.Net.Mail.AlternateView HTMLView =
-                        System.Net.Mail.AlternateView.CreateAlternateViewFromString(Body, null, "text/html");
+                    objMail.AlternateViews.Add(objAlternateView);
+                }
+                else
+                {
+                    //if body contains html, add html part
+                    if (IsHTMLMail(Body))
+                    {
+                        System.Net.Mail.AlternateView HTMLView =
+                            System.Net.Mail.AlternateView.CreateAlternateViewFromString(Body, null, "text/html");
 
-                    objMail.AlternateViews.Add(HTMLView);
+                        objMail.AlternateViews.Add(HTMLView);
+                    }
                 }
             }
             catch (Exception objException)
