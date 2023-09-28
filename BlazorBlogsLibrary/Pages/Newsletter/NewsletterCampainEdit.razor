@@ -36,6 +36,11 @@
                     @onclick="ProcessCampain">
                         Process Campain
                     </button>
+                    <span>&nbsp;&nbsp;</span>
+                    <button class="btn btn-success"
+                    @onclick="TestCampain">
+                        Test Campain
+                    </button>
                     <span style="color:red">@strError</span>
                 </div>
             </div>
@@ -106,50 +111,67 @@
         StateHasChanged();
     }
 
-    private async Task ProcessCampain()
+    private async Task TestCampain()
     {
         var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-        var SendEmailCounter = EmailsToSend;
+        List<string> colTestUsers = new List<string>();
+        colTestUsers.Add(objGeneralSettings.SMTPFromEmail);
+        await SendEmails(colTestUsers);
+        strError = "Test Email Sent!";
+    }
+
+    private async Task ProcessCampain()
+    {
+        await SendEmails(colUsersNotInCampaign);
+    }
+
+    private async Task SendEmails(List<string> paramUsersNotInCampaign)
+    {
+        // Clear any error messages
+        strError = "";
+
+        var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        var SendEmailCounter = paramUsersNotInCampaign.Count();
         string NewsletterEmailContents = EmailContents.FirstOrDefault().Value;
         string NewsletterEmailSubject = EmailContents.FirstOrDefault().Key;
 
         // Get the URL of web appliacation from the http context
         string strWebApplicationUrl = httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host.Value;
 
+        // Get the images in the Newsletter
+        Dictionary<string, Image> colImages = new Dictionary<string, Image>();
+
+        NewsletterParser objNewsletterParser = new NewsletterParser();
+        var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");
+
+        // Loop through the images and download them
+        foreach (var objNewsletterContent in colNewsletterContents)
+        {
+            // Get the image
+            string ImageURL = $"{strWebApplicationUrl}//{objNewsletterContent.Content}";
+
+            // Download the image
+            var objDownloadedImage = objNewsletterParser.DownloadImageFromUrl(ImageURL);
+
+            colImages.Add(objNewsletterContent.Content, objDownloadedImage);
+        }
+
         for (int i = 0; i < SendEmailCounter; i++)
         {
             try
             {
                 // Pause for one second
-                await Task.Delay(1000);
-
-                // Get the images in the Newsletter
-                Dictionary<string, Image> colImages = new Dictionary<string, Image>();
-
-                NewsletterParser objNewsletterParser = new NewsletterParser();
-                var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");
-
-                // Loop through the images and download them
-                foreach (var objNewsletterContent in colNewsletterContents)
-                {
-                    // Get the image
-                    string ImageURL = $"{strWebApplicationUrl}//{objNewsletterContent.Content}";
-
-                    // Download the image
-                    var objDownloadedImage = objNewsletterParser.DownloadImageFromUrl(ImageURL);
-
-                    colImages.Add(objNewsletterContent.Content, objDownloadedImage);
-                }
+                await Task.Delay(1000);               
 
                 // Send the email
-                await _BlogsService.SendNewslettersCampainEmailAsync(colUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
+                await _BlogsService.SendNewslettersCampainEmailAsync(paramUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
                 
                 StateHasChanged();
                 EmailsToSend--;
             }
             catch(Exception ex)
             {
-                await LogAction("Newsletter Campain Email: " + colUsersNotInCampaign[i] + " " + ex.Message);
+                await LogAction("Newsletter Campain Email: " + paramUsersNotInCampaign[i] + " " + ex.Message);
             }
         }           
     }
