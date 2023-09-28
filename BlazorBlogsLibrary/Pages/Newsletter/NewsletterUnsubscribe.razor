@@ -1,0 +1,21 @@
+﻿@page "/NewsletterUnsubscribe/{Username}"
+
+@using Microsoft.AspNetCore.Http
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject IJSRuntime JSRuntime
+@inject BlogsService _BlogsService
+@inject IHttpContextAccessor httpContextAccessor
+@inherits OwningComponentBase<BlogsService>
+
+<h3>Newsletter Unsubscribe</h3>
+
+<p>@Username</p>
+@code {
+    [Parameter] public string Username { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await @Service.GetSubscriberUsersAsync();
+    }
+}

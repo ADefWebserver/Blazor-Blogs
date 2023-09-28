@@ -1,0 +1,27 @@
+﻿@page "/NewsletterView/{NewsletterId}"
+
+@using Microsoft.AspNetCore.Http
+@using BlazorBlogs.Data;
+@using BlazorBlogs.Data.Models;
+@inject IJSRuntime JSRuntime
+@inject BlogsService _BlogsService
+@inject IHttpContextAccessor httpContextAccessor
+@inherits OwningComponentBase<BlogsService>
+@if (SelectedBlog != null)
+{
+    @((MarkupString)SelectedBlog.BlogContent)
+}
+else
+{
+    <p>Newsletter not found.</p>
+}
+@code {
+    [Parameter] public string NewsletterId { get; set; }
+    BlogDTO SelectedBlog;
+
+    protected override async Task OnInitializedAsync()
+    {
+        int intNewsletterId = Convert.ToInt32(NewsletterId);
+        SelectedBlog = await @Service.GetNewsletterAsync(intNewsletterId);
+    }
+}

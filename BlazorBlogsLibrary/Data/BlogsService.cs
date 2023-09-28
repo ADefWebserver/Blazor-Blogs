@@ -530,6 +530,26 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
+        #region public async Task<BlogDTO> GetNewsletterAsync(int NewsletterId)
+        public async Task<BlogDTO> GetNewsletterAsync(int NewsletterId)
+        {
+            var objNewsleter = await _context.Newsletters.AsNoTracking()
+                .Where(x => x.Id == NewsletterId)
+                .FirstOrDefaultAsync();
+
+            BlogDTO objBlogDTO = new BlogDTO();
+
+            if(objNewsleter != null)
+            {
+                objBlogDTO.BlogId = objNewsleter.Id;
+                objBlogDTO.BlogTitle = objNewsleter.NewsletterTitle;
+                objBlogDTO.BlogDate = objNewsleter.NewsletterDate;
+                objBlogDTO.BlogContent = objNewsleter.NewsletterContent;
+            }
+            return objBlogDTO;
+        }
+        #endregion
+
         // Campains
 
         #region public async Task<List<NewslettersCampain>> GetCampainsAsync(int paramNewsletterId)
