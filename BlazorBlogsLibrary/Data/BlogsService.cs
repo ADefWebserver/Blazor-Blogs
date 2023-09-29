@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using BlazorBlogsLibrary.Data.Models;
 using System.Net.Mail;
 using System.Drawing;
+using Microsoft.AspNetCore.Identity;
 
 namespace BlazorBlogs.Data
 {
@@ -23,14 +24,17 @@ namespace BlazorBlogs.Data
         private readonly BlazorBlogsContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly EmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public BlogsService(BlazorBlogsContext context,
             IWebHostEnvironment environment,
-            EmailService emailService)
+            EmailService emailService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _environment = environment;
             _emailService = emailService;
+            _userManager = userManager;
         }
 
         // Blogs
@@ -662,9 +666,17 @@ namespace BlazorBlogs.Data
         {
             try
             {
+                string UserId = "";
+                var user = await _userManager.FindByNameAsync(paramUser);
+
+                if (user != null)
+                {
+                    UserId = user.Id;
+                }
+
                 // Create HTML Email Content
                 NewsletterParser objNewsletterParser = new NewsletterParser();
-                AlternateView objAlternateView = objNewsletterParser.CreateEmailHTML(EmailContents, colImages, SiteURL, SelectedNewslettersCampain.NewsletterId);
+                AlternateView objAlternateView = objNewsletterParser.CreateEmailHTML(EmailContents, colImages, SiteURL, SelectedNewslettersCampain.NewsletterId, UserId);
 
                 // Send Email
                 string strError = await _emailService.SendMailAlternateViewAsync(

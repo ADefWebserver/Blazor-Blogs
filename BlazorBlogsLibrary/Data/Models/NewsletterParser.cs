@@ -1,6 +1,7 @@
 ﻿using BlazorBlogs.Data.Models;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -273,8 +274,8 @@ namespace BlazorBlogsLibrary.Data.Models
         }
         #endregion
 
-        #region public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId) 
-        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId) 
+        #region public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId, string UserId)  
+        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId, string UserId) 
         {
             AlternateView alternateView = null;
 
@@ -302,9 +303,15 @@ namespace BlazorBlogsLibrary.Data.Models
 
                 // Create View Newsletter link
                 string NewsletterLinkText = "Click here if you have trouble seeing this email";
-                string NewsletterLinkHTML = $"<div style=\"text-align: center;\"><a href=\"{SiteURL}/NewsletterView/{CampainId}\" style=\"color: red; text-decoration: underline;\">{NewsletterLinkText}</a></div>";
+                string NewsletterLinkHTML = $"<div style=\"text-align: center;\"><a href=\"{SiteURL}NewsletterView/{CampainId}\" style=\"color: red; text-decoration: underline;\">{NewsletterLinkText}</a></div>";
 
                 EmailContent = NewsletterLinkHTML + EmailContent;
+
+                // Create unsubscribe link
+                string UnsubscribeLinkText = "Click here to unsubscribe";
+                string UnsubscribeLinkHTML = $"<br><br><div style=\"text-align: center;\"><a href=\"{SiteURL}NewsletterUnsubscribe/{UserId}\" style=\"color: red; text-decoration: underline;\">{UnsubscribeLinkText}</a></div>";
+
+                EmailContent = EmailContent + UnsubscribeLinkHTML;
 
                 alternateView = AlternateView.CreateAlternateViewFromString(EmailContent, Encoding.UTF8, MediaTypeNames.Text.Html);
 

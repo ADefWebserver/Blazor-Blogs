@@ -3,6 +3,7 @@ using BlazorBlogs.Data.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -37,18 +38,21 @@ namespace BlazorBlogs
         private readonly GeneralSettingsService generalSettingsService;
         private IHostApplicationLifetime applicationLifetime;
         private EmailService emailService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public UploadController(IWebHostEnvironment environment, 
             BlazorBlogsContext context,
             GeneralSettingsService generalSettingsService,
             IHostApplicationLifetime appLifetime,
-            EmailService emailService)
+            EmailService emailService,
+            UserManager<ApplicationUser> userManager)
         {
             this.environment = environment;
             this.blogsContext = context;
             this.generalSettingsService = generalSettingsService;
             this.applicationLifetime = appLifetime;
             this.emailService = emailService;
+            _userManager = userManager;
         }
 
         #region public async Task<IActionResult> MultipleAsync(IFormFile[] files, string CurrentDirectory)    
@@ -153,7 +157,7 @@ namespace BlazorBlogs
                         objFilesDTO.FileName = FileTitle;
                         objFilesDTO.FilePath = file.FileName;
 
-                        BlogsService objBlogsService = new BlogsService(blogsContext, environment, emailService);
+                        BlogsService objBlogsService = new BlogsService(blogsContext, environment, emailService, _userManager);
                         await objBlogsService.CreateFilesAsync(objFilesDTO);
                     }
                 }
