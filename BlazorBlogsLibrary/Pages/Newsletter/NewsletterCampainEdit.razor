@@ -4,6 +4,7 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using System.Drawing;
+@inject NavigationManager navigationManager
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject BlogsService _BlogsService
@@ -141,6 +142,7 @@
         // Get the images in the Newsletter
         Dictionary<string, Image> colImages = new Dictionary<string, Image>();
 
+        string SiteURL = navigationManager.BaseUri;
         NewsletterParser objNewsletterParser = new NewsletterParser();
         var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");
 
@@ -164,7 +166,7 @@
                 await Task.Delay(1000);               
 
                 // Send the email
-                await _BlogsService.SendNewslettersCampainEmailAsync(paramUsersNotInCampaign[i], SelectedNewslettersCampain.Id, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail);
+                await _BlogsService.SendNewslettersCampainEmailAsync(paramUsersNotInCampaign[i], SelectedNewslettersCampain, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail, SiteURL);
                 
                 StateHasChanged();
                 EmailsToSend--;

@@ -1,4 +1,6 @@
-﻿using HtmlAgilityPack;
+﻿using BlazorBlogs.Data.Models;
+using HtmlAgilityPack;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,6 +11,7 @@ using System.Net.Mime;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Toolbelt.Blazor.HeadElement;
 
 namespace BlazorBlogsLibrary.Data.Models
 {
@@ -16,10 +19,7 @@ namespace BlazorBlogsLibrary.Data.Models
     {
         HttpClient client = new HttpClient();
 
-        public NewsletterParser()
-        {
-
-        }
+        public NewsletterParser() { }
 
         #region public List<NewsletterContent> ParseHtmlImageLinks(string html)
         public List<NewsletterContent> ParseHtmlImageLinks(string html)
@@ -273,7 +273,8 @@ namespace BlazorBlogsLibrary.Data.Models
         }
         #endregion
 
-        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages)
+        #region public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId) 
+        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId) 
         {
             AlternateView alternateView = null;
 
@@ -299,6 +300,12 @@ namespace BlazorBlogsLibrary.Data.Models
                     EmailContent = EmailContent.Replace(URLTagToReplace, "<img src='cid:" + LinkResource.ContentId + @"'");
                 }
 
+                // Create View Newsletter link
+                string NewsletterLinkText = "Click here if you have trouble seeing this email";
+                string NewsletterLinkHTML = $"<div style=\"text-align: center;\"><a href=\"{SiteURL}/NewsletterView/{CampainId}\" style=\"color: red; text-decoration: underline;\">{NewsletterLinkText}</a></div>";
+
+                EmailContent = NewsletterLinkHTML + EmailContent;
+
                 alternateView = AlternateView.CreateAlternateViewFromString(EmailContent, Encoding.UTF8, MediaTypeNames.Text.Html);
 
                 // Add the images to the email
@@ -314,6 +321,7 @@ namespace BlazorBlogsLibrary.Data.Models
 
             return alternateView;
         }
+        #endregion
 
         // Utility
 

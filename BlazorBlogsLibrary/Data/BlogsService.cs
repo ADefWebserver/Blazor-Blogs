@@ -657,14 +657,14 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender)
-        public async Task SendNewslettersCampainEmailAsync(string paramUser, int SelectedNewslettersCampainId, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender)
+        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, NewslettersCampain SelectedNewslettersCampainId, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender, string SiteURL)
+        public async Task SendNewslettersCampainEmailAsync(string paramUser, NewslettersCampain SelectedNewslettersCampain, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender, string SiteURL)
         {
             try
             {
                 // Create HTML Email Content
                 NewsletterParser objNewsletterParser = new NewsletterParser();
-                AlternateView objAlternateView = objNewsletterParser.CreateEmailHTML(EmailContents, colImages);
+                AlternateView objAlternateView = objNewsletterParser.CreateEmailHTML(EmailContents, colImages, SiteURL, SelectedNewslettersCampain.NewsletterId);
 
                 // Send Email
                 string strError = await _emailService.SendMailAlternateViewAsync(
@@ -679,16 +679,16 @@ namespace BlazorBlogs.Data
 
                 if (strError == "")
                 {
-                    LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Email Sent", "");
+                    LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Email Sent", "");
                 }
                 else
                 {
-                    LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Error:SendMailAsync", strError);
+                    LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Error:SendMailAsync", strError);
                 }
             }
             catch (Exception ex)
             {
-                LogToNewslettersLogs(SelectedNewslettersCampainId, paramUser, "Error:SendNewslettersCampainEmailAsync", ex.Message);
+                LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Error:SendNewslettersCampainEmailAsync", ex.Message);
             }
         } 
         #endregion
