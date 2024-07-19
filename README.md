@@ -21,6 +21,8 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 
 ![Screenshot](Screenshot005.png)
 
+![image](https://github.com/user-attachments/assets/de5a539a-ccde-4430-8ba4-55437b4bbf7e)
+
 ### Features
 
 * Supports unlimited Bloggers
