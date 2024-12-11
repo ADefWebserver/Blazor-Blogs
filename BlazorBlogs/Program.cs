@@ -13,6 +13,7 @@ using BlazorBlogs.Components.Account;
 using Blazored.Toast;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Radzen;
 
 
 namespace BlazorBlogs
@@ -82,6 +83,8 @@ namespace BlazorBlogs
             builder.Services.AddScoped<HttpClient>();
             builder.Services.AddBlazoredToast();
             builder.Services.AddHeadElementHelper();
+
+            builder.Services.AddRadzenComponents();
 
             var app = builder.Build();
 
