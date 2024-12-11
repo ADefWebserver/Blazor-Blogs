@@ -51,7 +51,7 @@
     {
         string BaseUrl = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
         string ReturnUrl = NavigationManager.ToAbsoluteUri($"/").AbsolutePath;
-        string url = BaseUrl + $"Identity/Account/InstallWizardAuth?paramUsername={encode(@Username)}&paramPassword={encode(@Password)}&returnUrl={encode(ReturnUrl)}";
+        string url = BaseUrl + $"Account/Pages/InstallWizardAuth?paramUsername={encode(@Username)}&paramPassword={encode(@Password)}&returnUrl={encode(ReturnUrl)}";
         NavigationManager.NavigateTo(url,true);
     }
 

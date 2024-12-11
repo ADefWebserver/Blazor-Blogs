@@ -86,6 +86,8 @@ namespace BlazorBlogs
 
             builder.Services.AddRadzenComponents();
 
+            builder.Services.AddControllersWithViews();
+
             var app = builder.Build();
 
             app.UseHeadElementServerPrerendering();
@@ -112,6 +114,9 @@ namespace BlazorBlogs
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+            app.MapControllers();
+
             app.MapRazorComponents<Components.App>()
                 .AddInteractiveServerRenderMode();
 
