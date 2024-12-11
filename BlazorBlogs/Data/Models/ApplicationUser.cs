@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BlazorBlogs.Data.Models
+namespace BlazorBlogs.Data
 {
     public class ApplicationUser : IdentityUser
     {
