@@ -21,7 +21,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
     }
 }
 
@@ -34,7 +34,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
     }
 }
 
@@ -52,7 +52,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
     }
 }
 
@@ -65,7 +65,7 @@
 
     @if (WizardStage == "Continue")
     {
-        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
+        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
     }
 }
 
@@ -75,13 +75,14 @@
 
     [Parameter] public string WizardMode { get; set; }
 
+    string url = $"/";
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     public string WizardStage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        //await Task.FromResult(
+        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
 
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
@@ -138,11 +139,5 @@
         {
             WizardStage = "RunScriptsComplete";
         }
-    }
-
-    void Continue()
-    {
-        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
-        NavigationManager.NavigateTo(url, true);
     }
 }

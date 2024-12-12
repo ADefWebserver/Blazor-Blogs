@@ -1,17 +1,15 @@
 ﻿@inherits LayoutComponentBase
 <RadzenComponents @rendermode="InteractiveServer" />
 <BlazoredToasts />
-<div class="sidebar">
-    <InstallWizardNavMenu />
-</div>
 
-<div class="main">
-    <div class="top-row px-4">
-        <a href="https://github.com/ADefWebserver/Blazor-Blogs" target="_blank">About</a>
+<div class="page">
+    <div class="sidebar">
+        <InstallWizardNavMenu />
     </div>
-    <div class="content px-4">
+
+    <main class="content px-4">
         @Body
-    </div>
+    </main>
 </div>
 @code {
 
