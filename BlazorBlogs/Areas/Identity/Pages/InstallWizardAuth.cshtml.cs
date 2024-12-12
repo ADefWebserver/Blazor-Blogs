@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using BlazorBlogs.Data.Models;
 using Microsoft.Extensions.Logging;
 
-namespace BlazorBlogs.Components.Account.Pages
+namespace BlazorBlogs.Account.Pages
 {
     public class InstallWizardAuthModel : PageModel
     {

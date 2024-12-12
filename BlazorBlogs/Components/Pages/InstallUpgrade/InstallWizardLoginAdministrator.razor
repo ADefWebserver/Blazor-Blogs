@@ -1,64 +1,99 @@
-﻿@using System.Security.Claims;
-@using System.Web;
+﻿@using System.ComponentModel.DataAnnotations
+@using BlazorBlogs.Components.Account
+@using BlazorBlogs.Components.Account.Shared
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Identity
+@using BlazorBlogs.Data
+
+@inject SignInManager<ApplicationUser> SignInManager
 @inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+
+<PageTitle>Verify Administrator</PageTitle>
 
 <h3>Verify Administrator</h3>
-<table class="form-group" cellpadding="4" cellspacing="4">
-    <tbody>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Username: </label>
-            </td>
-            <td>
-                <input type="text" id="DatabaseUsername" class="form-control" @bind="Username" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="Title" class="control-label" style="font-weight: bold">Password: </label>
-            </td>
-            <td>
-                <input type="password" id="DatabasePassword" class="form-control" @bind="Password" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button type="button" label="Authenticate"
-                        class="btn btn-success"
-                        @onclick="Authenticate">
-                    Log In
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-lg-6">
+        <section>
+            <StatusMessage Message="@errorMessage" />
+            <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+                <DataAnnotationsValidator />
+                <h2>Use a local account to log in.</h2>
+                <hr />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="form-floating mb-3">
+                    <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label for="Input.Email" class="form-label">Email</label>
+                    <ValidationMessage For="() => Input.Email" class="text-danger" />
+                </div>
+                <div class="form-floating mb-3">
+                    <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                    <label for="Input.Password" class="form-label">Password</label>
+                    <ValidationMessage For="() => Input.Password" class="text-danger" />
+                </div>
+                <div>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
 @code {
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    private string? errorMessage;
 
-    ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
-    private string Username = "";
-    private string Password = "";
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        // Get current user
-        CurrentUser = (await authenticationStateTask).User;
-
+        if (HttpMethods.IsGet(HttpContext.Request.Method))
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
     }
 
-    private void Authenticate()
+    public async Task LoginUser()
     {
-        string BaseUrl = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
-        string ReturnUrl = NavigationManager.ToAbsoluteUri($"/").AbsolutePath;
-        string url = BaseUrl + $"Account/Pages/InstallWizardAuth?paramUsername={encode(@Username)}&paramPassword={encode(@Password)}&returnUrl={encode(ReturnUrl)}";
-        NavigationManager.NavigateTo(url,true);
+        // This doesn't count login failures towards account lockout
+        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        if (result.Succeeded)
+        {
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            RedirectManager.RedirectTo(
+                "Account/LoginWith2fa",
+                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        }
+        else if (result.IsLockedOut)
+        {
+            RedirectManager.RedirectTo("Account/Lockout");
+        }
+        else
+        {
+            errorMessage = "Error: Invalid login attempt.";
+        }
     }
 
-    // Utility
-
-    private string encode(string param)
+    private sealed class InputModel
     {
-        return HttpUtility.UrlEncode(param);
+        [Required]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; } = "";
+
+        [Display(Name = "Remember me?")]
+        public bool RememberMe { get; set; }
     }
 }

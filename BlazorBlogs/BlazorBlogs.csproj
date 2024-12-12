@@ -36,7 +36,7 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
-		<PackageReference Include="Radzen.Blazor" Version="5.6.14" />
+		<PackageReference Include="Radzen.Blazor" Version="5.6.15" />
 		<PackageReference Include="System.Drawing.Common" Version="9.0.0" />
 		<PackageReference Include="System.ServiceModel.Syndication" Version="9.0.0" />
 		<PackageReference Include="Toolbelt.Blazor.HeadElement" Version="7.3.1" />

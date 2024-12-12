@@ -56,62 +56,54 @@ else
         }
 
         intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
-    }
+        StateHasChanged();
+        Task.Delay(1000).Wait();
 
-    protected override async Task
-        OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        // Get database conection string
+        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+        // Get the scripts
+        Dictionary<int, string> ColScripts = UpdateScripts();
+        foreach (var sqlScript in ColScripts)
         {
-            StateHasChanged();
-            Task.Delay(1000).Wait();
-
-            // Get database conection string
-            string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-
-            // Get the scripts
-            Dictionary<int, string> ColScripts = UpdateScripts();
-            foreach (var sqlScript in ColScripts)
+            try
             {
-                try
+                // Only run the script if it is higher than the
+                // current database version
+                if (sqlScript.Key > intCurrentDatabaseVersion)
                 {
-                    // Only run the script if it is higher than the
-                    // current database version
-                    if (sqlScript.Key > intCurrentDatabaseVersion)
+                    string strSQLScript = GetSQLScript(sqlScript.Value);
+
+                    var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
+                    optionsBuilder.UseSqlServer(strDefaultConnection);
+
+                    using (var context = new BlazorBlogsContext(optionsBuilder.Options))
                     {
-                        string strSQLScript = GetSQLScript(sqlScript.Value);
-
-                        var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-                        optionsBuilder.UseSqlServer(strDefaultConnection);
-
-                        using (var context = new BlazorBlogsContext(optionsBuilder.Options))
+                        try
                         {
-                            try
-                            {
-                                await context.Database.ExecuteSqlRawAsync(strSQLScript);
-                            }
-                            catch (Exception ex)
-                            {
-                                ErrorMessage = ex.Message;
-                                StateHasChanged();
-                                return;
-                            }
-
-                            Task.Delay(1000).Wait();
+                            await context.Database.ExecuteSqlRawAsync(strSQLScript);
                         }
+                        catch (Exception ex)
+                        {
+                            ErrorMessage = ex.Message;
+                            StateHasChanged();
+                            return;
+                        }
+
+                        Task.Delay(1000).Wait();
                     }
                 }
-                catch (Exception ex)
-                {
-                    ErrorMessage = ex.Message;
-                    StateHasChanged();
-                    return;
-                }
             }
-
-            // Notify parent component
-            await ExecuteScriptsChanged.InvokeAsync(true);
+            catch (Exception ex)
+            {
+                ErrorMessage = ex.Message;
+                StateHasChanged();
+                return;
+            }
         }
+
+        // Notify parent component
+        await ExecuteScriptsChanged.InvokeAsync(true);
     }
 
     #region private static int ConvertVersionToInteger(string strParamVersion)
