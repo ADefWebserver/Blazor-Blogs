@@ -10,11 +10,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Terms Of Use</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                            @onclick="CloseTermsOfUsePopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
+                    <!-- Radzen styled close button -->
+                    <RadzenButton style="position: absolute; top: 5px; right: 10px;"
+                                  icon="close"
+                                  class="rz-button-circle rz-button-danger" 
+                                  Click="CloseTermsOfUsePopup" />
                 </div>
                 <div class="modal-body">
                     <br><br><h4>AGREEMENT BETWEEN USER AND @objGeneralSettings.ApplicationName</h4>
@@ -102,11 +102,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Privacy Statement</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                            @onclick="ClosePrivacyStatementPopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
+                    <!-- Radzen styled close button -->
+                    <RadzenButton style="position: absolute; top: 5px; right: 10px;"
+                                  icon="close"
+                                  class="rz-button-circle rz-button-danger"
+                                  Click="ClosePrivacyStatementPopup" />
                 </div>
                 <div class="modal-body">
                     @objGeneralSettings.ApplicationName is committed to protecting your privacy and developing technology that gives you the most powerful and safe online experience. This Statement of Privacy applies to the @objGeneralSettings.ApplicationName Web site and governs data collection and usage. By using the @objGeneralSettings.ApplicationName website, you consent to the data practices described in this statement.
