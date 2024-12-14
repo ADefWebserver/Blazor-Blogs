@@ -14,16 +14,16 @@
 <StatusMessage Message="@statusMessage" />
 
 @code {
-    private string? statusMessage;
+    private string statusMessage;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromQuery]
-    private string? UserId { get; set; }
+    private string UserId { get; set; }
 
     [SupplyParameterFromQuery]
-    private string? Code { get; set; }
+    private string Code { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

@@ -111,10 +111,6 @@ namespace BlazorBlogs
 
             app.MapStaticAssets();
 
-            app.UseAuthorization();
-
-            app.MapStaticAssets();
-
             app.MapControllers();
 
             app.MapRazorComponents<Components.App>()

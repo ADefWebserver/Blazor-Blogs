@@ -34,14 +34,14 @@
 </div>
 
 @code {
-    private string? message;
+    private string message;
     private ApplicationUser user = default!;
 
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    private string ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

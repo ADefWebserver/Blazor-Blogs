@@ -66,7 +66,7 @@
                     </div>
                 }
                 <ldivi class="nav-item px-3">
-                    <form method="post" action="Identity/Account/LogOut">
+                    <form method="post" action="Account/LogOut">
                         <button type="submit" class="btn btn-link">
                             <span style="color:white"> [Logout]</span>
                         </button>
@@ -75,14 +75,14 @@
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="Identity/Account/Login">
+                    <NavLink class="nav-link" href="Account/Login">
                         <span class="oi oi-list-rich" aria-hidden="true"></span> [Login]
                     </NavLink>
                 </div>
                 @if (AllowRegistration)
                 {
                     <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="Identity/Account/Register">
+                        <NavLink class="nav-link" href="Account/Register">
                             <span class="oi oi-list-rich" aria-hidden="true"></span> [Register]
                         </NavLink>
                     </div>

@@ -67,21 +67,21 @@
     public const string LinkLoginCallbackAction = "LinkLoginCallback";
 
     private ApplicationUser user = default!;
-    private IList<UserLoginInfo>? currentLogins;
-    private IList<AuthenticationScheme>? otherLogins;
+    private IList<UserLoginInfo> currentLogins;
+    private IList<AuthenticationScheme> otherLogins;
     private bool showRemoveButton;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
-    private string? LoginProvider { get; set; }
+    private string LoginProvider { get; set; }
 
     [SupplyParameterFromForm]
-    private string? ProviderKey { get; set; }
+    private string ProviderKey { get; set; }
 
     [SupplyParameterFromQuery]
-    private string? Action { get; set; }
+    private string Action { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,7 +91,7 @@
             .Where(auth => currentLogins.All(ul => auth.Name != ul.LoginProvider))
             .ToList();
 
-        string? passwordHash = null;
+        string passwordHash = null;
         if (UserStore is IUserPasswordStore<ApplicationUser> userPasswordStore)
         {
             passwordHash = await userPasswordStore.GetPasswordHashAsync(user, HttpContext.RequestAborted);

@@ -34,7 +34,7 @@ else
     private AuthenticationScheme[] externalLogins = [];
 
     [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    private string ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {

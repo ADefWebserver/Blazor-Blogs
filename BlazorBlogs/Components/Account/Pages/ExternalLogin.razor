@@ -47,8 +47,8 @@
 @code {
     public const string LoginCallbackAction = "LoginCallback";
 
-    private string? message;
-    private ExternalLoginInfo? externalLoginInfo;
+    private string message;
+    private ExternalLoginInfo externalLoginInfo;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -57,15 +57,15 @@
     private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery]
-    private string? RemoteError { get; set; }
+    private string RemoteError { get; set; }
 
     [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; }
+    private string ReturnUrl { get; set; }
 
     [SupplyParameterFromQuery]
-    private string? Action { get; set; }
+    private string Action { get; set; }
 
-    private string? ProviderDisplayName => externalLoginInfo?.ProviderDisplayName;
+    private string ProviderDisplayName => externalLoginInfo?.ProviderDisplayName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -157,7 +157,7 @@
 
                 var callbackUrl = NavigationManager.GetUriWithQueryParameters(
                     NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-                    new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
+                    new Dictionary<string, object> { ["userId"] = userId, ["code"] = code });
                 await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
 
                 // If account confirmation is required, we need to show the link if we don't have a real email sender

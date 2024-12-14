@@ -7,15 +7,15 @@
 }
 
 @code {
-    private string? messageFromCookie;
+    private string messageFromCookie;
 
     [Parameter]
-    public string? Message { get; set; }
+    public string Message { get; set; }
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
-    private string? DisplayMessage => Message ?? messageFromCookie;
+    private string DisplayMessage => Message ?? messageFromCookie;
 
     protected override void OnInitialized()
     {

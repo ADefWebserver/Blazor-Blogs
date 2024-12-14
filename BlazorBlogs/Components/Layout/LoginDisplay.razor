@@ -3,17 +3,17 @@
 
 <AuthorizeView>
     <Authorized>
-        <a href="Identity/Account/Manage">Hello, @context.User.Identity.Name!</a>
-        <form method="post" action="Identity/Account/LogOut">
+        <a href="Account/Manage">Hello, @context.User.Identity.Name!</a>
+        <form method="post" action="Account/LogOut">
             <button type="submit" class="nav-link btn btn-link">Log out</button>
         </form>
     </Authorized>
     <NotAuthorized>
         @if (AllowRegistration)
         {
-            <a href="Identity/Account/Register">Register</a>
+            <a href="Account/Register">Register</a>
         }
-        <a href="Identity/Account/Login">Log in</a>
+        <a href="Account/Login">Log in</a>
     </NotAuthorized>
 </AuthorizeView>
 @code {
