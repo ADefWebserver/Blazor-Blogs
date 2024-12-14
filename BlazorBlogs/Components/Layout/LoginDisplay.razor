@@ -1,10 +1,13 @@
 ﻿@using BlazorBlogs.Data;
+@inject NavigationManager NavigationManager
 @inherits OwningComponentBase<GeneralSettingsService>
 
 <AuthorizeView>
     <Authorized>
         <a href="Account/Manage">Hello, @context.User.Identity.Name!</a>
-        <form method="post" action="Account/LogOut">
+        <form action="Account/Logout" method="post">
+            <AntiforgeryToken />
+            <input type="hidden" name="ReturnUrl" value="@currentUrl" />
             <button type="submit" class="nav-link btn btn-link">Log out</button>
         </form>
     </Authorized>
@@ -18,10 +21,23 @@
 </AuthorizeView>
 @code {
     bool AllowRegistration = false;
+    private string currentUrl;
 
     protected override async Task OnInitializedAsync()
     {
         var objGeneralSettings = await @Service.GetGeneralSettingsAsync();
         AllowRegistration = objGeneralSettings.AllowRegistration;
+    }
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
     }
 }
