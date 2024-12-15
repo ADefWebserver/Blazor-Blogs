@@ -107,12 +107,11 @@
             {
               "name": "current",
               "type": "transparentDataEncryption",
-              "apiVersion": "2022-05-01-preview",
+              "apiVersion": "2021-02-01-preview",
               "properties": {
-                "status": "Enabled"
+                "state": "Enabled"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers', parameters('sqlServerName'))]",
                 "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('databaseName'))]"
               ]
             }
