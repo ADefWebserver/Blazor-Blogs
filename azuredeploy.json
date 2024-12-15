@@ -105,7 +105,7 @@
                 "status": "Enabled"
               },
               "dependsOn": [
-                "[parameters('sqlServerName')]"
+                "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlServerName'), parameters('databaseName'))]"
               ]
             }
           ]
