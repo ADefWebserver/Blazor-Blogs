@@ -1,29 +1,29 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.1",
+  "contentVersion": "1.0.0.2",
   "parameters": {
     "sqlServerName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the sql server. It has to be unique."
+        "description": "The name of the SQL server. It has to be unique."
       }
     },
     "databaseName": {
       "type": "string",
       "metadata": {
-        "description": "The name of the sql databaseName. It has to be unique."
+        "description": "The name of the SQL database. It has to be unique."
       }
     },
     "sqlAdministratorLogin": {
       "type": "string",
       "metadata": {
-        "description": "The admin user of the SQL Server"
+        "description": "The admin user of the SQL server."
       }
     },
     "sqlAdministratorLoginPassword": {
       "type": "securestring",
       "metadata": {
-        "description": "The password of the admin user of the SQL Server"
+        "description": "The password of the admin user of the SQL server."
       }
     },
     "BlazorWebsiteName": {
@@ -63,13 +63,13 @@
     "hostingPlanName": "[concat('BlazorBlogs-hostingplan-', uniqueString(resourceGroup().id))]",
     "databaseEdition": "Standard",
     "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "Standard"
+    "databaseServiceObjectiveName": "S1"
   },
   "resources": [
     {
       "name": "[parameters('sqlServerName')]",
       "type": "Microsoft.Sql/servers",
-      "apiVersion": "2014-04-01",
+      "apiVersion": "2022-05-01-preview",
       "location": "[resourceGroup().location]",
       "tags": {
         "displayName": "SqlServer"
@@ -83,7 +83,7 @@
         {
           "name": "[parameters('databaseName')]",
           "type": "databases",
-          "apiVersion": "2015-01-01",
+          "apiVersion": "2022-05-01-preview",
           "location": "[resourceGroup().location]",
           "tags": {
             "displayName": "Database"
@@ -98,10 +98,9 @@
           ],
           "resources": [
             {
-              "comments": "Transparent Data Encryption",
               "name": "current",
               "type": "transparentDataEncryption",
-              "apiVersion": "2014-04-01-preview",
+              "apiVersion": "2022-05-01-preview",
               "properties": {
                 "status": "Enabled"
               },
@@ -114,8 +113,7 @@
         {
           "name": "AllowAllMicrosoftAzureIps",
           "type": "firewallrules",
-          "apiVersion": "2014-04-01",
-          "location": "[resourceGroup().location]",
+          "apiVersion": "2022-05-01-preview",
           "properties": {
             "endIpAddress": "0.0.0.0",
             "startIpAddress": "0.0.0.0"
@@ -129,23 +127,24 @@
     {
       "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2022-03-01",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2014-06-01",
-      "dependsOn": [],
       "tags": {
         "displayName": "Blazor"
       },
       "properties": {
-        "name": "[variables('hostingPlanName')]",
-        "sku": "[parameters('BlazorSKU')]",
-        "workerSize": "[parameters('BlazorWorkerSize')]",
-        "numberOfWorkers": 1
+        "sku": {
+          "name": "[parameters('BlazorSKU')]",
+          "tier": "[parameters('BlazorSKU')]",
+          "size": "[parameters('BlazorWorkerSize')]",
+          "capacity": 1
+        }
       }
     },
     {
-      "apiVersion": "2018-02-01",
       "name": "[parameters('BlazorWebsiteName')]",
       "type": "Microsoft.Web/sites",
+      "apiVersion": "2022-03-01",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[variables('hostingPlanName')]"
@@ -155,39 +154,30 @@
         "displayName": "Website"
       },
       "properties": {
-        "name": "[parameters('BlazorWebsiteName')]",
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
         "siteConfig": {
           "webSocketsEnabled": true,
-          "netFrameworkVersion": "v5.0"
+          "netFrameworkVersion": "v9.0"
         }
       },
       "resources": [
         {
           "type": "sourcecontrols",
-          "apiVersion": "2018-02-01",
+          "apiVersion": "2022-03-01",
           "name": "web",
-          "location": "[parameters('location')]",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]",
-            "[resourceId('Microsoft.Web/Sites/config', parameters('BlazorWebsiteName'), 'connectionstrings')]"
-          ],
           "properties": {
-            "RepoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
+            "repoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
             "branch": "main",
-            "IsManualIntegration": true
+            "isManualIntegration": true
           }
         },
         {
-          "apiVersion": "2018-02-01",
           "type": "config",
+          "apiVersion": "2022-03-01",
           "name": "connectionstrings",
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
-          ],
           "properties": {
             "DefaultConnection": {
-              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', parameters('sqlserverName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
               "type": "SQLAzure"
             }
           }
