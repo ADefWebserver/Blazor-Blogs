@@ -1,8 +1,12 @@
-﻿@layout InstallWizardLayout
+﻿@rendermode InteractiveServer
+@layout InstallWizardLayout
 @page "/installwizard/{WizardMode}"
 @using System.Security.Claims;
+@using BlazorBlogs.Data
+@inject IConfiguration _configuration
 @inject InstallUpdateState InstallUpdateState
 @inject NavigationManager NavigationManager
+@inject BlogsService _BlogsService
 
 <h3>Install Upgrade Wizard</h3>
 <br />
@@ -21,7 +25,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
 
@@ -34,7 +38,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
 
@@ -52,7 +56,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
-        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
 
@@ -65,7 +69,7 @@
 
     @if (WizardStage == "Continue")
     {
-        <a href="@url" class="btn btn-primary">Click Here To Continue</a>
+        <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
 
@@ -75,15 +79,12 @@
 
     [Parameter] public string WizardMode { get; set; }
 
-    string url = $"/";
     string ADMINISTRATION_ROLE = "Administrators";
     ClaimsPrincipal CurrentUser = new ClaimsPrincipal();
     public string WizardStage = "";
 
     protected override async Task OnInitializedAsync()
     {
-        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
-
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
 
@@ -133,11 +134,38 @@
         }
     }
 
-    void RunScriptsComplete(bool paramValue)
+    async Task RunScriptsComplete(bool paramValue)
     {
         if (paramValue)
         {
             WizardStage = "RunScriptsComplete";
+
+            // The database connection may be good,
+            // but the Administrator account may not exist
+            try
+            {
+                // Get database conection string
+                string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
+
+                var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
+
+                if (!AdminExists)
+                {
+                    NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+                }
+            }
+            catch
+            {
+                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
+            }
+
         }
     }
+
+    void Continue()
+    {
+        string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
+        NavigationManager.NavigateTo(url, true);
+    }
 }
+

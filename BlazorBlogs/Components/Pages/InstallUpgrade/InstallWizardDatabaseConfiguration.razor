@@ -8,6 +8,7 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.EntityFrameworkCore;
+@using Newtonsoft.Json
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject InstallUpdateState _InstallUpdateState
@@ -17,6 +18,7 @@
 @inject IWebHostEnvironment hostEnvironment
 @inject BlazorBlogsContext context
 @inject GeneralSettingsService _GeneralSettingsService
+@inject IServiceProvider ServiceProvider
 @inject NavigationManager NavigationManager
 
 <table class="form-group" cellpadding="4" cellspacing="4">
@@ -188,7 +190,7 @@
             try
             {
                 // Update the appsettings.json file
-                await UpdateDatabaseConnectionString(strConnectionString);
+                await UpdateConnectionStringAsync(strConnectionString);
             }
             catch (Exception ex)
             {
@@ -235,18 +237,38 @@
     #endregion
 
     #region private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
-    private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
+    public async Task<string> UpdateConnectionStringAsync(string strConnectionString)
     {
-        return await Task.Run(() =>
+        // Update DefaultConnection in the appsettings.json file
+        await Task.Run(() =>
         {
-            // Update DefaultConnection in the appsettings.json file
-            connectionString.Update(opt =>
-            {
-                opt.DefaultConnection = strConnectionString + ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-            });
+            var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+            var json = File.ReadAllText(appSettingsPath);
 
-            return strConnectionString;
+            dynamic jsonObj = JsonConvert.DeserializeObject(json);
+            jsonObj["ConnectionStrings"]["DefaultConnection"] = strConnectionString +
+                ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+            string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText(appSettingsPath, output);
         });
+
+        // Reload configuration
+        var configRootObj = (IConfigurationRoot)configRoot;
+        configRootObj.Reload();
+
+        // Create a new scope for resolving services
+        using var scope = ServiceProvider.CreateScope();
+        var scopedProvider = scope.ServiceProvider;
+
+        // Resolve the DbContext with updated configuration
+        var dbContext = scopedProvider.GetRequiredService<ApplicationDbContext>();
+
+        // Use RoleManager and UserManager
+        var roleManager = scopedProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = scopedProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+        return strConnectionString;
     }
     #endregion
 
@@ -262,7 +284,7 @@
             objConnectionSetting.Password) :
             "integrated security=True";
 
-        strConnectionString = String.Format("{0}data source={1};initial catalog={2};{3}",
+        strConnectionString = String.Format("{0}data source={1};TrustServerCertificate=True;initial catalog={2};{3}",
             SB.ToString(),
             objConnectionSetting.ServerName,
             objConnectionSetting.DatabaseName,
