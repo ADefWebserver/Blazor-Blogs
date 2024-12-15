@@ -35,12 +35,19 @@
     "BlazorSKU": {
       "type": "string",
       "allowedValues": [
-        "Free",
-        "Shared",
-        "Basic",
-        "Standard"
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "P1v2",
+        "P2v2",
+        "P3v2"
       ],
-      "defaultValue": "Standard"
+      "defaultValue": "B1",
+      "metadata": {
+        "description": "The SKU for the hosting plan."
+      }
     },
     "BlazorWorkerSize": {
       "type": "string",
@@ -133,13 +140,10 @@
       "tags": {
         "displayName": "Blazor"
       },
-      "properties": {
-        "sku": {
-          "name": "[parameters('BlazorSKU')]",
-          "tier": "[parameters('BlazorSKU')]",
-          "size": "[parameters('BlazorWorkerSize')]",
-          "capacity": 1
-        }
+      "sku": {
+        "name": "[parameters('BlazorSKU')]",
+        "tier": "[if(equals(parameters('BlazorSKU'), 'F1'), 'Free', if(equals(parameters('BlazorSKU'), 'D1'), 'Shared', if(startsWith(parameters('BlazorSKU'), 'B'), 'Basic', 'PremiumV2')))]",
+        "capacity": 1
       }
     },
     {
