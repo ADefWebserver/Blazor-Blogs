@@ -3,10 +3,12 @@
 @page "/installwizard/{WizardMode}"
 @using System.Security.Claims;
 @using BlazorBlogs.Data
+@using Microsoft.Extensions.Hosting
 @inject IConfiguration _configuration
 @inject InstallUpdateState InstallUpdateState
 @inject NavigationManager NavigationManager
 @inject BlogsService _BlogsService
+@inject IHostApplicationLifetime HostApplicationLifetime
 
 <h3>Install Upgrade Wizard</h3>
 <br />
@@ -25,6 +27,7 @@
 
     @if (WizardStage == "RunScriptsComplete")
     {
+        <h4>Warning! Site will now restart</h4>
         <button type="button" class="btn btn-primary" @onclick="Continue">[Click Here To Continue]</button>
     }
 }
@@ -134,31 +137,14 @@
         }
     }
 
-    async Task RunScriptsComplete(bool paramValue)
+    void RunScriptsComplete(bool paramValue)
     {
         if (paramValue)
         {
             WizardStage = "RunScriptsComplete";
 
-            // The database connection may be good,
-            // but the Administrator account may not exist
-            try
-            {
-                // Get database conection string
-                string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-
-                var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
-
-                if (!AdminExists)
-                {
-                    NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
-                }
-            }
-            catch
-            {
-                NavigationManager.NavigateTo("installwizard/CreateAdministrator", true);
-            }
-
+            // Restart site
+            HostApplicationLifetime.StopApplication();
         }
     }
 
