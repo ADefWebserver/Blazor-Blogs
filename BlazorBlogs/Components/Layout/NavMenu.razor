@@ -116,7 +116,7 @@
         AllowRegistration = objGeneralSettings.AllowRegistration;
     }
 
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    private void OnLocationChanged(object sender, LocationChangedEventArgs e)
     {
         currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
