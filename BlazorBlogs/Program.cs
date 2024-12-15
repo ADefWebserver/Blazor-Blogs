@@ -109,7 +109,7 @@ namespace BlazorBlogs
 
             app.UseAntiforgery();
 
-            app.MapStaticAssets();
+            app.UseStaticFiles();
 
             app.MapControllers();
 
@@ -118,18 +118,6 @@ namespace BlazorBlogs
 
             // Add additional endpoints required by the Identity /Account Razor components.
             app.MapAdditionalIdentityEndpoints();
-
-            app.MapGet("/uploads", () =>
-            {
-                var path = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
-                return Results.File(path);
-            }).AllowAnonymous();
-
-            app.MapGet("/blogs", () =>
-            {
-                var path = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "blogs");
-                return Results.File(path);
-            }).AllowAnonymous();
 
             app.Run();
         }
