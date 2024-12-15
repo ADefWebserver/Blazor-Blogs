@@ -142,14 +142,22 @@
         if (paramValue)
         {
             WizardStage = "RunScriptsComplete";
-
-            // Restart site
-            HostApplicationLifetime.StopApplication();
         }
     }
 
     void Continue()
     {
+        if (WizardMode == "INSTALL")
+        {
+            @if (WizardStage == "RunScriptsComplete")
+            {
+                // Restart site
+                HostApplicationLifetime.StopApplication();
+
+                NavigationManager.NavigateTo($"/", true);
+            }
+        }
+
         string url = NavigationManager.ToAbsoluteUri($"/").AbsoluteUri;
         NavigationManager.NavigateTo(url, true);
     }
