@@ -73,7 +73,7 @@ namespace BlazorBlogs
             builder.Services.AddScoped<BlogsService>();
             builder.Services.AddScoped<GeneralSettingsService>();
             builder.Services.AddScoped<EmailService>();
-            builder.Services.AddTransient<IEmailSender, EmailSender>();
+            builder.Services.AddScoped<IEmailSender<ApplicationUser>, EmailSender>();
             builder.Services.AddScoped<SearchState>();
             builder.Services.AddScoped<DisqusState>();
             builder.Services.AddScoped<InstallUpdateState>();
