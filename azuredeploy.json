@@ -105,7 +105,7 @@
                 "status": "Enabled"
               },
               "dependsOn": [
-                "[parameters('databaseName')]"
+                "[parameters('sqlServerName')]"
               ]
             }
           ]
@@ -165,6 +165,9 @@
           "type": "sourcecontrols",
           "apiVersion": "2022-03-01",
           "name": "web",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
+          ],
           "properties": {
             "repoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
             "branch": "main",
@@ -175,6 +178,9 @@
           "type": "config",
           "apiVersion": "2022-03-01",
           "name": "connectionstrings",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', parameters('BlazorWebsiteName'))]"
+          ],
           "properties": {
             "DefaultConnection": {
               "value": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdministratorLogin'), '@', reference(concat('Microsoft.Sql/servers/', parameters('sqlServerName'))).fullyQualifiedDomainName, ';Password=', parameters('sqlAdministratorLoginPassword'), ';')]",
