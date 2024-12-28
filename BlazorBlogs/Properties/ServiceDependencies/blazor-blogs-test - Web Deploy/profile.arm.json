@@ -21,7 +21,7 @@
     },
     "resourceName": {
       "type": "string",
-      "defaultValue": "BlazorBlogsTest",
+      "defaultValue": "blazor-blogs-test",
       "metadata": {
         "description": "Name of the main resource to be created by this template."
       }
