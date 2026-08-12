@@ -57,7 +57,7 @@ else
 
         intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
         StateHasChanged();
-        Task.Delay(1000).Wait();
+        await Task.Delay(1000);
 
         // Get database conection string
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
@@ -90,7 +90,7 @@ else
                             return;
                         }
 
-                        Task.Delay(1000).Wait();
+                        await Task.Delay(1000);
                     }
                 }
             }

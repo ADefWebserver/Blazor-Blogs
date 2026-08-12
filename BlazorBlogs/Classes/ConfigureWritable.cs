@@ -2,12 +2,12 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 // From: https://stackoverflow.com/questions/40970944/how-to-update-values-into-appsetting-json
 namespace Microsoft.Extensions.DependencyInjection
@@ -62,14 +62,17 @@ namespace Microsoft.Extensions.DependencyInjection
             var fileInfo = fileProvider.GetFileInfo(_file);
             var physicalPath = fileInfo.PhysicalPath;
 
-            var jObject = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(physicalPath));
-            var sectionObject = jObject.TryGetValue(_section, out JToken section) ?
-                JsonConvert.DeserializeObject<T>(section.ToString()) : (Value ?? new T());
+            var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+            var jObject = JsonNode.Parse(File.ReadAllText(physicalPath))?.AsObject() ?? new JsonObject();
+
+            var sectionObject = jObject.TryGetPropertyValue(_section, out JsonNode section) && section != null
+                ? JsonSerializer.Deserialize<T>(section.ToJsonString())
+                : (Value ?? new T());
 
             applyChanges(sectionObject);
 
-            jObject[_section] = JObject.Parse(JsonConvert.SerializeObject(sectionObject));
-            File.WriteAllText(physicalPath, JsonConvert.SerializeObject(jObject, Formatting.Indented));
+            jObject[_section] = JsonSerializer.SerializeToNode(sectionObject, jsonOptions);
+            File.WriteAllText(physicalPath, JsonSerializer.Serialize(jObject, jsonOptions));
         }
     }
 }

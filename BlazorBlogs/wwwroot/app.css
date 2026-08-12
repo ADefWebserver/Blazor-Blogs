@@ -60,3 +60,145 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.modal[style*="display:block"] {
+    padding: 1rem;
+    overflow-y: auto;
+    background-color: rgb(15 23 42 / 58%) !important;
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+
+body:has(.modal[style*="display:block"]) {
+    overflow: hidden;
+}
+
+.modal-dialog {
+    width: min(calc(100vw - 2rem), 64rem) !important;
+    max-width: 64rem !important;
+    margin: 1.75rem auto;
+}
+
+.modal-dialog.modal-sm {
+    width: min(calc(100vw - 2rem), 28rem) !important;
+    max-width: 28rem !important;
+}
+
+.modal-content {
+    overflow: hidden;
+    border: 1px solid #d7dee7;
+    border-radius: 8px;
+    box-shadow: 0 24px 60px rgb(15 23 42 / 24%);
+}
+
+.modal-header {
+    min-height: 4rem;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+    background: #f7f9fc;
+    border-bottom-color: #dce3eb;
+}
+
+.modal-title {
+    margin: 0;
+    color: #182230;
+    font-size: 1.15rem !important;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0;
+}
+
+.modal-header .close {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-left: auto;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: #34445a;
+    border: 1px solid #26364a;
+    border-radius: 50%;
+    font-size: 0;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgb(15 23 42 / 18%);
+    transition: color 140ms ease, background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.modal-header .close span {
+    font-size: 0;
+}
+
+.modal-header .close span::before,
+.modal-header .close span::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1rem;
+    height: 2px;
+    content: "";
+    background: currentColor;
+    border-radius: 1px;
+}
+
+.modal-header .close span::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.modal-header .close span::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.modal-header .close:hover {
+    color: #fff;
+    background: #1f6f9f;
+    border-color: #185b83;
+    box-shadow: 0 3px 8px rgb(15 23 42 / 24%);
+}
+
+.modal-header .close:active {
+    background: #185b83;
+    box-shadow: 0 1px 3px rgb(15 23 42 / 20%);
+}
+
+.modal-header .close:focus-visible {
+    outline: 3px solid rgb(37 140 251 / 40%);
+    outline-offset: 2px;
+}
+
+.modal-body {
+    padding: 1.25rem;
+    color: #253247;
+}
+
+.modal-body h5 {
+    margin: 1rem 0 0.4rem;
+    color: #253247;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.modal-body > .form-group:first-child + h5 {
+    margin-top: 0.25rem;
+}
+
+@media (max-width: 575.98px) {
+    .modal[style*="display:block"] {
+        padding: 0.5rem;
+    }
+
+    .modal-dialog {
+        width: 100%;
+        max-width: 100% !important;
+        margin: 0.5rem auto;
+    }
+
+    .modal-header,
+    .modal-body {
+        padding: 1rem;
+    }
+}

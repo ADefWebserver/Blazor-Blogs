@@ -51,7 +51,7 @@
     private IEnumerable<IdentityError> identityErrors;
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    private InputModel Input { get; set; }
 
     [SupplyParameterFromQuery]
     private string ReturnUrl { get; set; }
@@ -93,6 +93,14 @@
 
         await SignInManager.SignInAsync(user, isPersistent: false);
         RedirectManager.RedirectTo(ReturnUrl);
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Input is null)
+        {
+            Input = new InputModel();
+        }
     }
 
     private ApplicationUser CreateUser()

@@ -17,7 +17,7 @@
 @if (ShowAdmin)
 {
     <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-        <div class="modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Blog</h3>
@@ -376,7 +376,7 @@
             }
 
             // Save the result
-            Blogs SavedBlog = @Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys).Result;
+            Blogs SavedBlog = await Service.CreateBlogAsync(objNewBlog, selectedBlogCategorys);
 
             // Make a Folder to hold the images for the Blog post
             string path = Path.Combine(HostEnvironment.WebRootPath,
@@ -395,7 +395,7 @@
                 {
                     string ImageURL = GetURLFromImageTag(item.ToString());
                     string fileName = Path.GetFileName(ImageURL);
-                    Image image = DownloadImageFromUrl(ImageURL);
+                    Image image = await DownloadImageFromUrlAsync(ImageURL);
                     image.Save(Path.Combine(path, fileName));
                 }
 
@@ -534,14 +534,14 @@
 
     HttpClient client = new HttpClient();
 
-    #region public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
-    public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+    #region public async Task<System.Drawing.Image> DownloadImageFromUrlAsync(string imageUrl)
+    public async Task<System.Drawing.Image> DownloadImageFromUrlAsync(string imageUrl)
     {
         System.Drawing.Image image = null;
 
         try
         {
-            var response = client.GetAsync(new Uri(imageUrl)).Result;
+            var response = await client.GetAsync(new Uri(imageUrl));
 
             if (response != null && response.StatusCode == HttpStatusCode.OK)
             {
@@ -550,16 +550,15 @@
                 {
                     using (MemoryStream stream = new MemoryStream())
                     {
-                        var buffer = response.Content.ReadAsStreamAsync();
-                        buffer.Result.CopyTo(stream);
+                        await response.Content.CopyToAsync(stream);
                         image = Image.FromStream(stream, false, true);
                     }
                 }
-                catch 
+                catch
                 {
                     return null;
                 }
-            } 
+            }
             else
             {
                 return null;

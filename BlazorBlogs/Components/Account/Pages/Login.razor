@@ -64,7 +64,7 @@
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    private InputModel Input { get; set; }
 
     [SupplyParameterFromQuery]
     private string ReturnUrl { get; set; }
@@ -75,6 +75,14 @@
         {
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Input is null)
+        {
+            Input = new InputModel();
         }
     }
 

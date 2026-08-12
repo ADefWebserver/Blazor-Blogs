@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -260,7 +260,7 @@ namespace BlazorBlogs
                         // Unzip files to final paths
                         ZipFile.ExtractToDirectory(UploadPathAndFile, environment.ContentRootPath, true);
 
-                        Task.Delay(4000).Wait(); // Wait 4 seconds with blocking
+                        await Task.Delay(4000); // Wait 4 seconds
                     }
                 }
             }
@@ -270,7 +270,7 @@ namespace BlazorBlogs
             }
 
             return Ok();
-        } 
+        }
         #endregion
 
         // Upgrade Code
@@ -306,12 +306,17 @@ namespace BlazorBlogs
                 reader.Close();
             }
 
-            dynamic objManifest = JsonConvert.DeserializeObject(strManifest);
+            var manifest = JsonSerializer.Deserialize<Version>(
+                strManifest,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-            objVersion.ManifestHighestVersion = objManifest.ManifestHighestVersion;
-            objVersion.ManifestLowestVersion = objManifest.ManifestLowestVersion;
-            objVersion.ManifestSuccess = objManifest.ManifestSuccess;
-            objVersion.ManifestFailure = objManifest.ManifestFailure;
+            if (manifest != null)
+            {
+                objVersion.ManifestHighestVersion = manifest.ManifestHighestVersion;
+                objVersion.ManifestLowestVersion = manifest.ManifestLowestVersion;
+                objVersion.ManifestSuccess = manifest.ManifestSuccess;
+                objVersion.ManifestFailure = manifest.ManifestFailure;
+            }
 
             return objVersion;
         }

@@ -341,14 +341,14 @@ namespace BlazorBlogsLibrary.Data.Models
         }
         #endregion
 
-        #region public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
-        public System.Drawing.Image DownloadImageFromUrl(string imageUrl)
+        #region public async Task<System.Drawing.Image> DownloadImageFromUrlAsync(string imageUrl)
+        public async Task<System.Drawing.Image> DownloadImageFromUrlAsync(string imageUrl)
         {
             System.Drawing.Image image = null;
 
             try
             {
-                var response = client.GetAsync(new Uri(imageUrl)).Result;
+                var response = await client.GetAsync(new Uri(imageUrl));
 
                 if (response != null && response.StatusCode == HttpStatusCode.OK)
                 {
@@ -357,8 +357,7 @@ namespace BlazorBlogsLibrary.Data.Models
                     {
                         using (MemoryStream stream = new MemoryStream())
                         {
-                            var buffer = response.Content.ReadAsStreamAsync();
-                            buffer.Result.CopyTo(stream);
+                            await response.Content.CopyToAsync(stream);
                             image = Image.FromStream(stream, false, true);
                         }
                     }

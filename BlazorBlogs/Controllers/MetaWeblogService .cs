@@ -437,77 +437,37 @@ namespace BlazorBlogs
 
         public Page GetPage(string blogid, string pageid, string username, string password)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
             throw new Exception("Bad user name or password");
         }
 
         public Page[] GetPages(string blogid, string username, string password, int numPages)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
             throw new Exception("Bad user name or password");
         }
 
         public Author[] GetAuthors(string blogid, string username, string password)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
             throw new Exception("Bad user name or password");
         }
 
         public string AddPage(string blogid, string username, string password, Page page, bool publish)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
             throw new Exception("Bad user name or password");
         }
 
         public bool EditPage(string blogid, string pageid, string username, string password, Page page, bool publish)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
             throw new Exception("Bad user name or password");
         }
 
         public bool DeletePage(string blogid, string username, string password, string pageid)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            throw new Exception("Bad user name or password");
+        }
+
+        public async Task<Page> GetPageAsync(string blogid, string pageid, string username, string password)
+        {
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }
@@ -519,9 +479,9 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
-        public Task<Page> GetPageAsync(string blogid, string pageid, string username, string password)
+        public async Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }
@@ -533,9 +493,9 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
-        public Task<Page[]> GetPagesAsync(string blogid, string username, string password, int numPages)
+        public async Task<Author[]> GetAuthorsAsync(string blogid, string username, string password)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }
@@ -547,9 +507,9 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
-        public Task<Author[]> GetAuthorsAsync(string blogid, string username, string password)
+        public async Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }
@@ -561,9 +521,9 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
-        public Task<string> AddPageAsync(string blogid, string username, string password, Page page, bool publish)
+        public async Task<bool> EditPageAsync(string blogid, string pageid, string username, string password, Page page, bool publish)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }
@@ -575,23 +535,9 @@ namespace BlazorBlogs
             throw new Exception("Bad user name or password");
         }
 
-        public Task<bool> EditPageAsync(string blogid, string pageid, string username, string password, Page page, bool publish)
+        public async Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid)
         {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
-            {
-
-            }
-            else
-            {
-                throw new Exception("Bad user name or password");
-            }
-
-            throw new Exception("Bad user name or password");
-        }
-
-        public Task<bool> DeletePageAsync(string blogid, string username, string password, string pageid)
-        {
-            if (IsValidMetaWeblogUserAsync(username, password).Result)
+            if (await IsValidMetaWeblogUserAsync(username, password))
             {
 
             }

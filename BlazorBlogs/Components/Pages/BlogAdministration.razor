@@ -12,7 +12,7 @@
 @if (ShowAdmin)
 {
     <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-        <div class="modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Blog</h3>
@@ -224,13 +224,13 @@
         CurrentUser = (await authenticationStateTask).User;
     }   
 
-    void ClosePopup()
+    async Task ClosePopup()
     {
         // Close the Popup
         ShowAdmin = false;
 
         // Refresh collection on parent
-        BlogUpdated.InvokeAsync(true);
+        await BlogUpdated.InvokeAsync(true);
     }
 
     public void AddNewBlog()
@@ -246,6 +246,7 @@
         strError = "";
         // Open the Popup
         ShowAdmin = true;
+        StateHasChanged();
     }
 
     public void EditBlog(BlogDTO Blog)
@@ -259,6 +260,7 @@
 
         // Open the Popup
         ShowAdmin = true;
+        StateHasChanged();
     }
 
     async Task SaveBlog()
@@ -303,8 +305,7 @@
                     CurrentUser.Identity.Name;
 
                 // Save the result
-                var result =
-                @Service.CreateBlogAsync(objNewBlog);
+                await Service.CreateBlogAsync(objNewBlog);
 
                 // Log
                 await LogAction($"Create Blog #{objNewBlog.BlogId}");
@@ -325,14 +326,13 @@
                         await this.QuillHtml.GetHTML();
                 }
 
-                var result =
-                @Service.UpdateBlogAsync(SelectedBlog);
+                await Service.UpdateBlogAsync(SelectedBlog);
 
                 // Log
                 await LogAction($"Update Blog #{SelectedBlog.BlogId}");
             }
 
-            ClosePopup();
+            await ClosePopup();
         }
         catch (Exception ex)
         {
@@ -357,12 +357,12 @@
             int BlogId = SelectedBlog.BlogId;
 
             // Delete the Blog
-            var result = @Service.DeleteBlogAsync(SelectedBlog);
+            await Service.DeleteBlogAsync(SelectedBlog);
 
             // Log
             await LogAction($"Delete Blog #{BlogId}");
 
-            ClosePopup();
+            await ClosePopup();
         }
         catch (Exception ex)
         {

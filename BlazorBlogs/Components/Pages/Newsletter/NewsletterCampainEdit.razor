@@ -17,7 +17,7 @@
 @if (ShowCampainEditPopup)
 {
     <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-        <div class="modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Newsletter Campaign</h3>
@@ -153,7 +153,7 @@
             string ImageURL = $"{strWebApplicationUrl}//{objNewsletterContent.Content}";
 
             // Download the image
-            var objDownloadedImage = objNewsletterParser.DownloadImageFromUrl(ImageURL);
+            var objDownloadedImage = await objNewsletterParser.DownloadImageFromUrlAsync(ImageURL);
 
             colImages.Add(objNewsletterContent.Content, objDownloadedImage);
         }

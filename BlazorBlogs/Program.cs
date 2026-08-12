@@ -110,6 +110,7 @@ namespace BlazorBlogs
             app.UseAntiforgery();
 
             app.UseStaticFiles();
+            app.MapStaticAssets();
 
             app.MapControllers();
 
