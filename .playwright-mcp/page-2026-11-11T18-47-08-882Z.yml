@@ -1,0 +1,103 @@
+- generic [ref=f16e73]:
+  - banner [ref=f16e74]:
+    - link "Blazor Blogs" [ref=f16e75] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f16e77]:
+      - link "Blog" [ref=f16e78] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f16e79] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f16e80] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f16e81]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f16e82] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f16e84] [cursor=pointer]
+  - main [ref=f16e85]:
+    - article [ref=f16e86]:
+      - generic [ref=f16e87]:
+        - complementary "Administration navigation" [ref=f16e88]:
+          - generic [ref=f16e89]:
+            - generic [aria-hidden] [ref=f16e90]: A
+            - generic [ref=f16e91]:
+              - strong [ref=f16e92]: Administration
+              - generic [ref=f16e93]: Site controls
+          - navigation "Administration" [ref=f16e94]:
+            - link "Posts" [ref=f16e95] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f16e97] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f16e99] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f16e101] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f16e103] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f16e105] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f16e107] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f16e109] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f16e111] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f16e112]:
+          - generic [ref=f16e114]:
+            - paragraph [ref=f16e115]: Access and profiles
+            - heading "Users" [level=1] [ref=f16e116]
+          - table [ref=f16e117]:
+            - row [ref=f16e118]:
+              - columnheader "Administration" [ref=f16e119]:
+                - heading "Administration" [level=3] [ref=f16e120]
+              - columnheader [ref=f16e121]:
+                - textbox "Search..." [ref=f16e122]
+          - table [ref=f16e123]:
+            - rowgroup [ref=f16e124]:
+              - row [ref=f16e125]:
+                - columnheader "User Name" [ref=f16e126]
+                - columnheader "Email" [ref=f16e127]
+                - columnheader "Confirmed" [ref=f16e128]
+                - columnheader [ref=f16e129]
+            - rowgroup [ref=f16e130]:
+              - row [ref=f16e131]:
+                - cell "webmaster@adefwebserver.com" [ref=f16e132]
+                - cell "webmaster@adefwebserver.com" [ref=f16e133]
+                - cell "True" [ref=f16e134]
+                - cell [ref=f16e135]:
+                  - button "Edit" [ref=f16e136] [cursor=pointer]
+          - paragraph [ref=f16e137]:
+            - button "Add User" [active] [ref=f16e138] [cursor=pointer]
+          - dialog [ref=f16e143]:
+            - generic [ref=f16e144]:
+              - generic [ref=f16e145]:
+                - heading "Edit User" [level=3] [ref=f16e146]
+                - button [ref=f16e147] [cursor=pointer]
+              - generic [ref=f16e148]:
+                - text: User Name
+                - textbox [ref=f16e149]
+                - text: Display Name
+                - textbox [ref=f16e150]
+                - text: Email
+                - textbox "Email" [ref=f16e151]
+                - text: Email Confirmed
+                - combobox [ref=f16e152]:
+                  - option "True"
+                  - option "False" [selected]
+                - text: Newsletter Subscriber
+                - combobox [ref=f16e153]:
+                  - option "True"
+                  - option "False" [selected]
+                - text: Role
+                - combobox [ref=f16e154]:
+                  - option "Users" [selected]
+                  - option "Administrators"
+                - text: Password
+                - textbox "Password" [ref=f16e155]: "*****"
+                - button "Save" [ref=f16e156] [cursor=pointer]
+  - contentinfo [ref=f16e139]:
+    - generic [ref=f16e140]: © 2026
+    - link "RSS feed" [ref=f16e141] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f16e142] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

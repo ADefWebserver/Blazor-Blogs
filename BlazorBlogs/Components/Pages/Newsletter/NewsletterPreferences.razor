@@ -1,0 +1,75 @@
+@page "/newsletter/preferences/{Token}"
+@attribute [ExcludeFromInteractiveRouting]
+@inject NewsletterSubscriptionService Subscriptions
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+
+<PageTitle>Newsletter preferences</PageTitle>
+
+<section class="account-card">
+@if (user is null)
+{
+    <h1>Newsletter link not found</h1>
+    <p>This subscription link is invalid or has expired.</p>
+    <a href="/Account/Manage/Newsletter">Manage newsletter preferences</a>
+}
+</section>
+else
+{
+    <h1>Newsletter preferences</h1>
+    <p>@MaskedEmail</p>
+    <p>You are currently <strong>@(user.NewsletterSubscriber == true ? "subscribed" : "unsubscribed")</strong>.</p>
+    <form method="post" @onsubmit="SubmitAsync" @formname="newsletter-preferences">
+        <AntiforgeryToken />
+        @if (user.NewsletterSubscriber == true)
+        {
+            <button class="btn btn-primary" type="submit" name="Action" value="unsubscribe">Unsubscribe</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" type="submit" name="Action" value="subscribe">Resubscribe</button>
+        }
+    </form>
+}
+
+@code {
+    [Parameter] public string Token { get; set; }
+    [SupplyParameterFromForm(FormName = "newsletter-preferences")]
+    private string Action { get; set; }
+    private AspNetUsers user;
+    private string MaskedEmail;
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await Subscriptions.FindByTokenAsync(Token);
+        if (user is null)
+            return;
+
+        if (Action is "subscribe" or "unsubscribe")
+        {
+            await Subscriptions.SetByTokenAsync(
+                Token,
+                Action == "subscribe",
+                "EmailLink");
+            user.NewsletterSubscriber = Action == "subscribe";
+        }
+
+        MaskedEmail = MaskEmail(user.Email);
+    }
+
+    private Task SubmitAsync() => Task.CompletedTask;
+
+    private static string MaskEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return "";
+        var at = email.IndexOf('@');
+        if (at < 0)
+            return "***";
+        if (at == 0)
+            return $"***{email}";
+        if (at == 1)
+            return $"***{email[at..]}";
+        return email[0] + "***" + email[at..];
+    }
+}

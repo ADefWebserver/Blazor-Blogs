@@ -1,0 +1,49 @@
+- generic [ref=f18e29]:
+  - banner [ref=f18e30]:
+    - link "Blazor Blogs" [ref=f18e31] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f18e33]:
+      - link "Blog" [ref=f18e34] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f18e35] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f18e36] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f18e37]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f18e38] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f18e40] [cursor=pointer]
+  - main [ref=f18e41]:
+    - article [ref=f18e42]:
+      - generic [ref=f18e43]:
+        - generic [ref=f18e44]:
+          - paragraph [ref=f18e45]: Files from this site
+          - heading "Downloads" [level=1] [ref=f18e46]
+        - button "Upload file" [active] [ref=f18e47] [cursor=pointer]
+      - generic [ref=f18e48]:
+        - link "Lost your download link?" [ref=f18e49] [cursor=pointer]:
+          - /url: downloads/resend
+        - generic [ref=f18e50]: Payments and applicable tax are securely processed by Stripe.
+      - navigation "Download pages" [ref=f18e51]:
+        - button "← Previous" [disabled]
+        - button "Next →" [disabled]
+      - dialog [ref=f18e56]:
+        - generic [ref=f18e57]:
+          - generic [ref=f18e58]:
+            - heading "Upload File" [level=3] [ref=f18e59]
+            - button "X" [ref=f18e60] [cursor=pointer]
+          - generic [ref=f18e61]:
+            - generic [ref=f18e62]: File Name
+            - textbox [ref=f18e63]
+            - generic [ref=f18e64]: Price
+            - spinbutton [ref=f18e65]: "0"
+            - button "Upload And Save" [ref=f18e68] [cursor=pointer]:
+              - button "Choose File" [ref=f18e69]
+              - text: Upload And Save
+  - contentinfo [ref=f18e52]:
+    - generic [ref=f18e53]: © 2026
+    - link "RSS feed" [ref=f18e54] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f18e55] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

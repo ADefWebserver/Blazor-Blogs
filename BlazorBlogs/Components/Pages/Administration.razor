@@ -1,4 +1,5 @@
 ﻿@page "/administration"
+@layout BlazorBlogs.Components.Layout.AdminLayout
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.AspNetCore.Identity;
@@ -7,8 +8,15 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
 @inject DisqusState DisqusState
+@inject NewsletterSubscriptionService NewsletterSubscriptions
 @inherits OwningComponentBase<BlogsService>
 
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Access and profiles</p>
+        <h1>Users</h1>
+    </div>
+</div>
 <AuthorizeView>
     <Authorized>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
@@ -187,6 +195,7 @@
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     string EmailConfirmed { get; set; } = "False";
     string NewsletterSubscriber { get; set; } = "False";
+    bool loadedNewsletterSubscriber;
     string CurrentUserRole { get; set; } = "Users";
     string strError = "";
     string strSearch = "";
@@ -253,11 +262,22 @@
                 // Set Email Confirmed
                 user.EmailConfirmed = Convert.ToBoolean(EmailConfirmed);
 
-                // Set NewsletterSubscriber
-                user.NewsletterSubscriber = Convert.ToBoolean(NewsletterSubscriber);
+                var selectedNewsletterSubscriber = Convert.ToBoolean(NewsletterSubscriber);
+                var newsletterChanged = selectedNewsletterSubscriber != loadedNewsletterSubscriber;
+                if (newsletterChanged)
+                {
+                    user.NewsletterSubscriber = selectedNewsletterSubscriber;
+                }
 
                 // Update the user
                 await _UserManager.UpdateAsync(user);
+                if (newsletterChanged)
+                {
+                    await NewsletterSubscriptions.LogSourceAsync(
+                        user.Id,
+                        "Admin",
+                        selectedNewsletterSubscriber);
+                }
 
                 // Only update password if the current value
                 // is not the default value
@@ -336,6 +356,14 @@
                 }
                 else
                 {
+                    if (NewUser.NewsletterSubscriber)
+                    {
+                        await NewsletterSubscriptions.LogSourceAsync(
+                            NewUser.Id,
+                            "Admin",
+                            true);
+                    }
+
                     // Handle Roles
                     if (CurrentUserRole == ADMINISTRATION_ROLE)
                     {
@@ -392,10 +420,12 @@
             if (user.NewsletterSubscriber)
             {
                 NewsletterSubscriber = "True";
+                loadedNewsletterSubscriber = true;
             }
             else
             {
                 NewsletterSubscriber = "False";
+                loadedNewsletterSubscriber = false;
             }
         }
 

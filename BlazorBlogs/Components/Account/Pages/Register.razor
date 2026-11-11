@@ -14,6 +14,8 @@
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject GeneralSettingsService GeneralSettingsService
+@inject NewsletterSubscriptionService NewsletterSubscriptions
 
 <PageTitle>Register</PageTitle>
 
@@ -42,8 +44,21 @@
                 <label for="Input.ConfirmPassword">Confirm Password</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
+            <div class="checkbox mb-3">
+                <label class="form-label">
+                    <InputCheckbox @bind-Value="Input.SubscribeToNewsletter" class="darker-border-checkbox form-check-input" />
+                    Email me the newsletter
+                </label>
+            </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </EditForm>
+    </div>
+    <div class="col-lg-6">
+        <section>
+            <h2>Use another service to register.</h2>
+            <hr />
+            <ExternalLoginPicker ReturnUrl="@ReturnUrl" />
+        </section>
     </div>
 </div>
 
@@ -56,11 +71,29 @@
     [SupplyParameterFromQuery]
     private string ReturnUrl { get; set; }
 
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
     private string Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    protected override async Task OnInitializedAsync()
+    {
+        Input ??= new();
+        if (!await IsRegistrationAllowedAsync())
+        {
+            RedirectManager.RedirectToWithStatus("Account/Login", "Registration is closed", HttpContext);
+        }
+    }
 
     public async Task RegisterUser(EditContext editContext)
     {
+        if (!await IsRegistrationAllowedAsync())
+        {
+            RedirectManager.RedirectToWithStatus("Account/Login", "Registration is closed", HttpContext);
+        }
+
         var user = CreateUser();
+        user.NewsletterSubscriber = Input.SubscribeToNewsletter;
 
         await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
         var emailStore = GetEmailStore();
@@ -74,6 +107,8 @@
         }
 
         Logger.LogInformation("User created a new account with password.");
+        if (user.NewsletterSubscriber)
+            await NewsletterSubscriptions.LogSourceAsync(user.Id, "Registration", true);
 
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -142,5 +177,10 @@
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = "";
+
+        public bool SubscribeToNewsletter { get; set; }
     }
+
+    private async Task<bool> IsRegistrationAllowedAsync() =>
+        bool.TryParse(await GeneralSettingsService.GetSettingAsync("AllowRegistration"), out var allowed) && allowed;
 }

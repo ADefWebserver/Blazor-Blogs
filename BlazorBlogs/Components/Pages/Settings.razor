@@ -1,24 +1,60 @@
 ﻿@page "/settings"
+@attribute [Authorize(Roles = "Administrators")]
 @using System.Threading
 @using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using System.Net.Http
+@using System.Net
+@using System.Text.RegularExpressions
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IConfiguration _configuration
 @inject IToastService toastService
 @inject EmailService _EmailService
 @inject GeneralSettingsService _GeneralSettingsService
 @inject IHttpContextAccessor httpContextAccessor
 @inject DisqusState DisqusState
+@inject GeneralSettingsState GeneralSettingsState
 @inject HttpClient Http
 @inject NavigationManager UriHelper
 @inherits OwningComponentBase
 
-<h1>Settings</h1>
+@layout BlazorBlogs.Components.Layout.AdminLayout
+
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Application settings</p>
+        <h1>Settings</h1>
+    </div>
+    <div class="bb-page-actions">
+        <button class="btn btn-secondary" type="button" @onclick="SendTestEmail">Send test email</button>
+        <button class="btn btn-primary" type="button" @onclick="Save">Save changes</button>
+    </div>
+    <AuthorizeView Roles="Administrators">
+        <Authorized>
+            <section class="settings-card">
+                <div class="bb-section-heading">
+                    <div>
+                        <h2>Database connection</h2>
+                        <p>Source used to resolve the application database connection.</p>
+                    </div>
+                </div>
+                <p><strong>@ConnectionStringStore.Status</strong></p>
+                @if (ConnectionStringStore.Status == ConnectionSource.AppSettingsOnly)
+                {
+                    <div class="bb-alert bb-alert-warning" role="alert">
+                        The database connection remains in appsettings.json because the local file could not be
+                        created. @ConnectionStringStore.StatusReason Set the
+                        <code>ConnectionStrings__DefaultConnection</code> environment variable before updating the site.
+                    </div>
+                }
+            </section>
+        </Authorized>
+    </AuthorizeView>
+</div>
 <!-- AuthorizeView allows us to only show sections of the page -->
 <!-- based on the security on the current user -->
 <AuthorizeView>
@@ -26,7 +62,15 @@
     <Authorized>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
-            <table class="table">
+            <section class="settings-card">
+                <div class="bb-section-heading">
+                    <div>
+                        <h2>General</h2>
+                        <p>Core site identity, registration, email and analytics configuration.</p>
+                    </div>
+                    <span class="bb-badge">v@(objGeneralSettings.VersionNumber)</span>
+                </div>
+            <table class="table settings-table">
                 <tbody>
                     <tr>
                         <td>Application Version: <b>@objGeneralSettings.VersionNumber</b></td>
@@ -34,76 +78,76 @@
                     <tr>
                         <td>Application Name</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="Application name" class="form-control" type="text"
                                    @bind="objGeneralSettings.ApplicationName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="site-base-url">Site base URL</label></td>
+                        <td>
+                            <input id="site-base-url" aria-label="Site base URL"
+                                   class="form-control" type="url"
+                                   placeholder="https://example.com/"
+                                   @bind="objGeneralSettings.SiteBaseUrl" />
+                            <small class="bb-muted">Used for Google, newsletter, Stripe and download links.</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="theme-accent">Theme accent color</label></td>
+                        <td>
+                            <div class="bb-color-field">
+                                <input id="theme-accent" class="form-control" type="color"
+                                       @bind="objGeneralSettings.ThemeAccentColor"
+                                       @bind:event="oninput" />
+                                <input class="form-control" type="text"
+                                       aria-label="Theme accent color hexadecimal value"
+                                       pattern="^#[0-9A-Fa-f]{6}$"
+                                       @bind="objGeneralSettings.ThemeAccentColor" />
+                            </div>
+                            <small class="bb-muted">Used for primary actions, the logo mark and progress.</small>
                         </td>
                     </tr>
                     <tr>
                         <td>Application Logo</td>
                         <td>
-                            <img src="@objGeneralSettings.ApplicationLogo" />
+                            @if (!string.IsNullOrWhiteSpace(objGeneralSettings.ApplicationLogo))
+                            {
+                                <img src="@objGeneralSettings.ApplicationLogo"
+                                     alt="@objGeneralSettings.ApplicationName" />
+                            }
                             <button type="button" class="btn btn-link" @onclick="SelectLogo">[Select]</button>
+                            <button type="button" class="btn btn-link" @onclick="ClearLogo">[Clear]</button>
                         </td>
                     </tr>
                     <tr>
                         <td>Application Header</td>
                         <td>
-                            @if (!RichTextEditorMode)
+                            <HtmlEditor @ref="ApplicationHeaderEditor"
+                                        @bind-Value="objGeneralSettings.ApplicationHeader"
+                                        InitialMode="@ApplicationHeaderEditorMode" />
+                            <button type="button" class="btn btn-link" @onclick="TogglePreview">Preview</button>
+                            @if (ShowApplicationHeaderPreview)
                             {
-                                <textarea class="form-control" @bind="@objGeneralSettings.ApplicationHeader" rows="5" />
+                                <div class="site-header">
+                                    @((MarkupString)(objGeneralSettings.ApplicationHeader ?? ""))
+                                </div>
                             }
-                            <div style="@((!RichTextEditorMode) ? "display: none;":"")">
-                                <BlazoredTextEditor @ref="@QuillHtml">
-                                    <ToolbarContent>
-                                        <select class="ql-header">
-                                            <option selected=""></option>
-                                            <option value="1"></option>
-                                            <option value="2"></option>
-                                            <option value="3"></option>
-                                            <option value="4"></option>
-                                            <option value="5"></option>
-                                        </select>
-                                        <span class="ql-formats">
-                                            <button class="ql-bold"></button>
-                                            <button class="ql-italic"></button>
-                                            <button class="ql-underline"></button>
-                                            <button class="ql-strike"></button>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <select class="ql-color"></select>
-                                            <select class="ql-background"></select>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button class="ql-list" value="ordered"></button>
-                                            <button class="ql-list" value="bullet"></button>
-                                        </span>
-                                        <span class="ql-formats">
-                                            <button class="ql-link"></button>
-                                            <button class="btn btn-link" id="custom-button"
-                                                    @onclick="InsertApplicationHeaderImageClick">
-                                                <img src="imageIcon.png" style="border:hidden" />
-                                            </button>
-                                        </span>
-                                    </ToolbarContent>
-                                    <EditorContent>
-                                        &nbsp;
-                                    </EditorContent>
-                                </BlazoredTextEditor>
-                            </div>
-                            @if (!RichTextEditorMode)
-                            {
-                                <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
-                            }
-                            else
-                            {
-                                <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
-                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Show Application Header</td>
+                        <td>
+                            <select aria-label="Show application header" class="form-control"
+                                    @bind="objGeneralSettings.ApplicationHeaderEnabled">
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
                         </td>
                     </tr>
                     <tr>
                         <td>Allow Registration</td>
                         <td>
-                            <select class="form-control"
+                            <select aria-label="Allow registration" class="form-control"
                                     @bind="@AllowRegistration">
                                 @foreach (var option in OptionsTrueFalse)
                                 {
@@ -117,7 +161,7 @@
                     <tr>
                         <td>Verified Registration</td>
                         <td>
-                            <select class="form-control"
+                            <select aria-label="Verified registration" class="form-control"
                                     @bind="@VerifiedRegistration">
                                 @foreach (var option in OptionsTrueFalse)
                                 {
@@ -131,14 +175,14 @@
                     <tr>
                         <td>SMTP Server</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="SMTP server" class="form-control" type="text"
                                    @bind="objGeneralSettings.SMTPServer" />
                         </td>
                     </tr>
                     <tr>
                         <td>SMTP Authentication</td>
                         <td>
-                            <select class="form-control"
+                            <select aria-label="SMTP authentication" class="form-control"
                                     @bind="@SMTPAuthentication">
                                 @foreach (var option in OptionsSMTP)
                                 {
@@ -152,7 +196,7 @@
                     <tr>
                         <td>SMTP Secure</td>
                         <td>
-                            <select class="form-control"
+                            <select aria-label="SMTP secure" class="form-control"
                                     @bind="@SMTPSecure">
                                 @foreach (var option in OptionsTrueFalse)
                                 {
@@ -166,28 +210,28 @@
                     <tr>
                         <td>SMTP User Name</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="SMTP user name" class="form-control" type="text"
                                    @bind="objGeneralSettings.SMTPUserName" />
                         </td>
                     </tr>
                     <tr>
                         <td>SMTP Password</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="SMTP password" class="form-control" type="password"
                                    @bind="objGeneralSettings.SMTPPassword" />
                         </td>
                     </tr>
                     <tr>
                         <td>SMTP From Email</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="SMTP from email" class="form-control" type="email"
                                    @bind="objGeneralSettings.SMTPFromEmail" />
                         </td>
                     </tr>
                     <tr>
                         <td>Enable Disqus Comments</td>
                         <td>
-                            <select class="form-control"
+                            <select aria-label="Enable Disqus comments" class="form-control"
                                     @bind="@DisqusEnabled">
                                 @foreach (var option in OptionsTrueFalse)
                                 {
@@ -201,61 +245,31 @@
                     <tr>
                         <td>Disqus ShortName</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="Disqus short name" class="form-control" type="text"
                                    @bind="objGeneralSettings.DisqusShortName" />
                         </td>
                     </tr>
                     <tr>
                         <td>Google Tracking ID</td>
                         <td>
-                            <input class="form-control" type="text"
+                            <input aria-label="Google tracking ID" class="form-control" type="text"
                                    @bind="objGeneralSettings.GoogleTrackingID" />
                         </td>
                     </tr>
                 </tbody>
             </table>
+            </section>
             <br />
-            <button class="btn btn-primary" @onclick="Save">Save</button>
-            <button class="btn btn-success" @onclick="SendTestEmail">Send Test Email</button>
-            <br /><br />
+            <div class="bb-page-actions">
+                <button class="btn btn-primary" @onclick="Save">Save changes</button>
+                <button class="btn btn-secondary" @onclick="SendTestEmail">Send test email</button>
+            </div>
+            <br />
+            <GoogleAuthSettingsPanel />
+            <StripeSettingsPanel />
             <FileSelector @ref="FileManagerControl"
                          ImageSelected="InsertImage" />
-            <FileSelector @ref="FileManagerApplicationHeaderControl"
-                         ImageSelected="InsertApplicationHeaderImage" />
 
-            @if (ShowProgressBarPopup)
-            {
-                <div class="modal" tabindex="-1" style="display:block" role="dialog">
-                    <div class="modal-dialog modal-sm">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h4 class="modal-title">Upgrade Status</h4>
-                            </div>
-                            <div align="center">
-                                @if (!Upgrading)
-                                {
-                                    <RadzenProgressBar Value="@progress"
-                                                       Unit="@info"
-                                                       Visible="@(progress > 0)"
-                                                       Style="margin-bottom: 20px" />
-                                }
-                                else
-                                {
-                                    @if (!ReadyToContinue)
-                                    {
-                                        <h4>Processing...</h4>
-                                        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
-                                    }
-                                    else
-                                    {
-                                        <RadzenLink Path="api/RestartApp/ShutdownSite" Text="Click here to Restart Site and Continue" target="_self" />
-                                    }
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
         }
     </Authorized>
     <!-- Show this section if the user is not logged in -->
@@ -274,16 +288,9 @@
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
     private FileSelector FileManagerControl;
-    private FileSelector FileManagerApplicationHeaderControl;
-
-    private bool ReadyToContinue = false;
-    private bool Upgrading = false;
-    private bool ShowProgressBarPopup = false;
-    private int progress;
-    private string info;
-
-    BlazoredTextEditor QuillHtml;
-    bool RichTextEditorMode = false;
+    private HtmlEditor ApplicationHeaderEditor;
+    private HtmlEditorMode ApplicationHeaderEditorMode;
+    private bool ShowApplicationHeaderPreview;
 
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     List<string> OptionsSMTP = new List<string>() { "Anonymous", "Basic", "NTLM" };
@@ -313,6 +320,10 @@
         VerifiedRegistration = objGeneralSettings.VerifiedRegistration.ToString();
         SMTPSecure = objGeneralSettings.SMTPSecure.ToString();
         DisqusEnabled = objGeneralSettings.DisqusEnabled.ToString();
+        ApplicationHeaderEditorMode =
+            string.Equals(objGeneralSettings.ApplicationHeaderEditorMode, "Raw", StringComparison.OrdinalIgnoreCase)
+                ? HtmlEditorMode.Source
+                : HtmlEditorMode.Design;
 
         switch (objGeneralSettings.SMTPAuthendication.Trim())
         {
@@ -341,76 +352,82 @@
         FileManagerControl.SetShowFileManager(false);
     }
 
-    async Task InsertApplicationHeaderImage(string paramImageURL)
+    void ClearLogo()
     {
-        await this.QuillHtml.InsertImage(paramImageURL);
-
-        FileManagerApplicationHeaderControl.SetShowFileManager(false);
+        objGeneralSettings.ApplicationLogo = "";
     }
 
-    private void InsertApplicationHeaderImageClick()
-    {
-        FileManagerApplicationHeaderControl.SetShowFileManager(true);
-    }
-
-    private async Task RichTextEditor()
-    {
-        RichTextEditorMode = true;
-        await this.QuillHtml.LoadHTMLContent(objGeneralSettings.ApplicationHeader);
-    }
-
-    private async Task RawHTMLEditor()
-    {
-        RichTextEditorMode = false;
-        objGeneralSettings.ApplicationHeader =
-            await this.QuillHtml.GetHTML();
-    }
+    private void TogglePreview() =>
+        ShowApplicationHeaderPreview = !ShowApplicationHeaderPreview;
 
     public async Task Save()
     {
         try
         {
+            await EnsureAdministratorAsync();
             await SaveSettings();
             toastService.ShowSuccess("Saved!");
         }
         catch (Exception ex)
         {
-            toastService.ShowSuccess(ex.GetBaseException().Message);
+            toastService.ShowError(ex.GetBaseException().Message);
         }
     }
 
     public async Task SaveSettings()
     {
-        var AllowRegistrationResult = _GeneralSettingsService.UpdateAllowRegistrationAsync(Convert.ToBoolean(AllowRegistration));
-        var VerifiedRegistrationResult = _GeneralSettingsService.UpdateVerifiedRegistrationAsync(Convert.ToBoolean(VerifiedRegistration));
-        var SMTPSecureResult = _GeneralSettingsService.UpdateSMTPSecureAsync(Convert.ToBoolean(SMTPSecure));
-
-        var UpdateApplicationNameResult = _GeneralSettingsService.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
-        var UpdateApplicationLogoResult = _GeneralSettingsService.UpdateApplicationLogoAsync(objGeneralSettings.ApplicationLogo);
-        var UpdateSMTPServerResult = _GeneralSettingsService.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
-        var UpdateSMTPUserNameResult = _GeneralSettingsService.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
-        var UpdateSMTPPasswordResult = _GeneralSettingsService.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
-        var UpdateSMTPFromEmailResult = _GeneralSettingsService.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
-
-        var UpdateDisqusEnabledResult = _GeneralSettingsService.UpdateDisqusEnabledAsync(Convert.ToBoolean(DisqusEnabled));
-        var UpdateDisqusShortNameResult = _GeneralSettingsService.UpdateDisqusShortNameAsync(objGeneralSettings.DisqusShortName);
-
-        var UpdateGoogleTrackingIDResult = _GeneralSettingsService.UpdateGoogleTrackingIDAsync(objGeneralSettings.GoogleTrackingID);
-
-        if (RichTextEditorMode)
+        await EnsureAdministratorAsync();
+        var siteBaseUrl = (objGeneralSettings.SiteBaseUrl ?? "").Trim();
+        if (!string.IsNullOrWhiteSpace(siteBaseUrl)
+            && (!Uri.TryCreate(siteBaseUrl, UriKind.Absolute, out var parsedBaseUrl)
+                || (parsedBaseUrl.Scheme != Uri.UriSchemeHttp
+                    && parsedBaseUrl.Scheme != Uri.UriSchemeHttps)))
         {
-            objGeneralSettings.ApplicationHeader =
-                await this.QuillHtml.GetHTML();
+            throw new InvalidOperationException("Site base URL must be an absolute http or https URL.");
         }
 
-        // If ApplicationHeader is essentially blank - - clear it
-        if (objGeneralSettings.ApplicationHeader == @"<p><br></p>")
+        objGeneralSettings.SiteBaseUrl = siteBaseUrl;
+        await _GeneralSettingsService.UpdateAllowRegistrationAsync(Convert.ToBoolean(AllowRegistration));
+        await _GeneralSettingsService.UpdateVerifiedRegistrationAsync(Convert.ToBoolean(VerifiedRegistration));
+        await _GeneralSettingsService.UpdateSMTPSecureAsync(Convert.ToBoolean(SMTPSecure));
+
+        await _GeneralSettingsService.UpdateApplicationNameAsync(objGeneralSettings.ApplicationName);
+        await _GeneralSettingsService.UpdateApplicationLogoAsync(objGeneralSettings.ApplicationLogo);
+        await _GeneralSettingsService.UpdateSMTPServerAsync(objGeneralSettings.SMTPServer);
+        await _GeneralSettingsService.UpdateSMTPUserNameAsync(objGeneralSettings.SMTPUserName);
+        await _GeneralSettingsService.UpdateSMTPPasswordAsync(objGeneralSettings.SMTPPassword);
+        await _GeneralSettingsService.UpdateSMTPFromEmailAsync(objGeneralSettings.SMTPFromEmail);
+
+        await _GeneralSettingsService.UpdateDisqusEnabledAsync(Convert.ToBoolean(DisqusEnabled));
+        await _GeneralSettingsService.UpdateDisqusShortNameAsync(objGeneralSettings.DisqusShortName);
+
+        await _GeneralSettingsService.UpdateGoogleTrackingIDAsync(objGeneralSettings.GoogleTrackingID);
+        if (!Regex.IsMatch(objGeneralSettings.ThemeAccentColor ?? "", "^#[0-9A-Fa-f]{6}$"))
+        {
+            objGeneralSettings.ThemeAccentColor = ThemeDefaults.AccentColor;
+        }
+        await _GeneralSettingsService.SetSettingAsync(
+            "ThemeAccentColor",
+            objGeneralSettings.ThemeAccentColor);
+        await _GeneralSettingsService.SetSettingAsync("SiteBaseUrl", objGeneralSettings.SiteBaseUrl);
+
+        objGeneralSettings.ApplicationHeader ??= "";
+        if (!HasContent(objGeneralSettings.ApplicationHeader))
         {
             objGeneralSettings.ApplicationHeader = "";
         }
 
-        var UpdateApplicationHeaderResult =
-            _GeneralSettingsService.UpdateApplicationHeaderAsync(objGeneralSettings.ApplicationHeader);
+        await _GeneralSettingsService.UpdateApplicationHeaderAsync(objGeneralSettings.ApplicationHeader);
+        await _GeneralSettingsService.SetSettingAsync(
+            "ApplicationHeaderEnabled",
+            objGeneralSettings.ApplicationHeaderEnabled.ToString());
+
+        ApplicationHeaderEditorMode = ApplicationHeaderEditor.GetMode();
+        objGeneralSettings.ApplicationHeaderEditorMode =
+            ApplicationHeaderEditorMode == HtmlEditorMode.Source ? "Raw" : "Rich";
+        await _GeneralSettingsService.SetSettingAsync(
+            "ApplicationHeaderEditorMode",
+            objGeneralSettings.ApplicationHeaderEditorMode);
 
         switch (SMTPAuthentication)
         {
@@ -425,37 +442,29 @@
                 break;
         }
 
-        var UpdateSMTPAuthendicationResult =
-            _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
+        await _GeneralSettingsService.UpdateSMTPAuthenticationAsync(objGeneralSettings.SMTPAuthendication);
 
         objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
+        GeneralSettingsState.NotifyChanged(objGeneralSettings);
     }
 
-    // Upload File
-
-    private async Task OnProgress(UploadProgressArgs args)
+    private static bool HasContent(string html)
     {
-        ShowProgressBarPopup = true;
-        this.info = $"{args.Loaded} of {args.Total} bytes.";
-        this.progress = args.Progress;
-
-        StateHasChanged();
-
-        if (args.Loaded == args.Total)
+        if (Regex.IsMatch(html, @"<img\b", RegexOptions.IgnoreCase))
         {
-            Upgrading = true;
-            StateHasChanged();
-
-            await Task.Delay(5000);
-            ReadyToContinue = true;
-            StateHasChanged();
+            return true;
         }
+
+        var text = Regex.Replace(html ?? "", "<[^>]*>", "");
+        text = Regex.Replace(text, "&nbsp;", "", RegexOptions.IgnoreCase);
+        return !string.IsNullOrWhiteSpace(WebUtility.HtmlDecode(text));
     }
 
     public async Task SendTestEmail()
     {
         try
         {
+            await EnsureAdministratorAsync();
             await SaveSettings();
 
             // Send Test Email
@@ -481,5 +490,12 @@
         {
             toastService.ShowError(ex.GetBaseException().Message);
         }
+    }
+
+    private async Task EnsureAdministratorAsync()
+    {
+        var user = (await authenticationStateTask).User;
+        if (user.Identity?.IsAuthenticated != true || !user.IsInRole(ADMINISTRATION_ROLE))
+            throw new UnauthorizedAccessException("Administrator access is required.");
     }
 }

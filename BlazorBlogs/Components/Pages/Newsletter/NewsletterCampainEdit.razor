@@ -1,201 +1,294 @@
-﻿@using BlazorBlogsLibrary.Data.Models;
-@using Microsoft.AspNetCore.Http
-@using Microsoft.AspNetCore.Identity;
-@using BlazorBlogs.Data;
-@using BlazorBlogs.Data.Models;
-@using System.Drawing;
-@inject NavigationManager navigationManager
-@inject UserManager<ApplicationUser> _UserManager
-@inject RoleManager<IdentityRole> _RoleManager
-@inject BlogsService _BlogsService
-@inject GeneralSettingsService _GeneralSettingsService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IHttpContextAccessor httpContextAccessor
-@inject IConfiguration _configuration
-@inherits OwningComponentBase<BlogsService>
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@implements IAsyncDisposable
+@inject BlogsService BlogsService
+@inject GeneralSettingsService GeneralSettingsService
+@inject NewsletterSubscriptionService Subscriptions
+@inject CampaignSender CampaignSender
+@inject CampaignSendRegistry SendRegistry
+@inject SiteUrlService SiteUrlService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 @if (ShowCampainEditPopup)
 {
-    <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Edit Newsletter Campaign</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                    @onclick="ClosePopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <!-- Edit form for the current Blog -->
-                <div class="modal-body">
-                    <b>Campaign: </b><i>@SelectedNewslettersCampain.NewsletterCampainName</i>
-                    <br /><br />
-                    <b>Emails to send:</b> @EmailsToSend
-                    <br /><br />
-                    <button class="btn btn-danger"
-                    @onclick="ProcessCampain">
-                        Process Campain
-                    </button>
-                    <span>&nbsp;&nbsp;</span>
-                    <button class="btn btn-success"
-                    @onclick="TestCampain">
-                        Test Campain
-                    </button>
-                    <span style="color:red">@strError</span>
-                </div>
+    <section class="campaign-panel bb-card" aria-labelledby="campaign-heading">
+        <div class="bb-section-heading">
+            <div>
+                <p class="bb-muted">Campaign</p>
+                <h2 id="campaign-heading">@SelectedNewslettersCampain.NewsletterCampainName</h2>
             </div>
+            @if (!Sending)
+            {
+                <button type="button" class="btn btn-secondary" aria-label="Close campaign panel" @onclick="ClosePopup">Close</button>
+            }
         </div>
-    </div>
+
+                    @if (LocalhostWarning)
+                    {
+                        <div class="alert alert-warning">
+                            The configured site address uses localhost. Newsletter links may not work for recipients.
+                        </div>
+                    }
+
+                    @if (RegistryBusy)
+                    {
+                        <div class="alert alert-info">
+                            This campaign is being sent from another window. @Remaining recipients remain.
+                        </div>
+                        <button class="btn btn-secondary" disabled="@Sending" @onclick="RefreshAsync">Refresh</button>
+                    }
+                    else if (Remaining == 0 && SentCount > 0)
+                    {
+                        <div class="alert alert-success">All @SentCount recipients have been sent this campaign.</div>
+                    }
+                    else
+                    {
+                        <p>
+                            <b>@(SentCount > 0 ? "Remaining" : "Emails to send"):</b> @Remaining
+                            @if (SentCount > 0)
+                            {
+                                <span> (@SentCount already sent)</span>
+                            }
+                        </p>
+                    }
+
+                    @if (Sending)
+                    {
+                        <div class="alert alert-info">
+                            Keep this window open until sending finishes. If you are cut off, reopen this campaign and choose Resume.
+                        </div>
+                        <RadzenProgressBar Value="@Progress" Max="@Math.Max(RemainingAtStart, 1)" ShowValue="true" />
+                        <p>Sent @RunSent, failed @RunFailed.</p>
+                    }
+
+                    @if (!RegistryBusy && Remaining > 0)
+                    {
+                        <button class="btn btn-danger" disabled="@Sending" @onclick="ProcessCampaignAsync">
+                            @(SentCount > 0
+                                ? $"Resume sending ({Remaining} remaining, {SentCount} already sent)"
+                                : $"Send Campaign ({Remaining} recipients)")
+                        </button>
+                    }
+                    @if (!RegistryBusy)
+                    {
+                        <span>&nbsp;&nbsp;</span>
+                        <button class="btn btn-success" disabled="@Sending" @onclick="TestCampaignAsync">Send Test</button>
+                    }
+
+                    @if (Summary is not null)
+                    {
+                        <p>Sent @Summary.Sent, failed @Summary.Failed.</p>
+                        @if (Summary.Failures.Count > 0)
+                        {
+                            <ul>
+                                @foreach (var failure in Summary.Failures.Take(10))
+                                {
+                                    <li>@failure.Email: @failure.Error</li>
+                                }
+                            </ul>
+                            @if (Summary.Failures.Count > 10)
+                            {
+                                <p>Additional failures are recorded in NewslettersLogs.</p>
+                            }
+                        }
+                    }
+
+                    <span style="color:red">@Error</span>
+    </section>
 }
 
 @code {
-    // AuthenticationState is available as a CascadingParameter
-    [CascadingParameter]
-    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    [Parameter] public EventCallback<bool> SendingChanged { get; set; }
 
-    NewslettersCampain SelectedNewslettersCampain;
-    public bool ShowCampainEditPopup = false;
+    private NewslettersCampain SelectedNewslettersCampain;
+    private IReadOnlyList<NewsletterRecipient> Recipients = [];
+    private CampaignSendSummary Summary;
+    private CampaignSendRegistry.CampaignSendLease Lease;
+    private CancellationTokenSource SendCancellation;
+    private string Subject;
+    private string Content;
+    private string BaseUrl;
+    private string Error;
+    private bool ShowCampainEditPopup;
+    private bool Sending;
+    private bool RegistryBusy;
+    private bool LocalhostWarning;
+    private int SentCount;
+    private int Remaining;
+    private int RemainingAtStart;
+    private int Progress;
+    private int RunSent;
+    private int RunFailed;
 
-    public System.Security.Claims.ClaimsPrincipal CurrentUser;
-
-    List<string> colUsers = new List<string>();
-    List<string> colSubscriberUsersInCampaign = new List<string>();
-    List<string> colUsersNotInCampaign = new List<string>();
-
-    Dictionary<string, string> EmailContents = new Dictionary<string, string>();
-    int EmailsToSend = 0;
-
-    string strError;
-
-    protected override async Task OnInitializedAsync()
+    public async Task EditNewslettersCampain(NewslettersCampain campaign)
     {
-        // Get the current user
-        CurrentUser = (await authenticationStateTask).User;
-
-        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-    }
-
-    void ClosePopup()
-    {
-        // Close the Popup
-        ShowCampainEditPopup = false;
-    }
-
-    public async Task EditNewslettersCampain(NewslettersCampain paramNewslettersCampain)
-    {
-        SelectedNewslettersCampain = paramNewslettersCampain;
-
-        // Clear any error messages
-        strError = "";
-
-        colUsers = await _BlogsService.GetSubscriberUsersAsync();
-        colSubscriberUsersInCampaign = await _BlogsService.GetSubscriberUsersInCampaignAsync(SelectedNewslettersCampain.Id);
-
-        // Create a list of users that are not in the campaign
-        colUsersNotInCampaign = new List<string>();
-        foreach (var strUser in colUsers)
-        {
-            if (!colSubscriberUsersInCampaign.Contains(strUser))
-            {
-                colUsersNotInCampaign.Add(strUser);
-            }
-        }
-
-        EmailsToSend = colUsersNotInCampaign.Count();
-
-        // Get the contents of the email
-        EmailContents = await _BlogsService.GetNewslettersCampainEmailContentsAsync(SelectedNewslettersCampain.Id);
-
-        // Open the Popup
+        SelectedNewslettersCampain = campaign;
         ShowCampainEditPopup = true;
+        Error = "";
+        Summary = null;
+        BaseUrl = await SiteUrlService.GetBaseUrlAsync(NavigationManager.BaseUri);
+        LocalhostWarning = Uri.TryCreate(BaseUrl, UriKind.Absolute, out var uri)
+            && string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase);
+
+        var contents = await BlogsService.GetNewslettersCampainEmailContentsAsync(campaign.Id);
+        Subject = contents.Keys.FirstOrDefault() ?? "";
+        Content = contents.Values.FirstOrDefault() ?? "";
+        await RefreshAsync();
         StateHasChanged();
     }
 
-    private async Task TestCampain()
+    private async Task RefreshAsync()
     {
-        var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-        List<string> colTestUsers = new List<string>();
-        colTestUsers.Add(objGeneralSettings.SMTPFromEmail);
-        await SendEmails(colTestUsers);
-        strError = "Test Email Sent!";
+        if (SelectedNewslettersCampain is null)
+            return;
+        Recipients = await Subscriptions.GetRecipientsAsync(SelectedNewslettersCampain.Id);
+        SentCount = await Subscriptions.GetSentCountAsync(SelectedNewslettersCampain.Id);
+        Remaining = Recipients.Count;
+        RegistryBusy = SendRegistry.IsActive(SelectedNewslettersCampain.Id);
+        StateHasChanged();
     }
 
-    private async Task ProcessCampain()
+    private void ClosePopup()
     {
-        await SendEmails(colUsersNotInCampaign);
+        if (!Sending)
+            ShowCampainEditPopup = false;
     }
 
-    private async Task SendEmails(List<string> paramUsersNotInCampaign)
+    private async Task TestCampaignAsync()
     {
-        // Clear any error messages
-        strError = "";
+        if (Sending || SelectedNewslettersCampain is null)
+            return;
 
-        var objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-        var SendEmailCounter = paramUsersNotInCampaign.Count();
-        string NewsletterEmailContents = EmailContents.FirstOrDefault().Value;
-        string NewsletterEmailSubject = EmailContents.FirstOrDefault().Key;
-
-        // Get the URL of web appliacation from the http context
-        string strWebApplicationUrl = httpContextAccessor.HttpContext.Request.Scheme + "://" + httpContextAccessor.HttpContext.Request.Host.Value;
-
-        // Get the images in the Newsletter
-        Dictionary<string, Image> colImages = new Dictionary<string, Image>();
-
-        string SiteURL = navigationManager.BaseUri;
-        NewsletterParser objNewsletterParser = new NewsletterParser();
-        var colNewsletterContents = objNewsletterParser.ParseHtmlImageLinks(NewsletterEmailContents).Where(x => x.ContentType == "Url");
-
-        // Loop through the images and download them
-        foreach (var objNewsletterContent in colNewsletterContents)
-        {
-            // Get the image
-            string ImageURL = $"{strWebApplicationUrl}//{objNewsletterContent.Content}";
-
-            // Download the image
-            var objDownloadedImage = await objNewsletterParser.DownloadImageFromUrlAsync(ImageURL);
-
-            colImages.Add(objNewsletterContent.Content, objDownloadedImage);
-        }
-
-        for (int i = 0; i < SendEmailCounter; i++)
-        {
-            try
-            {
-                // Pause for one second
-                await Task.Delay(1000);               
-
-                // Send the email
-                await _BlogsService.SendNewslettersCampainEmailAsync(paramUsersNotInCampaign[i], SelectedNewslettersCampain, NewsletterEmailContents, colImages, NewsletterEmailSubject, objGeneralSettings.SMTPFromEmail, SiteURL);
-                
-                StateHasChanged();
-                EmailsToSend--;
-            }
-            catch(Exception ex)
-            {
-                await LogAction("Newsletter Campain Email: " + paramUsersNotInCampaign[i] + " " + ex.Message);
-            }
-        }           
-    }
-
-    private async Task LogAction(string strAction)
-    {
-        // Get the current user
-        var CurrentUser = (await authenticationStateTask).User;
-
-        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
-        objLog.LogDate = DateTime.Now;
-        objLog.LogAction = strAction;
-        objLog.LogUserName = (CurrentUser.Identity != null) ? CurrentUser.Identity.Name : "";
+        await SetSendingAsync(true);
         try
         {
-            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
+            var settings = await GeneralSettingsService.GetGeneralSettingsAsync();
+            var user = (await AuthenticationStateTask).User;
+            var userId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var token = await Subscriptions.EnsureTokenAsync(userId);
+            if (string.IsNullOrWhiteSpace(userId)
+                || string.IsNullOrWhiteSpace(token))
+            {
+                Error = "The administrator's newsletter token could not be loaded.";
+                return;
+            }
+
+            var recipient = new NewsletterRecipient(
+                userId,
+                settings.SMTPFromEmail,
+                token);
+            var images = await CampaignSender.LoadImagesAsync(Content, BaseUrl);
+            var result = await BlogsService.SendNewslettersCampainEmailAsync(
+                recipient,
+                SelectedNewslettersCampain,
+                Subject,
+                Content,
+                images,
+                settings.SMTPFromEmail,
+                BaseUrl,
+                logCampaign: false);
+            Error = result.Succeeded ? "Test email sent." : result.Error;
+        }
+        finally
+        {
+            await SetSendingAsync(false);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ProcessCampaignAsync()
+    {
+        if (Sending || SelectedNewslettersCampain is null)
+            return;
+
+        Lease = SendRegistry.TryBegin(SelectedNewslettersCampain.Id);
+        if (Lease is null)
+        {
+            await RefreshAsync();
+            return;
+        }
+
+        SendCancellation = new CancellationTokenSource();
+        RemainingAtStart = Recipients.Count;
+        Progress = 0;
+        RunSent = 0;
+        RunFailed = 0;
+        var campaign = SelectedNewslettersCampain;
+        var recipients = Recipients.ToList();
+        var subject = Subject;
+        var content = Content;
+        var baseUrl = BaseUrl;
+        var settings = await GeneralSettingsService.GetGeneralSettingsAsync();
+
+        await SetSendingAsync(true);
+        try
+        {
+            Summary = await CampaignSender.SendAsync(
+                campaign,
+                recipients,
+                subject,
+                content,
+                settings.SMTPFromEmail,
+                baseUrl,
+                async (sent, failed) =>
+                {
+                    Progress = sent + failed;
+                    RunSent = sent;
+                    RunFailed = failed;
+                    await InvokeAsync(StateHasChanged);
+                },
+                SendCancellation.Token);
+            RunSent = Summary.Sent;
+            RunFailed = Summary.Failed;
+        }
+        catch (OperationCanceledException)
+        {
+            Summary = new CampaignSendSummary(RunSent, RunFailed, true, []);
+        }
+        finally
+        {
+            Lease.Dispose();
+            Lease = null;
+            SendCancellation.Dispose();
+            SendCancellation = null;
+            await SetSendingAsync(false);
+            await RefreshAsync();
+        }
+    }
+
+    private async Task SetSendingAsync(bool value)
+    {
+        Sending = value;
+        await SendingChanged.InvokeAsync(value);
+        try
+        {
+            await JS.InvokeVoidAsync("newsletterLeaveWarning", value);
         }
         catch
         {
-            objLog.LogIpaddress = "127.0.0.1";
+            // The prompt cannot be attached during server prerendering/disposal.
         }
+        await InvokeAsync(StateHasChanged);
+    }
 
-        var result = await @Service.CreateLogAsync(objLog);
+    public async ValueTask DisposeAsync()
+    {
+        SendCancellation?.Cancel();
+        SendCancellation?.Dispose();
+        Lease?.Dispose();
+        if (Sending)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("newsletterLeaveWarning", false);
+            }
+            catch
+            {
+                // The circuit or browser may already be gone.
+            }
+        }
     }
 }

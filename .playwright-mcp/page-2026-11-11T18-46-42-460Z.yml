@@ -1,0 +1,77 @@
+- generic [ref=f16e2]:
+  - banner [ref=f16e3]:
+    - link "Blazor Blogs" [ref=f16e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f16e6]:
+      - link "Blog" [ref=f16e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f16e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f16e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f16e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f16e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f16e13] [cursor=pointer]
+  - main [ref=f16e14]:
+    - article [ref=f16e15]:
+      - generic [ref=f16e16]:
+        - complementary "Administration navigation" [ref=f16e17]:
+          - generic [ref=f16e18]:
+            - generic [aria-hidden] [ref=f16e19]: A
+            - generic [ref=f16e20]:
+              - strong [ref=f16e21]: Administration
+              - generic [ref=f16e22]: Site controls
+          - navigation "Administration" [ref=f16e23]:
+            - link "Posts" [ref=f16e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f16e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f16e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f16e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f16e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f16e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f16e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f16e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f16e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f16e41]:
+          - generic [ref=f16e43]:
+            - paragraph [ref=f16e44]: Access and profiles
+            - heading "Users" [level=1] [ref=f16e45]
+          - table [ref=f16e46]:
+            - rowgroup [ref=f16e47]:
+              - row [ref=f16e48]:
+                - columnheader "Administration" [ref=f16e49]:
+                  - heading "Administration" [level=3] [ref=f16e50]
+                - columnheader [ref=f16e51]:
+                  - textbox "Search..." [ref=f16e52]
+          - table [ref=f16e53]:
+            - rowgroup [ref=f16e54]:
+              - row [ref=f16e55]:
+                - columnheader "User Name" [ref=f16e56]
+                - columnheader "Email" [ref=f16e57]
+                - columnheader "Confirmed" [ref=f16e58]
+                - columnheader [ref=f16e59]
+            - rowgroup [ref=f16e60]:
+              - row [ref=f16e61]:
+                - cell "webmaster@adefwebserver.com" [ref=f16e62]
+                - cell "webmaster@adefwebserver.com" [ref=f16e63]
+                - cell "True" [ref=f16e64]
+                - cell [ref=f16e65]:
+                  - button "Edit" [ref=f16e66] [cursor=pointer]
+          - paragraph [ref=f16e67]:
+            - button "Add User" [ref=f16e68] [cursor=pointer]
+  - contentinfo [ref=f16e69]:
+    - generic [ref=f16e70]: © 2026
+    - link "RSS feed" [ref=f16e71] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f16e72] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

@@ -1,0 +1,36 @@
+- generic [ref=f18e2]:
+  - banner [ref=f18e3]:
+    - link "Blazor Blogs" [ref=f18e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f18e6]:
+      - link "Blog" [ref=f18e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f18e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f18e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f18e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f18e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f18e13] [cursor=pointer]
+  - main [ref=f18e14]:
+    - article [ref=f18e15]:
+      - generic [ref=f18e16]:
+        - generic [ref=f18e17]:
+          - paragraph [ref=f18e18]: Files from this site
+          - heading "Downloads" [level=1] [ref=f18e19]
+        - button "Upload file" [ref=f18e20] [cursor=pointer]
+      - generic [ref=f18e21]:
+        - link "Lost your download link?" [ref=f18e22] [cursor=pointer]:
+          - /url: downloads/resend
+        - generic [ref=f18e23]: Payments and applicable tax are securely processed by Stripe.
+      - navigation "Download pages" [ref=f18e24]:
+        - button "← Previous" [disabled]
+        - button "Next →" [disabled]
+  - contentinfo [ref=f18e25]:
+    - generic [ref=f18e26]: © 2026
+    - link "RSS feed" [ref=f18e27] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f18e28] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

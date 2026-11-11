@@ -1,43 +1,37 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication.Google
 @using BlazorBlogs.Data
 
 @inject SignInManager<ApplicationUser> SignInManager
-@inject IdentityRedirectManager RedirectManager
+@inject ExternalAuthOptionsStore ExternalAuthOptionsStore
 
-@if (externalLogins.Length == 0)
-{
-    <div>
-        <p>
-            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-            about setting up this ASP.NET application to support logging in via external services</a>.
-        </p>
-    </div>
-}
-else
+@if (ExternalAuthOptionsStore.IsGoogleConfigured && googleLogin is not null)
 {
     <form class="form-horizontal" action="Account/PerformExternalLogin" method="post">
         <div>
             <AntiforgeryToken />
             <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
             <p>
-                @foreach (var provider in externalLogins)
-                {
-                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                }
+                <button type="submit"
+                        class="btn btn-primary"
+                        name="provider"
+                        value="@googleLogin.Name"
+                        title="Log in using your @googleLogin.DisplayName account">@googleLogin.DisplayName</button>
             </p>
         </div>
     </form>
 }
 
 @code {
-    private AuthenticationScheme[] externalLogins = [];
+    private AuthenticationScheme googleLogin;
 
-    [SupplyParameterFromQuery]
-    private string ReturnUrl { get; set; }
+    [Parameter]
+    public string ReturnUrl { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        externalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToArray();
+        googleLogin = (await SignInManager.GetExternalAuthenticationSchemesAsync())
+            .FirstOrDefault(x => x.Name == GoogleDefaults.AuthenticationScheme);
     }
 }

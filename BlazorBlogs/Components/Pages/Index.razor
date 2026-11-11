@@ -18,65 +18,85 @@
 @inherits OwningComponentBase<BlogsService>
 <PageTitle>Blazor-Blogs</PageTitle>
 <Meta Property="og:title" Content="Blazor-Blogs" />
-<RadzenDropDown AllowClear="true"
-                AllowFiltering="true"
-                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                @bind-Value="SearchState.CurrentCategoryID" Multiple="false"
-                Placeholder="Filter Category..."
-                Data="@colCategorys" TextProperty="Title"
-                ValueProperty="CategoryId"
-                Style="width:200px;"
-                Change="@(args => ChangeCategory(args, "DropDown"))" />
-                &nbsp;
-<RadzenTextBox @bind-Value="SearchText" Placeholder="Search..." Style="width:200px;" />
-<RadzenButton Text="Search" Click="@(args => Search())" />
-<br />
-<br />
-<!-- Show the blogs -->
-@if (UserIsAnAdmin)
-{
-    <button type="button" class="btn btn-primary" @onclick="NewBlog">New Blog</button>
-    <br />
-    <br />
-}
-
-<div style="width:90%">
-@foreach (var blog in colBlogs.Blogs)
-{
-    <a href="ViewBlogPost/@blog.BlogId"><h3>@blog.BlogDate.ToShortDateString() - @blog.BlogTitle</h3></a>
-    <div class="form-group">
-        @((MarkupString)blog.BlogSummary)
+<div class="bb-page-header home-heading">
+    <div>
+        <p class="bb-muted">Latest stories and updates</p>
+        <h1>From the blog</h1>
     </div>
-    <hr />
-}
+    @if (UserIsAnAdmin)
+    {
+        <button type="button" class="btn btn-primary" @onclick="NewBlog">Write a post</button>
+    }
 </div>
-<br />
+
+<section class="home-toolbar" aria-label="Post filters">
+    <label>
+        <span class="visually-hidden">Filter by category</span>
+        <RadzenDropDown AllowClear="true"
+                        AllowFiltering="true"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        @bind-Value="SearchState.CurrentCategoryID" Multiple="false"
+                        Placeholder="All categories"
+                        Data="@colCategorys" TextProperty="Title"
+                        ValueProperty="CategoryId"
+                        Change="@(args => ChangeCategory(args, "DropDown"))" />
+    </label>
+    <label class="home-search">
+        <span class="visually-hidden">Search posts</span>
+        <RadzenTextBox @bind-Value="SearchText" Placeholder="Search posts" />
+    </label>
+    <RadzenButton Text="Search" ButtonStyle="ButtonStyle.Primary" Click="@(args => Search())" />
+</section>
+
+<div class="home-layout">
+    <main class="post-grid" aria-label="Blog posts">
+        @foreach (var blog in colBlogs.Blogs)
+        {
+            <article class="post-card bb-card">
+                <div class="bb-meta">@blog.BlogDate.ToString("MMMM d, yyyy")</div>
+                <h2><a href="ViewBlogPost/@blog.BlogId">@blog.BlogTitle</a></h2>
+                <div class="post-summary">@((MarkupString)blog.BlogSummary)</div>
+                <a class="post-read-link" href="ViewBlogPost/@blog.BlogId" aria-label="@($"Read {blog.BlogTitle}")">
+                    Read more <span aria-hidden="true">→</span>
+                </a>
+            </article>
+        }
+    </main>
+    <aside class="home-sidebar">
+        <section class="bb-card newsletter-prompt">
+            <span class="bb-badge">Newsletter</span>
+            <h2>Stay in the loop</h2>
+            <p>Sign in to manage email updates and follow new posts.</p>
+            <a class="btn btn-primary" href="Account/Manage/Newsletter">Manage subscription</a>
+        </section>
+        <section class="bb-card">
+            <h2>Categories</h2>
+            <div class="category-list">
+                @foreach (var category in colCategorys)
+                {
+                    <button type="button" @onclick="@(() => ChangeCategory(category.CategoryId, "Category"))">
+                        @category.Title
+                    </button>
+                }
+            </div>
+        </section>
+    </aside>
+</div>
+
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 <LicenseTerms @ref="LicenseTermsControl" />
 @if (!LoadingBlogs)
 {
-    @if (ShowPreviousButton)
-    {
-        <button class="btn btn-warning"
-        @onclick="Previous">
-            <b>&#x3C;</b>
-        </button>
-    }
-    @if (ShowNextButton)
-    {
-        <button class="btn btn-warning"
-        @onclick="Next">
-            <b>&#x3E;</b>
-        </button>
-    }
+    <nav class="pager" aria-label="Post pages">
+        <button class="btn btn-secondary" disabled="@(!ShowPreviousButton)" @onclick="Previous">← Newer</button>
+        <button class="btn btn-secondary" disabled="@(!ShowNextButton)" @onclick="Next">Older →</button>
+    </nav>
 }
 else
 {
     <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
 }
-<br />
-<br />
-<div style="text-align:right">
+<div class="legal-links">
     <button class="btn btn-link"
             @onclick="showTermsOfUse">
         Terms Of Use

@@ -1,0 +1,6 @@
+- generic [ref=e2]:
+  - link [ref=e5] [cursor=pointer]:
+    - /url: ""
+  - main [ref=e7]:
+    - heading "Install Upgrade Wizard" [level=3] [ref=e8]
+    - button "[Click Here To Continue]" [ref=e9] [cursor=pointer]

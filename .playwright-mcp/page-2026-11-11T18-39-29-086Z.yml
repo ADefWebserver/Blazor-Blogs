@@ -1,0 +1,141 @@
+- generic [ref=f14e61]:
+  - banner [ref=f14e62]:
+    - link "Blazor Blogs" [ref=f14e63] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f14e65]:
+      - link "Blog" [ref=f14e66] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f14e67] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f14e68] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f14e69]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f14e70] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f14e72] [cursor=pointer]
+  - main [ref=f14e73]:
+    - article [ref=f14e74]:
+      - article [ref=f14e75]:
+        - generic [ref=f14e76]:
+          - button "← All posts" [ref=f14e77] [cursor=pointer]
+          - button "Edit post" [active] [ref=f14e78] [cursor=pointer]
+        - generic [ref=f14e79]:
+          - generic [ref=f14e80]:
+            - time [ref=f14e81]: November 11, 2026
+            - text: · webmaster@adefwebserver.com
+          - heading "Automated E2E Test Post" [level=1] [ref=f14e82]
+        - generic [ref=f14e83]: Automated content created during end-to-end testing.
+        - complementary [ref=f14e84]:
+          - generic [ref=f14e85]: Newsletter
+          - heading "Get new posts in your inbox" [level=2] [ref=f14e86]
+          - paragraph [ref=f14e87]: Sign in and choose the newsletter updates you want to receive.
+          - link "Manage subscription" [ref=f14e88] [cursor=pointer]:
+            - /url: Account/Manage/Newsletter
+      - dialog [ref=f14e93]:
+        - generic [ref=f14e94]:
+          - generic [ref=f14e95]:
+            - heading "Edit Blog" [level=3] [ref=f14e96]
+            - button [ref=f14e97] [cursor=pointer]
+          - generic [ref=f14e98]:
+            - textbox [ref=f14e100]: 2026-11-11
+            - heading "Title" [level=5] [ref=f14e101]
+            - textbox [ref=f14e103]: Automated E2E Test Post
+            - heading "Summary" [level=5] [ref=f14e104]
+            - generic [ref=f14e106]:
+              - generic [ref=f14e107]:
+                - button "Undo" [disabled] [ref=f14e108]:
+                  - generic [aria-hidden] [ref=f14e110]: undo
+                - button "Redo" [disabled] [ref=f14e111]:
+                  - generic [aria-hidden] [ref=f14e113]: redo
+                - button "Bold (Ctrl+B)" [ref=f14e115] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e117]: format_bold
+                - button "Italic (Ctrl+I)" [ref=f14e118] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e120]: format_italic
+                - button "Underline (Ctrl+U)" [ref=f14e121] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e123]: format_underlined
+                - button "Strikethrough" [ref=f14e124] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e126]: strikethrough_s
+                - generic "Text color" [ref=f14e127]:
+                  - button [ref=f14e128] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f14e129]: title
+                    - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                - generic "Background color" [ref=f14e131]:
+                  - button [ref=f14e132] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f14e133]: opacity
+                    - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                - button "Ordered list" [ref=f14e136] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e138]: format_list_numbered
+                - button "Bullet list" [ref=f14e139] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e141]: format_list_bulleted
+                - button "Insert link" [ref=f14e142] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e144]: insert_link
+                - button "Format block arrow_drop_down" [ref=f14e145] [cursor=pointer]:
+                  - generic [ref=f14e146]: Format block
+                  - generic [ref=f14e147]: arrow_drop_down
+                - button "Align left" [ref=f14e149] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e151]: format_align_left
+                - button "Align center" [ref=f14e152] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e154]: format_align_center
+                - button "Align right" [ref=f14e155] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e157]: format_align_right
+                - button "Remove styling" [ref=f14e158] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e160]: format_clear
+                - button "Insert image" [ref=f14e161] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e163]: image
+                - button "View source" [ref=f14e164] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e166]: code
+              - generic [ref=f14e167]: Automated summary created during end-to-end testing.
+            - heading "Content" [level=5] [ref=f14e168]
+            - generic [ref=f14e170]:
+              - generic [ref=f14e171]:
+                - button "Undo" [disabled] [ref=f14e172]:
+                  - generic [aria-hidden] [ref=f14e174]: undo
+                - button "Redo" [disabled] [ref=f14e175]:
+                  - generic [aria-hidden] [ref=f14e177]: redo
+                - button "Bold (Ctrl+B)" [ref=f14e179] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e181]: format_bold
+                - button "Italic (Ctrl+I)" [ref=f14e182] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e184]: format_italic
+                - button "Underline (Ctrl+U)" [ref=f14e185] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e187]: format_underlined
+                - button "Strikethrough" [ref=f14e188] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e190]: strikethrough_s
+                - generic "Text color" [ref=f14e191]:
+                  - button [ref=f14e192] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f14e193]: title
+                    - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                - generic "Background color" [ref=f14e195]:
+                  - button [ref=f14e196] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f14e197]: opacity
+                    - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                - button "Ordered list" [ref=f14e200] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e202]: format_list_numbered
+                - button "Bullet list" [ref=f14e203] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e205]: format_list_bulleted
+                - button "Insert link" [ref=f14e206] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e208]: insert_link
+                - button "Format block arrow_drop_down" [ref=f14e209] [cursor=pointer]:
+                  - generic [ref=f14e210]: Format block
+                  - generic [ref=f14e211]: arrow_drop_down
+                - button "Align left" [ref=f14e213] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e215]: format_align_left
+                - button "Align center" [ref=f14e216] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e218]: format_align_center
+                - button "Align right" [ref=f14e219] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e221]: format_align_right
+                - button "Remove styling" [ref=f14e222] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e224]: format_clear
+                - button "Insert image" [ref=f14e225] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e227]: image
+                - button "View source" [ref=f14e228] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f14e230]: code
+              - generic [ref=f14e231]: Automated content created during end-to-end testing.
+            - button "Save" [ref=f14e232] [cursor=pointer]
+            - button "Delete" [ref=f14e233] [cursor=pointer]
+  - contentinfo [ref=f14e89]:
+    - generic [ref=f14e90]: © 2026
+    - link "RSS feed" [ref=f14e91] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f14e92] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

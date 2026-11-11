@@ -1,4 +1,6 @@
 ﻿@page "/newsletter"
+@layout BlazorBlogs.Components.Layout.AdminLayout
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrators")]
 @using System.IO;
 @using System.Text;
 @using System.Web;
@@ -20,50 +22,72 @@
 @inherits OwningComponentBase
 <AuthorizeView>
     <Authorized>
-        <p style="color:red;">@error</p>
-        <h1>Newsletters</h1>
-        <br />
+        @if (!string.IsNullOrWhiteSpace(error))
+        {
+            <div class="alert alert-danger">@error</div>
+        }
+        <div class="bb-page-header">
+            <div>
+                <p class="bb-muted">Email publishing</p>
+                <h1>Newsletter</h1>
+            </div>
+            <button class="btn btn-primary"
+                    disabled="@CampaignSending"
+                    @onclick="CreateNewsletter">
+                Create newsletter
+            </button>
+        </div>
         @if (@context.User.IsInRole(ADMINISTRATION_ROLE))
         {
+            <div class="admin-stat-grid">
+                <section class="admin-stat"><span>Newsletters</span><strong>@colNewsletters.Count</strong></section>
+                <section class="admin-stat"><span>Campaigns</span><strong>@colNewslettersCampains.Count</strong></section>
+                <section class="admin-stat"><span>Status</span><strong>@(CampaignSending ? "Sending" : "Ready")</strong></section>
+            </div>
             @if (!LoadingBlogs)
             {
-                <button class="btn btn-primary"
-                @onclick="(() => CreateNewsletter())">
-                    Create Newsletter
-                </button>
-
                 @if (colNewsletters.Count() > 0)
                 {
-                    <br/><br/>
-                    <b>Newsletters:</b> <RadzenDropDown AllowClear="false"
+                    <section class="bb-card newsletter-control-card">
+                    <h2>Newsletters</h2>
+                    <div class="bb-toolbar">
+                    <RadzenDropDown AllowClear="false"
                                     AllowFiltering="false"
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                     @bind-Value="SelectedNewsletter" Multiple="false"
+                                    Disabled="@CampaignSending"
                                     Placeholder="Select Newsletter..."
                                     Data="@colNewsletters" TextProperty="BlogTitle"
                                     Change="@(args => ChangeNewsletter(args, "DropDown"))"
                                     Style="width:500px;" />
-                    <button type="button" class="btn btn-secondary" @onclick="EditNewsletter">Edit Newsletter</button>
+                    <button type="button" class="btn btn-secondary" disabled="@CampaignSending" @onclick="EditNewsletter">Edit Newsletter</button>
 
                     <span>&nbsp;&nbsp;</span>
-                    <button class="btn btn-success" @onclick="CreateCampain">Create Campaign</button>
+                    <button class="btn btn-primary" disabled="@CampaignSending" @onclick="CreateCampain">Create campaign</button>
+                    </div>
+                    </section>
                 }
 
                 @if (colNewslettersCampains.Count() > 0)
                 {
-                    <br /><br />
-                    <b>Campaigns:</b> <RadzenDropDown AllowClear="false"
+                    <section class="bb-card newsletter-control-card">
+                    <h2>Campaigns</h2>
+                    <div class="bb-toolbar">
+                    <RadzenDropDown AllowClear="false"
                                     AllowFiltering="false"
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                     @bind-Value="SelectedNewslettersCampains" Multiple="false"
+                                    Disabled="@CampaignSending"
                                     Placeholder="Select Campain..."
                                     Data="@colNewslettersCampains" TextProperty="NewsletterCampainName"
                                     Style="width:500px;" />
-                    <button type="button" class="btn btn-secondary" @onclick="EditCampain">Edit Campaign</button>
+                    <button type="button" class="btn btn-secondary" disabled="@CampaignSending" @onclick="EditCampain">Edit Campaign</button>
+                    </div>
+                    </section>
                 }
 
                 <NewsletterEdit @ref="NewsletterEditControl" NewsletterUpdated="NewsletterUpdatedEvent" /> 
-                <NewsletterCampainEdit @ref="NewsletterCampainEditControl" />
+                <NewsletterCampainEdit @ref="NewsletterCampainEditControl" SendingChanged="CampaignSendingChanged" />
             }
             else
             {
@@ -89,6 +113,7 @@
     NewsletterCampainEdit NewsletterCampainEditControl;
 
     bool LoadingBlogs = false;
+    bool CampaignSending = false;
     BlogDTO SelectedNewsletter = new BlogDTO() { BlogId = 0, BlogDate = DateTime.Now, BlogTitle = "", BlogDisplayName = "" };
     NewslettersCampain SelectedNewslettersCampains = new NewslettersCampain();
     List<BlogDTO> colNewsletters = new List<BlogDTO>();
@@ -196,6 +221,12 @@
     private async Task EditCampain()
     {
         await NewsletterCampainEditControl.EditNewslettersCampain(SelectedNewslettersCampains);
+    }
+
+    private Task CampaignSendingChanged(bool sending)
+    {
+        CampaignSending = sending;
+        return InvokeAsync(StateHasChanged);
     }
 
     // Utility

@@ -1,0 +1,1 @@
+- generic [active] [ref=f20e1]: A valid antiforgery token was not provided with the request. Add an antiforgery token, or disable antiforgery validation for this endpoint.

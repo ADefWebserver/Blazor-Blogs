@@ -1,0 +1,61 @@
+- generic [ref=f38e2]:
+  - banner [ref=f38e3]:
+    - link "Blazor Blogs" [ref=f38e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f38e6]:
+      - link "Blog" [ref=f38e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f38e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f38e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f38e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f38e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f38e13] [cursor=pointer]
+  - main [ref=f38e14]:
+    - article [ref=f38e15]:
+      - generic [ref=f38e17]:
+        - paragraph [ref=f38e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f38e19]
+      - generic [ref=f38e20]:
+        - heading "Account settings" [level=2] [ref=f38e21]
+        - generic [ref=f38e22]:
+          - list [ref=f38e24]:
+            - listitem [ref=f38e25]:
+              - link "Profile" [ref=f38e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f38e27]:
+              - link "Email" [ref=f38e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f38e29]:
+              - link "Newsletter" [ref=f38e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f38e31]:
+              - link "Password" [ref=f38e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f38e33]:
+              - link "Personal data" [ref=f38e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f38e35]:
+            - heading "Manage email" [level=3] [ref=f38e36]
+            - generic [ref=f38e39]:
+              - generic [ref=f38e40]:
+                - textbox "Email" [disabled] [ref=f38e41]:
+                  - /placeholder: Enter your email
+                  - text: webmaster@adefwebserver.com
+                - generic [ref=f38e42]: ✓
+                - generic: Email
+              - generic [ref=f38e44]:
+                - textbox "New email" [ref=f38e45]:
+                  - /placeholder: Enter a new email
+                  - text: webmaster@adefwebserver.com
+                - generic: New email
+              - button "Change email" [ref=f38e46] [cursor=pointer]
+  - contentinfo [ref=f38e47]:
+    - generic [ref=f38e48]: © 2026
+    - link "RSS feed" [ref=f38e49] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f38e50] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

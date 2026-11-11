@@ -1,0 +1,14 @@
+- generic [ref=f7e2]:
+  - separator [ref=f7e3]
+  - iframe [ref=f7e8]:
+    - generic [ref=f8e2]:
+      - generic [ref=f8e3]:
+        - checkbox "I'm not a robot" [ref=f8e7]
+        - generic [aria-hidden] [ref=f8e11]: I'm not a robot
+      - generic [ref=f8e12]: reCAPTCHA
+  - separator [ref=f7e9]
+  - generic [ref=f7e10]:
+    - text: About this page Our systems have detected unusual traffic from your computer network. This page checks to see if it's really you sending the requests, and not a robot.
+    - link "Why did this happen?" [ref=f7e11] [cursor=pointer]:
+      - /url: "#"
+    - generic [ref=f7e12]: "IP address: 108.89.24.114Time: 2026-11-11T18:38:30ZURL: https://www.google.com/search?q=Automated%20E2E%20site:localhost&sei=Jbb0arqeNdu-kPIPhKT7QA"

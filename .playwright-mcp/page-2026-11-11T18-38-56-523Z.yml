@@ -1,0 +1,40 @@
+- generic [ref=f14e61]:
+  - banner [ref=f14e62]:
+    - link "Blazor Blogs" [ref=f14e63] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f14e65]:
+      - link "Blog" [ref=f14e66] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f14e67] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f14e68] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f14e69]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f14e70] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f14e72] [cursor=pointer]
+  - main [ref=f14e73]:
+    - article [ref=f14e74]:
+      - article [ref=f14e75]:
+        - generic [ref=f14e76]:
+          - button "← All posts" [ref=f14e77] [cursor=pointer]
+          - button "Edit post" [ref=f14e78] [cursor=pointer]
+        - generic [ref=f14e79]:
+          - generic [ref=f14e80]:
+            - time [ref=f14e81]: November 11, 2026
+            - text: · webmaster@adefwebserver.com
+          - heading "Automated E2E Test Post" [active] [level=1] [ref=f14e82]
+        - generic [ref=f14e83]: Automated content created during end-to-end testing.
+        - complementary [ref=f14e84]:
+          - generic [ref=f14e85]: Newsletter
+          - heading "Get new posts in your inbox" [level=2] [ref=f14e86]
+          - paragraph [ref=f14e87]: Sign in and choose the newsletter updates you want to receive.
+          - link "Manage subscription" [ref=f14e88] [cursor=pointer]:
+            - /url: Account/Manage/Newsletter
+  - contentinfo [ref=f14e89]:
+    - generic [ref=f14e90]: © 2026
+    - link "RSS feed" [ref=f14e91] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f14e92] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

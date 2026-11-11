@@ -1,0 +1,271 @@
+- generic [ref=f50e258]:
+  - banner [ref=f50e259]:
+    - link "Blazor Blogs" [ref=f50e260] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f50e262]:
+      - link "Blog" [ref=f50e263] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f50e264] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f50e265] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f50e266]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f50e267] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f50e269] [cursor=pointer]
+  - main [ref=f50e270]:
+    - article [ref=f50e271]:
+      - generic [ref=f50e272]:
+        - complementary "Administration navigation" [ref=f50e273]:
+          - generic [ref=f50e274]:
+            - generic [aria-hidden] [ref=f50e275]: A
+            - generic [ref=f50e276]:
+              - strong [ref=f50e277]: Administration
+              - generic [ref=f50e278]: Site controls
+          - navigation "Administration" [ref=f50e279]:
+            - link "Posts" [ref=f50e280] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f50e282] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f50e284] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f50e286] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f50e288] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f50e290] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f50e292] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f50e294] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f50e296] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f50e297]:
+          - generic [ref=f50e298]:
+            - generic [ref=f50e299]:
+              - paragraph [ref=f50e300]: Application settings
+              - heading "Settings" [level=1] [ref=f50e301]
+            - generic [ref=f50e302]:
+              - button "Send test email" [active] [ref=f50e303] [cursor=pointer]
+              - button "Save changes" [ref=f50e304] [cursor=pointer]
+            - generic [ref=f50e305]:
+              - generic [ref=f50e307]:
+                - heading "Database connection" [level=2] [ref=f50e308]
+                - paragraph [ref=f50e309]: Source used to resolve the application database connection.
+              - paragraph [ref=f50e310]:
+                - strong [ref=f50e311]: HostManaged
+          - generic [ref=f50e312]:
+            - generic [ref=f50e313]:
+              - generic [ref=f50e314]:
+                - heading "General" [level=2] [ref=f50e315]
+                - paragraph [ref=f50e316]: Core site identity, registration, email and analytics configuration.
+              - generic [ref=f50e317]: v@objGeneralSettings.VersionNumber
+            - table [ref=f50e318]:
+              - rowgroup [ref=f50e319]:
+                - row [ref=f50e320]:
+                  - 'cell "Application Version: 10.05.00" [ref=f50e321]'
+                - row [ref=f50e322]:
+                  - cell "Application Name" [ref=f50e323]
+                  - cell [ref=f50e324]:
+                    - textbox "Application name" [ref=f50e325]
+                - row [ref=f50e326]:
+                  - cell "Site base URL" [ref=f50e327]
+                  - cell "Used for Google, newsletter, Stripe and download links." [ref=f50e329]:
+                    - textbox "Site base URL" [ref=f50e330]:
+                      - /placeholder: https://example.com/
+                    - text: Used for Google, newsletter, Stripe and download links.
+                - row [ref=f50e331]:
+                  - cell "Theme accent color" [ref=f50e332]
+                  - cell [ref=f50e334]:
+                    - generic [ref=f50e335]:
+                      - textbox "Theme accent color" [ref=f50e336]: "#3b5bdb"
+                      - textbox "Theme accent color hexadecimal value" [ref=f50e337]: "#3B5BDB"
+                    - text: Used for primary actions, the logo mark and progress.
+                - row [ref=f50e338]:
+                  - cell "Application Logo" [ref=f50e339]
+                  - cell [ref=f50e340]:
+                    - button "[Select]" [ref=f50e341] [cursor=pointer]
+                    - button "[Clear]" [ref=f50e342] [cursor=pointer]
+                - row [ref=f50e343]:
+                  - cell "Application Header" [ref=f50e344]
+                  - cell [ref=f50e345]:
+                    - generic [ref=f50e347]:
+                      - button "Undo" [disabled] [ref=f50e348]:
+                        - generic [aria-hidden] [ref=f50e350]: undo
+                      - button "Redo" [disabled] [ref=f50e351]:
+                        - generic [aria-hidden] [ref=f50e353]: redo
+                      - button "Bold (Ctrl+B)" [ref=f50e355] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e357]: format_bold
+                      - button "Italic (Ctrl+I)" [ref=f50e358] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e360]: format_italic
+                      - button "Underline (Ctrl+U)" [ref=f50e361] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e363]: format_underlined
+                      - button "Strikethrough" [ref=f50e364] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e366]: strikethrough_s
+                      - generic "Text color" [ref=f50e367]:
+                        - button [ref=f50e368] [cursor=pointer]:
+                          - generic [aria-hidden] [ref=f50e369]: title
+                          - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                      - generic "Background color" [ref=f50e371]:
+                        - button [ref=f50e372] [cursor=pointer]:
+                          - generic [aria-hidden] [ref=f50e373]: opacity
+                          - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                      - button "Ordered list" [ref=f50e376] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e378]: format_list_numbered
+                      - button "Bullet list" [ref=f50e379] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e381]: format_list_bulleted
+                      - button "Insert link" [ref=f50e382] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e384]: insert_link
+                      - button "Format block arrow_drop_down" [ref=f50e385] [cursor=pointer]:
+                        - generic [ref=f50e386]: Format block
+                        - generic [ref=f50e387]: arrow_drop_down
+                      - button "Align left" [ref=f50e389] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e391]: format_align_left
+                      - button "Align center" [ref=f50e392] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e394]: format_align_center
+                      - button "Align right" [ref=f50e395] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e397]: format_align_right
+                      - button "Remove styling" [ref=f50e398] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e400]: format_clear
+                      - button "Insert image" [ref=f50e401] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e403]: image
+                      - button "View source" [ref=f50e404] [cursor=pointer]:
+                        - generic [aria-hidden] [ref=f50e406]: code
+                    - button "Preview" [ref=f50e407] [cursor=pointer]
+                - row [ref=f50e408]:
+                  - cell "Show Application Header" [ref=f50e409]
+                  - cell "True" [ref=f50e410]:
+                    - combobox "Show application header" [ref=f50e411]:
+                      - option "True"
+                      - option "False"
+                - row [ref=f50e412]:
+                  - cell "Allow Registration" [ref=f50e413]
+                  - cell "True" [ref=f50e414]:
+                    - combobox "Allow registration" [ref=f50e415]:
+                      - option "True" [selected]
+                      - option "False"
+                - row [ref=f50e416]:
+                  - cell "Verified Registration" [ref=f50e417]
+                  - cell "False" [ref=f50e418]:
+                    - combobox "Verified registration" [ref=f50e419]:
+                      - option "True"
+                      - option "False" [selected]
+                - row [ref=f50e420]:
+                  - cell "SMTP Server" [ref=f50e421]
+                  - cell [ref=f50e422]:
+                    - textbox "SMTP server" [ref=f50e423]
+                - row [ref=f50e424]:
+                  - cell "SMTP Authentication" [ref=f50e425]
+                  - cell "Anonymous" [ref=f50e426]:
+                    - combobox "SMTP authentication" [ref=f50e427]:
+                      - option "Anonymous" [selected]
+                      - option "Basic"
+                      - option "NTLM"
+                - row [ref=f50e428]:
+                  - cell "SMTP Secure" [ref=f50e429]
+                  - cell "False" [ref=f50e430]:
+                    - combobox "SMTP secure" [ref=f50e431]:
+                      - option "True"
+                      - option "False" [selected]
+                - row [ref=f50e432]:
+                  - cell "SMTP User Name" [ref=f50e433]
+                  - cell [ref=f50e434]:
+                    - textbox "SMTP user name" [ref=f50e435]
+                - row [ref=f50e436]:
+                  - cell "SMTP Password" [ref=f50e437]
+                  - cell [ref=f50e438]:
+                    - textbox "SMTP password" [ref=f50e439]
+                - row [ref=f50e440]:
+                  - cell "SMTP From Email" [ref=f50e441]
+                  - cell [ref=f50e442]:
+                    - textbox "SMTP from email" [ref=f50e443]
+                - row [ref=f50e444]:
+                  - cell "Enable Disqus Comments" [ref=f50e445]
+                  - cell "False" [ref=f50e446]:
+                    - combobox "Enable Disqus comments" [ref=f50e447]:
+                      - option "True"
+                      - option "False" [selected]
+                - row [ref=f50e448]:
+                  - cell "Disqus ShortName" [ref=f50e449]
+                  - cell [ref=f50e450]:
+                    - textbox "Disqus short name" [ref=f50e451]
+                - row [ref=f50e452]:
+                  - cell "Google Tracking ID" [ref=f50e453]
+                  - cell [ref=f50e454]:
+                    - textbox "Google tracking ID" [ref=f50e455]
+          - generic [ref=f50e456]:
+            - button "Save changes" [ref=f50e457] [cursor=pointer]
+            - button "Send test email" [ref=f50e458] [cursor=pointer]
+          - generic [ref=f50e459]:
+            - generic [ref=f50e461]:
+              - heading "Google sign-in" [level=2] [ref=f50e462]
+              - paragraph [ref=f50e463]: Allow visitors to use a Google account alongside password sign-in.
+            - generic [ref=f50e464]:
+              - checkbox "Enabled" [ref=f50e465]
+              - generic [ref=f50e466]: Enabled
+            - generic [ref=f50e467]: Client ID
+            - textbox "Client ID" [ref=f50e468]
+            - generic [ref=f50e469]:
+              - text: Client Secret
+              - generic [ref=f50e470]: (not configured; blank keeps the stored value)
+            - textbox "Client Secret (not configured; blank keeps the stored value)" [ref=f50e471]
+            - paragraph [ref=f50e472]:
+              - text: "Authorized redirect URI:"
+              - code [ref=f50e473]: https://localhost:5001/signin-google
+            - button "Save Google Settings" [ref=f50e474] [cursor=pointer]
+          - generic [ref=f50e475]:
+            - generic [ref=f50e477]:
+              - heading "Payments" [level=2] [ref=f50e478]
+              - paragraph [ref=f50e479]: Configure Stripe Checkout, customer receipts and automatic tax.
+            - generic [ref=f50e480]: SMTP is not configured; buyers will not receive receipts.
+            - generic [ref=f50e481]:
+              - checkbox "Enabled" [ref=f50e482]
+              - generic [ref=f50e483]: Enabled
+            - generic [ref=f50e484]:
+              - text: Secret key
+              - generic [ref=f50e485]: (not configured; blank keeps the stored value)
+            - textbox "Secret key (not configured; blank keeps the stored value)" [ref=f50e486]
+            - generic [ref=f50e487]:
+              - text: Webhook signing secret
+              - generic [ref=f50e488]: (not configured; blank keeps the stored value)
+            - textbox "Webhook signing secret (not configured; blank keeps the stored value)" [ref=f50e489]
+            - generic [ref=f50e490]: Currency
+            - textbox "Currency" [ref=f50e491]: usd
+            - generic [ref=f50e492]:
+              - checkbox "Automatic tax" [checked] [ref=f50e493]
+              - generic [ref=f50e494]: Automatic tax
+            - generic [ref=f50e495]: Tax behaviour
+            - combobox "Tax behaviour" [ref=f50e496]:
+              - option "exclusive" [selected]
+              - option "inclusive"
+            - generic [ref=f50e497]: Tax code (optional)
+            - textbox "Tax code (optional)" [ref=f50e498]
+            - generic [ref=f50e499]: Guest link days
+            - spinbutton "Guest link days" [ref=f50e500]: "7"
+            - generic [ref=f50e501]: Guest maximum downloads
+            - spinbutton "Guest maximum downloads" [ref=f50e502]: "5"
+            - paragraph [ref=f50e503]:
+              - text: "Webhook URL:"
+              - code [ref=f50e504]: https://localhost:5001/api/StripeWebhook
+            - paragraph [ref=f50e505]:
+              - text: Subscribe to
+              - code [ref=f50e506]: checkout.session.completed
+              - text: ","
+              - code [ref=f50e507]: checkout.session.async_payment_succeeded
+              - text: ","
+              - code [ref=f50e508]: checkout.session.async_payment_failed
+              - text: ","
+              - code [ref=f50e509]: checkout.session.expired
+              - text: ", and"
+              - code [ref=f50e510]: charge.refunded
+              - text: .
+            - button "Save Stripe Settings" [ref=f50e511] [cursor=pointer]
+            - button "Test connection" [ref=f50e512] [cursor=pointer]
+  - contentinfo [ref=f50e513]:
+    - generic [ref=f50e514]: © 2026
+    - link "RSS feed" [ref=f50e515] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f50e516] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

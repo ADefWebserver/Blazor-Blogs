@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "1.0.0.2",
+  "contentVersion": "1.0.0.3",
   "parameters": {
     "sqlServerName": {
       "type": "string",
@@ -26,6 +26,20 @@
         "description": "The password of the admin user of the SQL server."
       }
     },
+    "databaseEdition": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "The Azure SQL Database edition. Existing sites should enter their current value."
+      }
+    },
+    "databaseServiceObjective": {
+      "type": "string",
+      "defaultValue": "Basic",
+      "metadata": {
+        "description": "The Azure SQL Database service objective. Existing sites should enter their current value."
+      }
+    },
     "BlazorWebsiteName": {
       "type": "string",
       "metadata": {
@@ -46,7 +60,7 @@
       ],
       "defaultValue": "B1",
       "metadata": {
-        "description": "The SKU for the hosting plan."
+        "description": "The SKU for the hosting plan. B1 is recommended; F1 and D1 stop when idle."
       }
     },
     "BlazorWorkerSize": {
@@ -64,13 +78,18 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "repoBranch": {
+      "type": "string",
+      "defaultValue": "main",
+      "metadata": {
+        "description": "The Blazor-Blogs branch to build."
+      }
     }
   },
   "variables": {
     "hostingPlanName": "[concat('BlazorBlogs-hostingplan-', uniqueString(resourceGroup().id))]",
-    "databaseEdition": "Standard",
-    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS",
-    "databaseServiceObjectiveName": "S1"
+    "databaseCollation": "SQL_Latin1_General_CP1_CI_AS"
   },
   "resources": [
     {
@@ -96,9 +115,9 @@
             "displayName": "Database"
           },
           "properties": {
-            "edition": "[variables('databaseEdition')]",
+            "edition": "[parameters('databaseEdition')]",
             "collation": "[variables('databaseCollation')]",
-            "requestedServiceObjectiveName": "[variables('databaseServiceObjectiveName')]"
+            "requestedServiceObjectiveName": "[parameters('databaseServiceObjective')]"
           },
           "dependsOn": [
             "[parameters('sqlServerName')]"
@@ -159,9 +178,28 @@
       },
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]",
+        "clientAffinityEnabled": true,
+        "httpsOnly": true,
         "siteConfig": {
           "webSocketsEnabled": true,
-          "netFrameworkVersion": "v9.0"
+          "alwaysOn": "[and(not(equals(parameters('BlazorSKU'), 'F1')), not(equals(parameters('BlazorSKU'), 'D1')))]",
+          "netFrameworkVersion": "v11.0",
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled",
+          "appSettings": [
+            {
+              "name": "Storage__UserContentPath",
+              "value": "%HOME%\\data\\BlazorBlogs"
+            },
+            {
+              "name": "Install__AllowDatabaseConfiguration",
+              "value": "false"
+            },
+            {
+              "name": "PROJECT",
+              "value": "BlazorBlogs/BlazorBlogs.csproj"
+            }
+          ]
         }
       },
       "resources": [
@@ -174,7 +212,7 @@
           ],
           "properties": {
             "repoUrl": "https://github.com/ADefWebserver/Blazor-Blogs.git",
-            "branch": "main",
+            "branch": "[parameters('repoBranch')]",
             "isManualIntegration": true
           }
         },

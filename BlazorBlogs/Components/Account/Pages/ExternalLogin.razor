@@ -1,60 +1,29 @@
 ﻿@page "/Account/ExternalLogin"
 
-@using System.ComponentModel.DataAnnotations
 @using System.Security.Claims
-@using System.Text
-@using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
 @using BlazorBlogs.Data
+@using Microsoft.EntityFrameworkCore
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
-@inject IEmailSender<ApplicationUser> EmailSender
-@inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
+@inject GeneralSettingsService GeneralSettingsService
 
-<PageTitle>Register</PageTitle>
+<PageTitle>External login</PageTitle>
 
-<StatusMessage Message="@message" />
-<h1>Register</h1>
-<h2>Associate your @ProviderDisplayName account.</h2>
-<hr />
-
-<div  class="alert alert-info">
-    You've successfully authenticated with <strong>@ProviderDisplayName</strong>.
-    Please enter an email address for this site below and click the Register button to finish
-    logging in.
-</div>
-
-<div class="row">
-    <div class="col-md-4">
-        <EditForm Model="Input" OnValidSubmit="OnValidSubmitAsync" FormName="confirmation" method="post">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email." />
-                <label for="Input.Email" class="form-label">Email</label>
-                <ValidationMessage For="() => Input.Email" />
-            </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </EditForm>
-    </div>
-</div>
+<h1>Completing Google sign-in</h1>
+<p>Please wait while your account is checked.</p>
 
 @code {
     public const string LoginCallbackAction = "LoginCallback";
 
-    private string message;
     private ExternalLoginInfo externalLoginInfo;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
-
-    [SupplyParameterFromForm]
-    private InputModel Input { get; set; }
 
     [SupplyParameterFromQuery]
     private string RemoteError { get; set; }
@@ -64,8 +33,6 @@
 
     [SupplyParameterFromQuery]
     private string Action { get; set; }
-
-    private string ProviderDisplayName => externalLoginInfo?.ProviderDisplayName;
 
     protected override async Task OnInitializedAsync()
     {
@@ -122,56 +89,113 @@
         {
             RedirectManager.RedirectTo("Account/Lockout");
         }
-
-        // If the user does not have an account, then ask the user to create an account.
-        if (externalLoginInfo.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+        else if (result.IsNotAllowed)
         {
-            Input.Email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email) ?? "";
+            RedirectManager.RedirectToWithStatus(
+                "Account/Login",
+                "This account is not confirmed or is locked.",
+                HttpContext);
         }
+
+        var email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email)?.Trim();
+        var verifiedValue = externalLoginInfo.Principal
+            .FindFirstValue(ExternalAuthOptionsStore.GoogleEmailVerifiedClaim);
+        if (string.IsNullOrWhiteSpace(email) ||
+            !bool.TryParse(verifiedValue, out var emailVerified) ||
+            !emailVerified)
+        {
+            RedirectManager.RedirectToWithStatus(
+                "Account/Login",
+                "Google did not confirm your email address.",
+                HttpContext);
+        }
+
+        var normalizedEmail = UserManager.NormalizeEmail(email);
+        var matchingUsers = await UserManager.Users
+            .Where(x => x.NormalizedEmail == normalizedEmail)
+            .Take(2)
+            .ToListAsync();
+
+        if (matchingUsers.Count > 1)
+        {
+            RedirectManager.RedirectToWithStatus(
+                "Account/Login",
+                "More than one account uses this email address. Contact the administrator.",
+                HttpContext);
+        }
+
+        if (matchingUsers.Count == 1)
+        {
+            var existingUser = matchingUsers[0];
+            if (!existingUser.EmailConfirmed || await UserManager.IsLockedOutAsync(existingUser))
+            {
+                RedirectManager.RedirectToWithStatus(
+                    "Account/Login",
+                    "This account is not confirmed or is locked.",
+                    HttpContext);
+            }
+
+            var existingLinkResult = await UserManager.AddLoginAsync(existingUser, externalLoginInfo);
+            if (!existingLinkResult.Succeeded)
+            {
+                RedirectWithIdentityErrors(existingLinkResult);
+            }
+
+            Logger.LogInformation(
+                "Existing account linked to {LoginProvider} provider.",
+                externalLoginInfo.LoginProvider);
+            await SignInManager.SignInAsync(existingUser, isPersistent: false, externalLoginInfo.LoginProvider);
+            RedirectManager.RedirectTo(ReturnUrl);
+        }
+
+        if (!await IsRegistrationAllowedAsync())
+        {
+            RedirectManager.RedirectToWithStatus("Account/Login", "Registration is closed", HttpContext);
+        }
+
+        var user = CreateUser();
+        var emailStore = GetEmailStore();
+        user.DisplayName = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Name) ?? "";
+        user.EmailConfirmed = true;
+        user.NewsletterSubscriber = false;
+
+        await UserStore.SetUserNameAsync(user, email, CancellationToken.None);
+        await emailStore.SetEmailAsync(user, email, CancellationToken.None);
+
+        var createResult = await UserManager.CreateAsync(user);
+        if (!createResult.Succeeded)
+        {
+            RedirectWithIdentityErrors(createResult);
+        }
+
+        var addLoginResult = await UserManager.AddLoginAsync(user, externalLoginInfo);
+        if (!addLoginResult.Succeeded)
+        {
+            await UserManager.DeleteAsync(user);
+            RedirectWithIdentityErrors(addLoginResult);
+        }
+
+        Logger.LogInformation(
+            "User created an account using {LoginProvider} provider.",
+            externalLoginInfo.LoginProvider);
+        await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
+        RedirectManager.RedirectTo(ReturnUrl);
     }
 
-    private async Task OnValidSubmitAsync()
+    private async Task<bool> IsRegistrationAllowedAsync()
     {
-        if (externalLoginInfo is null)
-        {
-            RedirectManager.RedirectToWithStatus("Account/Login", "Error loading external login information during confirmation.", HttpContext);
-        }
+        return bool.TryParse(
+                await GeneralSettingsService.GetSettingAsync("AllowRegistration"),
+                out var allowed)
+            && allowed;
+    }
 
-        var emailStore = GetEmailStore();
-        var user = CreateUser();
-
-        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-
-        var result = await UserManager.CreateAsync(user);
-        if (result.Succeeded)
-        {
-            result = await UserManager.AddLoginAsync(user, externalLoginInfo);
-            if (result.Succeeded)
-            {
-                Logger.LogInformation("User created an account using {Name} provider.", externalLoginInfo.LoginProvider);
-
-                var userId = await UserManager.GetUserIdAsync(user);
-                var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-                var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-                    NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-                    new Dictionary<string, object> { ["userId"] = userId, ["code"] = code });
-                await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
-
-                // If account confirmation is required, we need to show the link if we don't have a real email sender
-                if (UserManager.Options.SignIn.RequireConfirmedAccount)
-                {
-                    RedirectManager.RedirectTo("Account/RegisterConfirmation", new() { ["email"] = Input.Email });
-                }
-
-                await SignInManager.SignInAsync(user, isPersistent: false, externalLoginInfo.LoginProvider);
-                RedirectManager.RedirectTo(ReturnUrl);
-            }
-        }
-
-        message = $"Error: {string.Join(",", result.Errors.Select(error => error.Description))}";
+    private void RedirectWithIdentityErrors(IdentityResult result)
+    {
+        RedirectManager.RedirectToWithStatus(
+            "Account/Login",
+            string.Join(", ", result.Errors.Select(error => error.Description)),
+            HttpContext);
     }
 
     private ApplicationUser CreateUser()
@@ -194,12 +218,5 @@
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
-    }
-
-    private sealed class InputModel
-    {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = "";
     }
 }

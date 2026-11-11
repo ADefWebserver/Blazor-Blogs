@@ -1,0 +1,71 @@
+- generic [ref=f55e2]:
+  - banner [ref=f55e3]:
+    - link "Blazor Blogs" [ref=f55e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f55e6]:
+      - link "Blog" [ref=f55e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f55e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f55e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f55e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f55e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f55e13] [cursor=pointer]
+  - main [ref=f55e14]:
+    - article [ref=f55e15]:
+      - generic [ref=f55e16]:
+        - generic [ref=f55e17]:
+          - paragraph [ref=f55e18]: Latest stories and updates
+          - heading "From the blog" [level=1] [ref=f55e19]
+        - button "Write a post" [ref=f55e20] [cursor=pointer]
+      - region "Post filters" [ref=f55e21]:
+        - generic [ref=f55e22]:
+          - generic [ref=f55e23]: Filter by category
+          - combobox "Empty" [ref=f55e24]:
+            - textbox [aria-hidden] [ref=f55e25]: "0"
+            - generic [ref=f55e26]: All categories
+            - generic [ref=f55e27]: arrow_drop_down
+            - text: search
+            - button "Clear" [ref=f55e29] [cursor=pointer]: close
+        - generic [ref=f55e30]:
+          - generic [ref=f55e31]: Search posts
+          - textbox "Search posts" [ref=f55e32]
+        - button "Search" [ref=f55e33] [cursor=pointer]
+      - generic [ref=f55e36]:
+        - main "Blog posts" [ref=f55e37]:
+          - article [ref=f55e38]:
+            - generic [ref=f55e39]: November 11, 2026
+            - heading [level=2] [ref=f55e40]:
+              - link "Automated E2E Test Post - Updated" [ref=f55e41] [cursor=pointer]:
+                - /url: ViewBlogPost/1
+            - generic [ref=f55e42]: Updated summary.
+            - link "Read Automated E2E Test Post - Updated" [ref=f55e43] [cursor=pointer]:
+              - /url: ViewBlogPost/1
+              - text: Read more
+              - generic [aria-hidden] [ref=f55e44]: →
+        - complementary [ref=f55e45]:
+          - generic [ref=f55e46]:
+            - generic [ref=f55e47]: Newsletter
+            - heading "Stay in the loop" [level=2] [ref=f55e48]
+            - paragraph [ref=f55e49]: Sign in to manage email updates and follow new posts.
+            - link "Manage subscription" [ref=f55e50] [cursor=pointer]:
+              - /url: Account/Manage/Newsletter
+          - generic [ref=f55e51]:
+            - heading "Categories" [level=2] [ref=f55e52]
+            - button "E2E Category" [ref=f55e54] [cursor=pointer]
+      - navigation "Post pages" [ref=f55e55]:
+        - button "← Newer" [disabled]
+        - button "Older →" [disabled]
+      - generic [ref=f55e56]:
+        - button "Terms Of Use" [ref=f55e57] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f55e58] [cursor=pointer]
+  - contentinfo [ref=f55e59]:
+    - generic [ref=f55e60]: © 2026
+    - link "RSS feed" [ref=f55e61] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f55e62] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

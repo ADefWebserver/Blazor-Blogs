@@ -8,7 +8,7 @@
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
 @using Microsoft.EntityFrameworkCore;
-@using Newtonsoft.Json
+@using Microsoft.Data.SqlClient
 @inject UserManager<ApplicationUser> _UserManager
 @inject RoleManager<IdentityRole> _RoleManager
 @inject InstallUpdateState _InstallUpdateState
@@ -189,14 +189,13 @@
         {
             try
             {
-                // Update the appsettings.json file
                 await UpdateConnectionStringAsync(strConnectionString);
             }
             catch (Exception ex)
             {
-                // appsettings.json file update error
                 objDTOStatus.Success = false;
-                objDTOStatus.StatusMessage = ex.GetBaseException().Message;
+                objDTOStatus.StatusMessage =
+                    $"{ex.GetBaseException().Message} Set the ConnectionStrings__DefaultConnection environment variable as an alternative.";
             }
         }
         else
@@ -216,9 +215,8 @@
     {
         bool boolDatabaseConnectionValid = false;
 
-        // Try to connect to the database
         var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-        optionsBuilder.UseSqlServer(strConnectionString);
+        BlazorBlogsDbOptions.Configure(optionsBuilder, strConnectionString, configRoot, retry: false);
 
         using (var context = new BlazorBlogsContext(optionsBuilder.Options))
         {
@@ -239,19 +237,10 @@
     #region private async Task<string> UpdateDatabaseConnectionString(string strConnectionString)
     public async Task<string> UpdateConnectionStringAsync(string strConnectionString)
     {
-        // Update DefaultConnection in the appsettings.json file
-        await Task.Run(() =>
-        {
-            var appSettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-            var json = File.ReadAllText(appSettingsPath);
-
-            dynamic jsonObj = JsonConvert.DeserializeObject(json);
-            jsonObj["ConnectionStrings"]["DefaultConnection"] = strConnectionString +
-                ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
-            string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText(appSettingsPath, output);
-        });
+        ConnectionStringStore.Save(
+            hostEnvironment.ContentRootPath,
+            strConnectionString +
+                ";Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
 
         // Reload configuration
         var configRootObj = (IConfigurationRoot)configRoot;

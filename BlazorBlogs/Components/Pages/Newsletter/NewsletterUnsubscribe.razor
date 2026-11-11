@@ -1,39 +1,37 @@
-﻿@page "/NewsletterUnsubscribe/{UserId}"
+@page "/NewsletterUnsubscribe/{UserId}"
+@attribute [ExcludeFromInteractiveRouting]
+@using BlazorBlogs.Data
+@inject NewsletterSubscriptionService Subscriptions
+@inject NavigationManager NavigationManager
 
-@using BlazorBlogs.Data;
-@using BlazorBlogs.Data.Models;
-@using Microsoft.AspNetCore.Identity;
-@inject UserManager<ApplicationUser> _UserManager
-@inject RoleManager<IdentityRole> _RoleManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IConfiguration _configuration
-@inject DisqusState DisqusState
-@inherits OwningComponentBase<BlogsService>
-
-<br />
-<br />
-@if(success)
+@if (NotFound)
 {
-<h4>You have been unsubscribed from the newsletter.</h4>
+    <PageTitle>Newsletter link not found</PageTitle>
+    <h1>Newsletter link not found</h1>
+    <p>This subscription link is no longer valid. You can manage your newsletter preference from your account page.</p>
+    <a href="/Account/Manage/Newsletter">Manage newsletter preferences</a>
 }
 
 @code {
     [Parameter] public string UserId { get; set; }
-    bool success = false;
+    [CascadingParameter] public HttpContext HttpContext { get; set; } = default!;
+    private bool NotFound;
 
     protected override async Task OnInitializedAsync()
     {
-        // Get the user
-        var user = await _UserManager.FindByIdAsync(UserId);
-
-        if (user != null)
+        var token = await GetTokenAsync();
+        if (NewsletterSubscriptionService.IsWellFormedToken(token))
         {
-            // Set NewsletterSubscriber to false
-            user.NewsletterSubscriber = false;
-
-            // Update the user
-            await _UserManager.UpdateAsync(user);
-            success = true;
+            HttpContext.Response.Redirect(
+                $"/newsletter/preferences/{Uri.EscapeDataString(token)}");
+            return;
         }
+
+        NotFound = true;
     }
+
+    private Task<string> GetTokenAsync() =>
+        string.IsNullOrWhiteSpace(UserId)
+            ? Task.FromResult<string>(null)
+            : Subscriptions.GetExistingTokenAsync(UserId);
 }

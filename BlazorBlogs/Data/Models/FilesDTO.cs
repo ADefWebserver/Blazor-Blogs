@@ -16,5 +16,8 @@ namespace BlazorBlogs.Data.Models
         public string FilePath { get; set; }
         public DateTime CreateDate { get; set; }
         public int DownloadCount { get; set; }
+        public decimal Price { get; set; }
+        public string OriginalFileName { get; set; }
+        public bool Owned { get; set; }
     }
 }

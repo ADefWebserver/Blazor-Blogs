@@ -1,0 +1,51 @@
+- generic [ref=f47e2]:
+  - banner [ref=f47e3]:
+    - link "Blazor Blogs" [ref=f47e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f47e6]:
+      - link "Blog" [ref=f47e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f47e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f47e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f47e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f47e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f47e13] [cursor=pointer]
+  - main [ref=f47e14]:
+    - article [ref=f47e15]:
+      - generic [ref=f47e17]:
+        - paragraph [ref=f47e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f47e19]
+      - generic [ref=f47e20]:
+        - heading "Account settings" [level=2] [ref=f47e21]
+        - generic [ref=f47e22]:
+          - list [ref=f47e24]:
+            - listitem [ref=f47e25]:
+              - link "Profile" [ref=f47e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f47e27]:
+              - link "Email" [ref=f47e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f47e29]:
+              - link "Newsletter" [ref=f47e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f47e31]:
+              - link "Password" [ref=f47e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f47e33]:
+              - link "Personal data" [ref=f47e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f47e35]:
+            - heading "Two-factor authentication (2FA)" [level=3] [ref=f47e36]
+            - heading "Authenticator app" [level=4] [ref=f47e37]
+            - link "Add authenticator app" [ref=f47e38] [cursor=pointer]:
+              - /url: Account/Manage/EnableAuthenticator
+  - contentinfo [ref=f47e39]:
+    - generic [ref=f47e40]: © 2026
+    - link "RSS feed" [ref=f47e41] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f47e42] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

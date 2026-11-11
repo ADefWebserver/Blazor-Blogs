@@ -1,0 +1,68 @@
+- generic [ref=f15e1]:
+  - generic [ref=f15e57]:
+    - banner [ref=f15e58]:
+      - link "Blazor Blogs" [ref=f15e59] [cursor=pointer]:
+        - /url: /
+      - navigation "Primary navigation" [ref=f15e61]:
+        - link "Blog" [ref=f15e62] [cursor=pointer]:
+          - /url: /
+        - link "Downloads" [ref=f15e63] [cursor=pointer]:
+          - /url: filedownloads
+        - link "Newsletter" [ref=f15e64] [cursor=pointer]:
+          - /url: Account/Manage/Newsletter
+      - generic [ref=f15e65]:
+        - link "Hello, webmaster@adefwebserver.com!" [ref=f15e66] [cursor=pointer]:
+          - /url: Account/Manage
+        - button "Log out" [ref=f15e68] [cursor=pointer]
+    - main [ref=f15e69]:
+      - article [ref=f15e70]:
+        - generic [ref=f15e71]:
+          - complementary "Administration navigation" [ref=f15e72]:
+            - generic [ref=f15e73]:
+              - generic [aria-hidden] [ref=f15e74]: A
+              - generic [ref=f15e75]:
+                - strong [ref=f15e76]: Administration
+                - generic [ref=f15e77]: Site controls
+            - navigation "Administration" [ref=f15e78]:
+              - link "Posts" [ref=f15e79] [cursor=pointer]:
+                - /url: /
+              - link "Categories" [ref=f15e81] [cursor=pointer]:
+                - /url: categories
+              - link "Users" [ref=f15e83] [cursor=pointer]:
+                - /url: administration
+              - link "Files" [ref=f15e85] [cursor=pointer]:
+                - /url: filemanager
+              - link "Newsletter" [ref=f15e87] [cursor=pointer]:
+                - /url: newsletter
+              - link "Purchases" [ref=f15e89] [cursor=pointer]:
+                - /url: purchases
+              - link "Logs" [ref=f15e91] [cursor=pointer]:
+                - /url: logs
+              - link "Settings" [ref=f15e93] [cursor=pointer]:
+                - /url: settings
+            - link "View public site" [ref=f15e95] [cursor=pointer]:
+              - /url: /
+          - generic [ref=f15e96]:
+            - generic [ref=f15e97]:
+              - generic [ref=f15e98]:
+                - paragraph [ref=f15e99]: Organize content
+                - heading "Categories" [level=1] [ref=f15e100]
+              - button "Edit categories" [ref=f15e101] [cursor=pointer]
+            - generic [ref=f15e102]:
+              - combobox "Automated E2E Test Post - Updated" [ref=f15e147]:
+                - textbox [aria-hidden] [ref=f15e104]: BlazorBlogs.Data.Models.Blogs
+                - generic [ref=f15e106]: arrow_drop_down
+              - combobox "E2E Category" [ref=f15e157]:
+                - textbox [aria-hidden] [ref=f15e151]: "System.Linq.Enumerable+IEnumerableSelectIterator`2[System.Object,System.Object].Cast()"
+                - generic [ref=f15e153]: arrow_drop_down
+                - button "Clear" [ref=f15e159] [cursor=pointer]: close
+              - button "Update" [active] [ref=f15e156] [cursor=pointer]
+              - paragraph [ref=f15e160]: Updated!
+    - contentinfo [ref=f15e108]:
+      - generic [ref=f15e109]: © 2026
+      - link "RSS feed" [ref=f15e110] [cursor=pointer]:
+        - /url: api/RSSFeed/Rss
+        - text: RSS
+      - link "About" [ref=f15e111] [cursor=pointer]:
+        - /url: https://github.com/ADefWebserver/Blazor-Blogs
+  - text: search check search check

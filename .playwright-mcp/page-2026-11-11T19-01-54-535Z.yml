@@ -1,0 +1,44 @@
+- generic [ref=f27e2]:
+  - banner [ref=f27e3]:
+    - link "Blazor Blogs" [ref=f27e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f27e6]:
+      - link "Blog" [ref=f27e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f27e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f27e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f27e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f27e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f27e13] [cursor=pointer]
+  - main [ref=f27e14]:
+    - article [ref=f27e15]:
+      - generic [ref=f27e16]:
+        - generic [ref=f27e17]:
+          - paragraph [ref=f27e18]: Files from this site
+          - heading "Downloads" [level=1] [ref=f27e19]
+        - button "Upload file" [ref=f27e20] [cursor=pointer]
+      - article [ref=f27e22]:
+        - generic [ref=f27e26]:
+          - heading "E2E Test Download Updated" [level=2] [ref=f27e27]
+          - generic [ref=f27e28]: Free
+        - generic [ref=f27e29]:
+          - button "Edit E2E Test Download Updated" [ref=f27e30] [cursor=pointer]: Edit
+          - link "Download" [ref=f27e31] [cursor=pointer]:
+            - /url: api/File/Download/1
+      - generic [ref=f27e32]:
+        - link "Lost your download link?" [ref=f27e33] [cursor=pointer]:
+          - /url: downloads/resend
+        - generic [ref=f27e34]: Payments and applicable tax are securely processed by Stripe.
+      - navigation "Download pages" [ref=f27e35]:
+        - button "← Previous" [disabled]
+        - button "Next →" [disabled]
+  - contentinfo [ref=f27e36]:
+    - generic [ref=f27e37]: © 2026
+    - link "RSS feed" [ref=f27e38] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f27e39] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

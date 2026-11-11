@@ -1,0 +1,63 @@
+- generic [ref=f53e2]:
+  - banner [ref=f53e3]:
+    - link "Blazor Blogs" [ref=f53e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f53e6]:
+      - link "Blog" [ref=f53e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f53e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f53e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f53e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f53e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f53e13] [cursor=pointer]
+  - main [ref=f53e14]:
+    - article [ref=f53e15]:
+      - generic [ref=f53e16]:
+        - complementary "Administration navigation" [ref=f53e17]:
+          - generic [ref=f53e18]:
+            - generic [aria-hidden] [ref=f53e19]: A
+            - generic [ref=f53e20]:
+              - strong [ref=f53e21]: Administration
+              - generic [ref=f53e22]: Site controls
+          - navigation "Administration" [ref=f53e23]:
+            - link "Posts" [ref=f53e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f53e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f53e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f53e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f53e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f53e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f53e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f53e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f53e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f53e41]:
+          - paragraph
+          - heading "Import Blogs" [level=1] [ref=f53e42]
+          - paragraph [ref=f53e43]:
+            - text: "Works with:"
+            - link "DotNetNuke Blog" [ref=f53e44] [cursor=pointer]:
+              - /url: https://github.com/DNNCommunity/DNN.Blog
+          - heading "Source" [level=4] [ref=f53e45]
+          - combobox "Empty" [ref=f53e46]:
+            - textbox [aria-hidden] [ref=f53e47]
+            - generic [ref=f53e48]: Select Connection...
+            - generic [ref=f53e49]: arrow_drop_down
+          - button "New Connection" [ref=f53e51] [cursor=pointer]
+  - contentinfo [ref=f53e52]:
+    - generic [ref=f53e53]: © 2026
+    - link "RSS feed" [ref=f53e54] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f53e55] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

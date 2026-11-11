@@ -1,0 +1,79 @@
+- generic [active] [ref=f1e1]:
+  - heading "An unhandled exception occurred while processing the request." [level=1] [ref=f1e2]
+  - generic [ref=f1e3]: "InvalidOperationException: The property 'ReturnUrl' on component type 'BlazorBlogs.Components.Account.Shared.ExternalLoginPicker' cannot be set explicitly because it only accepts cascading values."
+  - paragraph [ref=f1e4]: Microsoft.AspNetCore.Components.Reflection.ComponentProperties.ThrowForSettingCascadingParameterWithNonCascadingValue(Type targetType, string parameterName)
+  - list [ref=f1e5]:
+    - listitem [ref=f1e6] [cursor=pointer]: Stack
+    - listitem [ref=f1e7] [cursor=pointer]: Query
+    - listitem [ref=f1e8] [cursor=pointer]: Cookies
+    - listitem [ref=f1e9] [cursor=pointer]: Headers
+    - listitem [ref=f1e10] [cursor=pointer]: Routing
+  - list [ref=f1e12]:
+    - listitem [ref=f1e13]:
+      - 'heading "InvalidOperationException: The property ''ReturnUrl'' on component type ''BlazorBlogs.Components.Account.Shared.ExternalLoginPicker'' cannot be set explicitly because it only accepts cascading values." [level=2] [ref=f1e14]'
+      - list [ref=f1e15]:
+        - listitem [ref=f1e16]:
+          - heading "Microsoft.AspNetCore.Components.Reflection.ComponentProperties.ThrowForSettingCascadingParameterWithNonCascadingValue(Type targetType, string parameterName)" [level=3] [ref=f1e17]
+        - listitem [ref=f1e18]:
+          - heading "Microsoft.AspNetCore.Components.Reflection.ComponentProperties.SetProperties(ref ParameterView parameters, object target)" [level=3] [ref=f1e19]
+        - listitem [ref=f1e20]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.SetParametersAsync(ParameterView parameters)" [level=3] [ref=f1e21]
+        - listitem [ref=f1e22]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.SupplyCombinedParameters(ParameterView directAndCascadingParameters)" [level=3] [ref=f1e23]
+        - listitem [ref=f1e24]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.SupplyCombinedParameters(ParameterView directAndCascadingParameters)" [level=3] [ref=f1e25]
+        - listitem [ref=f1e26]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.InitializeNewSubtree(ref DiffContext diffContext, int frameIndex)" [level=3] [ref=f1e27]
+        - listitem [ref=f1e28]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.InsertNewFrame(ref DiffContext diffContext, int newFrameIndex)" [level=3] [ref=f1e29]
+        - listitem [ref=f1e30]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.AppendDiffEntriesForRange(ref DiffContext diffContext, int oldStartIndex, int oldEndIndexExcl, int newStartIndex, int newEndIndexExcl)" [level=3] [ref=f1e31]
+        - listitem [ref=f1e32]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.RenderIntoBatch(RenderBatchBuilder batchBuilder, RenderFragment renderFragment, out Exception renderFragmentException)" [level=3] [ref=f1e33]
+        - listitem [ref=f1e34]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f1e35]
+        - listitem [ref=f1e36]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f1e37]
+        - listitem [ref=f1e38]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.StateHasChanged()" [level=3] [ref=f1e39]
+        - listitem [ref=f1e40]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.RunInitAndSetParametersAsync()" [level=3] [ref=f1e41]
+        - listitem [ref=f1e42]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f1e43]
+        - listitem [ref=f1e44]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f1e45]
+        - listitem [ref=f1e46]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.<WaitForNonStreamingPendingTasks>g__Execute|58_0()" [level=3] [ref=f1e47]
+        - listitem [ref=f1e48]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.WaitForResultReady(bool waitForQuiescence, PrerenderedComponentHtmlContent result)" [level=3] [ref=f1e49]
+        - listitem [ref=f1e50]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.RenderEndpointComponent(HttpContext httpContext, Type rootComponentType, ParameterView parameters, bool waitForQuiescence)" [level=3] [ref=f1e51]
+        - listitem [ref=f1e52]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f1e53]
+        - listitem [ref=f1e54]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f1e55]
+        - listitem [ref=f1e56]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.RendererSynchronizationContext+<>c+<<InvokeAsync>b__10_0>d.MoveNext()" [level=3] [ref=f1e57]
+        - listitem [ref=f1e58]:
+          - heading "Microsoft.AspNetCore.Builder.ServerRazorComponentsEndpointConventionBuilderExtensions+<>c__DisplayClass1_1.<AddInteractiveServerRenderMode>b__1(HttpContext context)" [level=3] [ref=f1e59]
+        - listitem [ref=f1e60]:
+          - heading [level=3] [ref=f1e61]:
+            - text: BlazorBlogs.Program+<>c+<<Main>b__3_6>d.MoveNext() in
+            - code [ref=f1e62]: Program.cs
+          - button "+" [ref=f1e63] [cursor=pointer]
+          - list [ref=f1e65]:
+            - listitem [ref=f1e66]: await next();
+        - listitem [ref=f1e67]:
+          - heading "WilderMinds.MetaWeblog.MetaWeblogMiddleware.Invoke(HttpContext context, MetaWeblogService service)" [level=3] [ref=f1e68]
+        - listitem [ref=f1e69]:
+          - heading "Toolbelt.Blazor.HeadElement.Middlewares.HeadElementServerPrerenderingMiddleware.InvokeAsync(HttpContext context, IHeadElementHelperStore store)" [level=3] [ref=f1e70]
+        - listitem [ref=f1e71]:
+          - heading "Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f1e72]
+        - listitem [ref=f1e73]:
+          - heading "Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f1e74]
+        - listitem [ref=f1e75]:
+          - heading "Microsoft.AspNetCore.Antiforgery.CsrfProtectionMiddleware.InvokeCoreAsync(HttpContext context)" [level=3] [ref=f1e76]
+        - listitem [ref=f1e77]:
+          - heading "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)" [level=3] [ref=f1e78]
+    - listitem [ref=f1e79]:
+      - button "Show raw exception details" [ref=f1e81] [cursor=pointer]

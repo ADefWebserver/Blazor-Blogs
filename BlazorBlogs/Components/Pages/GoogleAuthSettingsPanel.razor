@@ -1,0 +1,85 @@
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+@inject ExternalAuthOptionsStore ExternalAuthOptionsStore
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+@inherits OwningComponentBase
+
+<section class="settings-card">
+<div class="bb-section-heading">
+    <div>
+        <h2>Google sign-in</h2>
+        <p>Allow visitors to use a Google account alongside password sign-in.</p>
+    </div>
+</div>
+@if (settings is null)
+{
+    <p>Loading Google sign-in settings...</p>
+}
+else
+{
+    <div class="form-check mb-3">
+        <input id="google-enabled" class="form-check-input" type="checkbox" @bind="settings.Enabled" />
+        <label class="form-check-label" for="google-enabled">Enabled</label>
+    </div>
+    <label for="google-client-id">Client ID</label>
+    <input id="google-client-id" class="form-control" @bind="settings.ClientId" autocomplete="off" />
+    <label for="google-client-secret">
+        Client Secret
+        <small>(@(secretConfigured ? "configured" : "not configured"); blank keeps the stored value)</small>
+    </label>
+    <input id="google-client-secret"
+           class="form-control"
+           type="password"
+           @bind="secretInput"
+           autocomplete="new-password" />
+    <p class="mt-2">Authorized redirect URI: <code>@redirectUri</code></p>
+    <button type="button" class="btn btn-primary" @onclick="Save">Save Google Settings</button>
+}
+</section>
+
+@code {
+    private GoogleAuthSettings settings;
+    private string secretInput = "";
+    private string redirectUri = "";
+    private bool secretConfigured;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var service = ScopedServices.GetRequiredService<GoogleAuthSettingsService>();
+        settings = await service.GetAsync();
+        secretConfigured = !string.IsNullOrWhiteSpace(settings.ClientSecret);
+        settings.ClientSecret = "";
+        redirectUri = await GetRedirectUriAsync();
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            var service = ScopedServices.GetRequiredService<GoogleAuthSettingsService>();
+            settings.ClientSecret = secretInput;
+            await service.SaveAsync(settings);
+
+            var persisted = await service.GetAsync();
+            ExternalAuthOptionsStore.UpdateGoogle(persisted);
+            secretConfigured = !string.IsNullOrWhiteSpace(persisted.ClientSecret);
+            settings = persisted;
+            settings.ClientSecret = "";
+            secretInput = "";
+            ToastService.ShowSuccess("Google sign-in settings saved.");
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.GetBaseException().Message);
+        }
+    }
+
+    private async Task<string> GetRedirectUriAsync()
+    {
+        var baseUrl = await ScopedServices
+            .GetRequiredService<SiteUrlService>()
+            .GetBaseUrlAsync(NavigationManager.BaseUri);
+        return new Uri(new Uri(baseUrl), "signin-google").AbsoluteUri;
+    }
+}

@@ -1,0 +1,114 @@
+- generic [ref=f51e2]:
+  - banner [ref=f51e3]:
+    - link "Blazor Blogs" [ref=f51e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f51e6]:
+      - link "Blog" [ref=f51e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f51e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f51e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f51e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f51e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f51e13] [cursor=pointer]
+  - main [ref=f51e14]:
+    - article [ref=f51e15]:
+      - generic [ref=f51e16]:
+        - complementary "Administration navigation" [ref=f51e17]:
+          - generic [ref=f51e18]:
+            - generic [aria-hidden] [ref=f51e19]: A
+            - generic [ref=f51e20]:
+              - strong [ref=f51e21]: Administration
+              - generic [ref=f51e22]: Site controls
+          - navigation "Administration" [ref=f51e23]:
+            - link "Posts" [ref=f51e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f51e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f51e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f51e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f51e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f51e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f51e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f51e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f51e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f51e41]:
+          - generic [ref=f51e43]:
+            - paragraph [ref=f51e44]: Application activity
+            - heading "Logs" [level=1] [ref=f51e45]
+          - button "Delete Logs" [ref=f51e46] [cursor=pointer]
+          - table [ref=f51e47]:
+            - rowgroup [ref=f51e48]:
+              - row [ref=f51e49]:
+                - columnheader "Date" [ref=f51e50]
+                - columnheader "Action" [ref=f51e51]
+                - columnheader "User Name" [ref=f51e52]
+                - columnheader "IP Address" [ref=f51e53]
+            - rowgroup [ref=f51e54]:
+              - row [ref=f51e55]:
+                - cell "11/11/2026 11:21 AM" [ref=f51e56]
+                - cell "Newsletter unsubscribed via AccountPage" [ref=f51e57]
+                - cell "webmaster@adefwebserver.com" [ref=f51e58]
+                - cell "127.0.0.1" [ref=f51e59]
+              - row [ref=f51e60]:
+                - cell "11/11/2026 11:21 AM" [ref=f51e61]
+                - cell "Newsletter subscribed via AccountPage" [ref=f51e62]
+                - cell "webmaster@adefwebserver.com" [ref=f51e63]
+                - cell "127.0.0.1" [ref=f51e64]
+              - row [ref=f51e65]:
+                - cell "11/11/2026 11:11 AM" [ref=f51e66]
+                - 'cell "Delete Newsletter #1" [ref=f51e67]'
+                - cell "webmaster@adefwebserver.com" [ref=f51e68]
+                - cell "::1" [ref=f51e69]
+              - row [ref=f51e70]:
+                - cell "11/11/2026 11:06 AM" [ref=f51e71]
+                - 'cell "Update Newsletter #1" [ref=f51e72]'
+                - cell "webmaster@adefwebserver.com" [ref=f51e73]
+                - cell "::1" [ref=f51e74]
+              - row [ref=f51e75]:
+                - cell "11/11/2026 11:05 AM" [ref=f51e76]
+                - 'cell "Create Newsletter #0" [ref=f51e77]'
+                - cell "webmaster@adefwebserver.com" [ref=f51e78]
+                - cell "::1" [ref=f51e79]
+              - row [ref=f51e80]:
+                - cell "11/11/2026 11:02 AM" [ref=f51e81]
+                - cell "webmaster@adefwebserver.com deleted file 34d170f498da4ccba8d0dc7993a72efe.zip" [ref=f51e82]
+                - cell "webmaster@adefwebserver.com" [ref=f51e83]
+                - cell "::1" [ref=f51e84]
+              - row [ref=f51e85]:
+                - cell "11/11/2026 10:57 AM" [ref=f51e86]
+                - 'cell "Download File #E2E Test Download Updated" [ref=f51e87]'
+                - cell "eb05fc17-98b6-4169-af50-e1bd814d7078" [ref=f51e88]
+                - cell "::1" [ref=f51e89]
+              - row [ref=f51e90]:
+                - cell "11/11/2026 10:47 AM" [ref=f51e91]
+                - cell "Newsletter subscribed via Admin" [ref=f51e92]
+                - cell "e2e-test-user@example.com" [ref=f51e93]
+                - cell "127.0.0.1" [ref=f51e94]
+              - row [ref=f51e95]:
+                - cell "11/11/2026 10:40 AM" [ref=f51e96]
+                - 'cell "Update Blog #1" [ref=f51e97]'
+                - cell "webmaster@adefwebserver.com" [ref=f51e98]
+                - cell "::1" [ref=f51e99]
+              - row [ref=f51e100]:
+                - cell "11/11/2026 10:37 AM" [ref=f51e101]
+                - 'cell "Create Blog #0" [ref=f51e102]'
+                - cell "webmaster@adefwebserver.com" [ref=f51e103]
+                - cell "::1" [ref=f51e104]
+          - button "<" [ref=f51e105] [cursor=pointer]
+  - contentinfo [ref=f51e107]:
+    - generic [ref=f51e108]: © 2026
+    - link "RSS feed" [ref=f51e109] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f51e110] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

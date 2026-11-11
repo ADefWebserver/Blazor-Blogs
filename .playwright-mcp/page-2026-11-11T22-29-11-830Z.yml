@@ -1,0 +1,61 @@
+- generic [ref=f3e2]:
+  - generic [ref=f3e3]:
+    - link [ref=f3e6] [cursor=pointer]:
+      - /url: ""
+    - list [ref=f3e9]:
+      - generic [ref=f3e10]:
+        - link "Home" [ref=f3e11] [cursor=pointer]:
+          - /url: ""
+          - generic [aria-hidden] [ref=f3e12]: 
+          - text: Home
+        - link "Downloads" [ref=f3e13] [cursor=pointer]:
+          - /url: filedownloads
+          - generic [aria-hidden] [ref=f3e14]: 
+          - text: Downloads
+      - link "[Login]" [ref=f3e16] [cursor=pointer]:
+        - /url: Account/Login
+        - generic [aria-hidden] [ref=f3e17]: 
+        - text: "[Login]"
+      - link "[Register]" [ref=f3e19] [cursor=pointer]:
+        - /url: Account/Register
+        - generic [aria-hidden] [ref=f3e20]: 
+        - text: "[Register]"
+  - main [ref=f3e21]:
+    - generic [ref=f3e22]:
+      - link "Register" [ref=f3e23] [cursor=pointer]:
+        - /url: Account/Register
+      - link "Log in" [ref=f3e24] [cursor=pointer]:
+        - /url: Account/Login
+      - link "About" [ref=f3e25] [cursor=pointer]:
+        - /url: https://github.com/ADefWebserver/Blazor-Blogs
+      - link "rss_feed" [ref=f3e26] [cursor=pointer]:
+        - /url: api/RSSFeed/Rss
+    - article [ref=f3e28]:
+      - heading "Log in" [active] [level=1] [ref=f3e29]
+      - generic [ref=f3e33]:
+        - heading "Use a local account to log in." [level=2] [ref=f3e34]
+        - separator [ref=f3e35]
+        - generic [ref=f3e36]:
+          - textbox "Email" [ref=f3e37]:
+            - /placeholder: name@example.com
+            - text: webmaster@adefwebserver.com
+          - generic: Email
+        - generic [ref=f3e38]:
+          - textbox "Password" [ref=f3e39]:
+            - /placeholder: password
+            - text: Password#1
+          - generic: Password
+        - generic [ref=f3e41]:
+          - checkbox "Remember me" [ref=f3e42]
+          - text: Remember me
+        - button "Log in" [ref=f3e44] [cursor=pointer]
+        - generic [ref=f3e45]:
+          - paragraph [ref=f3e46]:
+            - link "Forgot your password?" [ref=f3e47] [cursor=pointer]:
+              - /url: Account/ForgotPassword
+          - paragraph [ref=f3e48]:
+            - link "Register as a new user" [ref=f3e49] [cursor=pointer]:
+              - /url: Account/Register
+          - paragraph [ref=f3e50]:
+            - link "Resend email confirmation" [ref=f3e51] [cursor=pointer]:
+              - /url: Account/ResendEmailConfirmation

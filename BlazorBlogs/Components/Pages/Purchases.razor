@@ -1,0 +1,98 @@
+@page "/purchases"
+@layout BlazorBlogs.Components.Layout.AdminLayout
+@attribute [Authorize(Roles = "Administrators")]
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+@inherits OwningComponentBase
+
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Paid downloads</p>
+        <h1>Purchases</h1>
+        <p>Review checkout status, collected tax and guest download delivery.</p>
+    </div>
+</div>
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
+{
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+<table class="table">
+    <thead><tr><th>Date</th><th>File</th><th>Buyer</th><th>Amount</th><th>Tax</th><th>Status</th><th>Mode</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var purchase in PurchasesList)
+        {
+            <tr>
+                <td>@purchase.CreatedUtc</td>
+                <td>@purchase.File?.FileName</td>
+                <td>@purchase.BuyerEmail</td>
+                <td>@purchase.Amount.ToString("0.00") @purchase.Currency?.ToUpperInvariant()</td>
+                <td>@purchase.TaxAmount.ToString("0.00")</td>
+                <td>@purchase.Status</td>
+                <td>@(purchase.LiveMode ? "Live" : "Test")</td>
+                <td>
+                    @if (purchase.Status == "Paid")
+                    {
+                        <button class="btn btn-link" @onclick="(() => Resend(purchase.Id))">Resend link</button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<nav class="pager" aria-label="Purchase pages">
+    <button class="btn btn-secondary" disabled="@(PageNumber == 1)" @onclick="Previous">← Previous</button>
+    <button class="btn btn-secondary" disabled="@(!HasNext)" @onclick="Next">Next →</button>
+</nav>
+
+@code {
+    private List<FilePurchases> PurchasesList = [];
+    private int PageNumber = 1;
+    private int Count;
+    private bool HasNext => Count > PageNumber * 25;
+    private string ErrorMessage = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        var context = ScopedServices.GetRequiredService<BlazorBlogsContext>();
+        Count = await context.FilePurchases.CountAsync();
+        PurchasesList = await context.FilePurchases.AsNoTracking()
+            .Include(x => x.File)
+            .OrderByDescending(x => x.CreatedUtc)
+            .Skip((PageNumber - 1) * 25)
+            .Take(25)
+            .ToListAsync();
+    }
+
+    private async Task Resend(int id)
+    {
+        try
+        {
+            if (await ScopedServices.GetRequiredService<PaidDownloadService>().ResendPurchaseAsync(id, NavigationManager.BaseUri))
+                ToastService.ShowSuccess("Download link sent.");
+            else
+                ToastService.ShowError("The purchase is not available for resend.");
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.GetBaseException().Message;
+        }
+    }
+
+    private async Task Previous()
+    {
+        if (PageNumber > 1) PageNumber--;
+        await Load();
+    }
+
+    private async Task Next()
+    {
+        if (HasNext) PageNumber++;
+        await Load();
+    }
+}

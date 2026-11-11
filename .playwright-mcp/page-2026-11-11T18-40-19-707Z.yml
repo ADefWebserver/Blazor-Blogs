@@ -1,0 +1,63 @@
+- generic [ref=f15e2]:
+  - banner [ref=f15e3]:
+    - link "Blazor Blogs" [ref=f15e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f15e6]:
+      - link "Blog" [ref=f15e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f15e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f15e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f15e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f15e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f15e13] [cursor=pointer]
+  - main [ref=f15e14]:
+    - article [ref=f15e15]:
+      - generic [ref=f15e16]:
+        - complementary "Administration navigation" [ref=f15e17]:
+          - generic [ref=f15e18]:
+            - generic [aria-hidden] [ref=f15e19]: A
+            - generic [ref=f15e20]:
+              - strong [ref=f15e21]: Administration
+              - generic [ref=f15e22]: Site controls
+          - navigation "Administration" [ref=f15e23]:
+            - link "Posts" [ref=f15e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f15e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f15e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f15e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f15e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f15e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f15e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f15e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f15e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f15e41]:
+          - generic [ref=f15e42]:
+            - generic [ref=f15e43]:
+              - paragraph [ref=f15e44]: Organize content
+              - heading "Categories" [level=1] [ref=f15e45]
+            - button "Edit categories" [ref=f15e46] [cursor=pointer]
+          - generic [ref=f15e47]:
+            - combobox "Empty" [ref=f15e48]:
+              - textbox [aria-hidden] [ref=f15e49]
+              - generic [ref=f15e50]: Select Blog...
+              - generic [ref=f15e51]: arrow_drop_down
+              - text: search
+            - paragraph
+  - contentinfo [ref=f15e53]:
+    - generic [ref=f15e54]: © 2026
+    - link "RSS feed" [ref=f15e55] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f15e56] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

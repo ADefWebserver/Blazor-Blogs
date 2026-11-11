@@ -1,6 +1,8 @@
 ﻿@using System.IO
 @using System.Drawing;
+@using System.Web;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@inject UserContentPaths UserContentPaths
 
 @if (ShowFileManager)
 {
@@ -17,6 +19,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
+                        <RadzenUpload ChooseText="Upload Images"
+                                      Multiple="true"
+                                      Accept="image/*"
+                                      Url=@($"api/upload/multiple?CurrentDirectory={HttpUtility.UrlEncode(CurrentDirectory.ToLower().Replace(CurrentRoot.ToLower(), ""))}")
+                                      Complete="OnUploadComplete"
+                                      Style="margin: 0 0 20px 15px;height:45px;" />
                         <RadzenButton Disabled="@(SelectedFile.FileName == null)"
                                   Text="Select"
                                   Click="SelectFile"
@@ -74,8 +82,7 @@
 
     protected override void OnInitialized()
     {
-        CurrentRoot =
-            Path.Combine(HostEnvironment.WebRootPath, "uploads");
+        CurrentRoot = UserContentPaths.UploadsPath;
         CurrentDirectory = CurrentRoot;
         Directories.Add(CurrentDirectory);
         LoadFiles();
@@ -84,7 +91,10 @@
     public void SetShowFileManager(bool paramSetting)
     {
         ShowFileManager = paramSetting;
+        StateHasChanged();
     }
+
+    private void OnUploadComplete(UploadCompleteEventArgs args) => LoadFiles();
 
     //SelectFile
 
@@ -187,8 +197,7 @@
                     Files.Add(new FileObject()
                         {
                             FileName = Path.GetFileName(item),
-                            FilePath = item.Replace(HostEnvironment.WebRootPath, "")
-                                .Replace("\\uploads", "uploads"),
+                            FilePath = UserContentPaths.ToRelativeUrl(item),
                             Height = image.Height,
                             Width = image.Width,
                             ThumbnailHeight = Convert.ToInt32(thumbnailHeight),
@@ -202,8 +211,7 @@
                 Files.Add(new FileObject()
                     {
                         FileName = Path.GetFileName(item),
-                        FilePath = item.Replace(HostEnvironment.WebRootPath, "")
-                                .Replace("\\uploads", "uploads"),
+                        FilePath = UserContentPaths.ToRelativeUrl(item),
                         Height = 100,
                         Width = 100,
                         ThumbnailHeight = Convert.ToInt32(100),

@@ -1,0 +1,155 @@
+- generic [ref=f4e2]:
+  - banner [ref=f4e3]:
+    - link "Blazor Blogs" [ref=f4e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f4e6]:
+      - link "Blog" [ref=f4e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f4e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f4e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f4e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f4e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f4e13] [cursor=pointer]
+  - main [ref=f4e14]:
+    - article [ref=f4e15]:
+      - generic [ref=f4e16]:
+        - generic [ref=f4e17]:
+          - paragraph [ref=f4e18]: Latest stories and updates
+          - heading "From the blog" [level=1] [ref=f4e19]
+        - button "Write a post" [active] [ref=f4e20] [cursor=pointer]
+      - region "Post filters" [ref=f4e21]:
+        - generic [ref=f4e22]:
+          - generic [ref=f4e23]: Filter by category
+          - combobox "Empty" [ref=f4e24]:
+            - textbox [aria-hidden] [ref=f4e25]: "0"
+            - generic [ref=f4e26]: All categories
+            - generic [ref=f4e27]: arrow_drop_down
+            - text: search
+            - button "Clear" [ref=f4e29] [cursor=pointer]: close
+        - generic [ref=f4e30]:
+          - generic [ref=f4e31]: Search posts
+          - textbox "Search posts" [ref=f4e32]
+        - button "Search" [ref=f4e33] [cursor=pointer]
+      - generic [ref=f4e36]:
+        - main "Blog posts"
+        - complementary [ref=f4e37]:
+          - generic [ref=f4e38]:
+            - generic [ref=f4e39]: Newsletter
+            - heading "Stay in the loop" [level=2] [ref=f4e40]
+            - paragraph [ref=f4e41]: Sign in to manage email updates and follow new posts.
+            - link "Manage subscription" [ref=f4e42] [cursor=pointer]:
+              - /url: Account/Manage/Newsletter
+          - heading "Categories" [level=2] [ref=f4e44]
+      - dialog [ref=f4e53]:
+        - generic [ref=f4e54]:
+          - generic [ref=f4e55]:
+            - heading "Edit Blog" [level=3] [ref=f4e56]
+            - button [ref=f4e57] [cursor=pointer]
+          - generic [ref=f4e58]:
+            - textbox [ref=f4e60]: 2026-11-11
+            - heading "Title" [level=5] [ref=f4e61]
+            - textbox [ref=f4e63]
+            - heading "Summary" [level=5] [ref=f4e64]
+            - generic [ref=f4e67]:
+              - button "Undo" [disabled] [ref=f4e68]:
+                - generic [aria-hidden] [ref=f4e70]: undo
+              - button "Redo" [disabled] [ref=f4e71]:
+                - generic [aria-hidden] [ref=f4e73]: redo
+              - button "Bold (Ctrl+B)" [ref=f4e75] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e77]: format_bold
+              - button "Italic (Ctrl+I)" [ref=f4e78] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e80]: format_italic
+              - button "Underline (Ctrl+U)" [ref=f4e81] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e83]: format_underlined
+              - button "Strikethrough" [ref=f4e84] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e86]: strikethrough_s
+              - generic "Text color" [ref=f4e87]:
+                - button [ref=f4e88] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f4e89]: title
+                  - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+              - generic "Background color" [ref=f4e91]:
+                - button [ref=f4e92] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f4e93]: opacity
+                  - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+              - button "Ordered list" [ref=f4e96] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e98]: format_list_numbered
+              - button "Bullet list" [ref=f4e99] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e101]: format_list_bulleted
+              - button "Insert link" [ref=f4e102] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e104]: insert_link
+              - button "Format block arrow_drop_down" [ref=f4e105] [cursor=pointer]:
+                - generic [ref=f4e106]: Format block
+                - generic [ref=f4e107]: arrow_drop_down
+              - button "Align left" [ref=f4e109] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e111]: format_align_left
+              - button "Align center" [ref=f4e112] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e114]: format_align_center
+              - button "Align right" [ref=f4e115] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e117]: format_align_right
+              - button "Remove styling" [ref=f4e118] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e120]: format_clear
+              - button "Insert image" [ref=f4e121] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e123]: image
+              - button "View source" [ref=f4e124] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e126]: code
+            - heading "Content" [level=5] [ref=f4e128]
+            - generic [ref=f4e131]:
+              - button "Undo" [disabled] [ref=f4e132]:
+                - generic [aria-hidden] [ref=f4e134]: undo
+              - button "Redo" [disabled] [ref=f4e135]:
+                - generic [aria-hidden] [ref=f4e137]: redo
+              - button "Bold (Ctrl+B)" [ref=f4e139] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e141]: format_bold
+              - button "Italic (Ctrl+I)" [ref=f4e142] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e144]: format_italic
+              - button "Underline (Ctrl+U)" [ref=f4e145] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e147]: format_underlined
+              - button "Strikethrough" [ref=f4e148] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e150]: strikethrough_s
+              - generic "Text color" [ref=f4e151]:
+                - button [ref=f4e152] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f4e153]: title
+                  - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+              - generic "Background color" [ref=f4e155]:
+                - button [ref=f4e156] [cursor=pointer]:
+                  - generic [aria-hidden] [ref=f4e157]: opacity
+                  - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+              - button "Ordered list" [ref=f4e160] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e162]: format_list_numbered
+              - button "Bullet list" [ref=f4e163] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e165]: format_list_bulleted
+              - button "Insert link" [ref=f4e166] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e168]: insert_link
+              - button "Format block arrow_drop_down" [ref=f4e169] [cursor=pointer]:
+                - generic [ref=f4e170]: Format block
+                - generic [ref=f4e171]: arrow_drop_down
+              - button "Align left" [ref=f4e173] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e175]: format_align_left
+              - button "Align center" [ref=f4e176] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e178]: format_align_center
+              - button "Align right" [ref=f4e179] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e181]: format_align_right
+              - button "Remove styling" [ref=f4e182] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e184]: format_clear
+              - button "Insert image" [ref=f4e185] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e187]: image
+              - button "View source" [ref=f4e188] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f4e190]: code
+            - button "Save" [ref=f4e192] [cursor=pointer]
+      - navigation "Post pages" [ref=f4e45]:
+        - button "← Newer" [disabled]
+        - button "Older →" [disabled]
+      - generic [ref=f4e46]:
+        - button "Terms Of Use" [ref=f4e47] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f4e48] [cursor=pointer]
+  - contentinfo [ref=f4e49]:
+    - generic [ref=f4e50]: © 2026
+    - link "RSS feed" [ref=f4e51] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f4e52] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

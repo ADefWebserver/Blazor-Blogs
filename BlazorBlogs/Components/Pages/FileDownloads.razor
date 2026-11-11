@@ -1,398 +1,335 @@
-﻿@page "/filedownloads"
-@using Microsoft.AspNetCore.Http
-@using BlazorBlogs.Data;
-@using BlazorBlogs.Data.Models;
-@using Microsoft.AspNetCore.Identity;
-@inject IHttpContextAccessor httpContextAccessor
-@inject UserManager<ApplicationUser> _UserManager
-@inject GeneralSettingsService _GeneralSettingsService
-@inject BlogsService _BlogsService
-@inject AuthenticationStateProvider AuthenticationStateProvider
+@page "/filedownloads"
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+@using Microsoft.AspNetCore.Identity
+@using System.Globalization
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject IHttpContextAccessor HttpContextAccessor
+@inject UserManager<ApplicationUser> UserManager
 @inject NavigationManager NavigationManager
 @inject DisqusState DisqusState
+@inject IToastService ToastService
 @inherits OwningComponentBase
 
-<h1>Downloads</h1>
-@if (!UserIsLoggiedIn)
-{
-    <p>You must be logged in to download files</p>
-    @if (AllowRegistration)
-    {
-        <a href="Account/Login">[Login]</a>
-    }
-}
-@if (UserIsAnAdmin)
-{
-    <button type="button" class="btn btn-link oi oi-cloud-upload" @onclick="(() => UploadFile())"> Upload</button>
-}
-<hr />
-
-@foreach (var file in colFiles.Files)
-{
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Files from this site</p>
+        <h1>Downloads</h1>
+    </div>
     @if (UserIsAnAdmin)
     {
-        <button type="button" class="btn btn-link" @onclick="(() => EditFile(file))">[Edit]</button>
+        <button type="button" class="btn btn-primary" @onclick="UploadFile">Upload file</button>
     }
-    @if (UserIsLoggiedIn)
-    {
-        <button class="btn btn-link oi oi-cloud-download" @onclick="@(() => DownloadFile(file))"> @file.FileName</button>
-    }
-    else
-    {
-        <span class="oi oi-cloud-download"> @file.FileName</span>
-    }
-    <br />
-}
-<br />
-
-@if (!LoadingBlogs)
+</div>
+@if (!string.IsNullOrWhiteSpace(ErrorMessage))
 {
-    @if (ShowPreviousButton)
-    {
-        <button class="btn btn-warning"
-        @onclick="Previous">
-            <b>&#x3C;</b>
-        </button>
-    }
-    @if (ShowNextButton)
-    {
-        <button class="btn btn-warning"
-        @onclick="Next">
-            <b>&#x3E;</b>
-        </button>
-    }
+    <div class="alert alert-danger">@ErrorMessage</div>
+}
+@if (Buy.HasValue)
+{
+    <div class="alert alert-info">This download must be purchased.</div>
+}
+<div class="download-grid">
+@foreach (var file in OrderedFiles)
+{
+    <article class="download-card bb-card">
+        <div class="download-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" />
+            </svg>
+        </div>
+        <div class="download-card-body">
+            <h2>@file.FileName</h2>
+            <div class="bb-badge">@(file.Price == 0 ? "Free" : file.Owned ? "Purchased" : $"{file.Price:0.00} {StripeSettings.Currency.ToUpperInvariant()}")</div>
+            @if (file.Price > 0)
+            {
+                <p class="bb-muted">
+                    @StripeSettings.Currency.ToUpperInvariant()
+                    @(StripeSettings.AutomaticTax && StripeSettings.TaxBehavior == "exclusive" ? " · tax calculated at checkout" : "")
+                </p>
+            }
+        </div>
+        <div class="download-actions">
+        @if (UserIsAnAdmin)
+        {
+            <button type="button" class="btn btn-secondary" aria-label="@($"Edit {file.FileName}")" @onclick="(() => EditFile(file))">Edit</button>
+        }
+        @if (UserIsAnAdmin || file.Price == 0 && UserIsLoggedIn || file.Owned)
+        {
+            <a class="btn btn-primary" href="api/File/Download/@file.FileId">Download</a>
+        }
+        else if (file.Price > 0)
+        {
+            @if (StripeSettings.Enabled && StripeSettings.IsConfigured)
+            {
+                <button class="btn btn-primary" @onclick="(() => BuyFile(file))">Buy now</button>
+            }
+            else
+            {
+                <button class="btn btn-secondary" disabled>Not available</button>
+            }
+        }
+        else
+        {
+            <a class="btn btn-secondary" href="Account/Login">Sign in to download</a>
+        }
+        </div>
+    </article>
+}
+</div>
+<div class="download-help">
+    <a href="downloads/resend">Lost your download link?</a>
+    <span>Payments and applicable tax are securely processed by Stripe.</span>
+</div>
+
+@if (LoadingFiles)
+{
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 }
 else
 {
-    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" Style="margin-bottom: 20px" />
+    <nav class="pager" aria-label="Download pages">
+        <button class="btn btn-secondary" disabled="@(!ShowPreviousButton)" @onclick="Previous">← Previous</button>
+        <button class="btn btn-secondary" disabled="@(!ShowNextButton)" @onclick="Next">Next →</button>
+    </nav>
 }
-
 
 @if (FileUploadPopup)
 {
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Upload File</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                        @onclick="CloseUploadPopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5>File Name</h5>
-                    <div class="form-group">
-                        <input class="form-control" type="text"
-                           @bind="SelectedFile.FileName" />
-                    </div>
-                    <RadzenUpload ChooseText="Upload And Save" Multiple="false"
-                              Accept="application/x-zip-compressed"
-                              Url=@($"api/upload/single?FileTitle={SelectedFile.FileName}")
-                              Style="margin-bottom: 20px;height: 45px"
-                              Progress="@((args) => OnProgress(args))" />
-                </div>
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Upload File</h3>
+                <button type="button" class="close" @onclick="CloseUploadPopup"><span>X</span></button>
             </div>
-        </div>
+            <div class="modal-body">
+                <label>File Name</label>
+                <input class="form-control" @bind="SelectedFile.FileName" />
+                <label>Price</label>
+                <input class="form-control" type="number" min="0" step="0.01" @bind="SelectedFile.Price" />
+                <RadzenUpload ChooseText="Upload And Save" Multiple="false" Accept=".zip,application/zip"
+                              Url="@($"api/upload/single?FileTitle={Uri.EscapeDataString(SelectedFile.FileName ?? "")}&Price={SelectedFile.Price.ToString(CultureInfo.InvariantCulture)}")"
+                              Style="margin-bottom:20px;height:45px"
+                              Progress="OnProgress" Error="OnUploadError" />
+            </div>
+        </div></div>
     </div>
 }
 
 @if (FileEditPopup)
 {
     <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Edit File</h3>
-                    <!-- Button to close the popup -->
-                    <button type="button" class="close"
-                        @onclick="ClosePopup">
-                        <span aria-hidden="true">X</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <h5>File Name</h5>
-                    <div class="form-group">
-                        <input class="form-control" type="text"
-                           @bind="SelectedFile.FileName" />
-                    </div>
-                    <div class="modal-body">
-                        <button class="btn btn-primary"
-                            @onclick="SaveFile">
-                            Save
-                        </button>
-                        <button class="btn btn-danger"
-                            @onclick="DeleteFile">
-                            Delete
-                        </button>
-                    </div>
-                </div>
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit File</h3>
+                <button type="button" class="close" @onclick="ClosePopup"><span>X</span></button>
             </div>
-        </div>
+            <div class="modal-body">
+                <label>File Name</label>
+                <input class="form-control" @bind="SelectedFile.FileName" />
+                <label>Price</label>
+                <input class="form-control" type="number" min="0" step="0.01" @bind="SelectedFile.Price" />
+                <button class="btn btn-primary" @onclick="SaveFile">Save</button>
+                <button class="btn btn-danger" @onclick="DeleteFile">Delete</button>
+            </div>
+        </div></div>
     </div>
 }
 
 @if (ConfirmDeletePopup)
 {
     <div class="modal" tabindex="-1" style="display:block;background-color:gainsboro" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Delete File?</h3>
-                </div>
-                <div class="modal-body">
-                    <button class="btn btn-primary"
-                        @onclick="DeleteYes">
-                        Yes
-                    </button>
-                    <button class="btn btn-danger"
-                        @onclick="DeleteNo">
-                        No
-                    </button>
-                </div>
+        <div class="modal-dialog"><div class="modal-content">
+            <div class="modal-header"><h3 class="modal-title">Delete File?</h3></div>
+            <div class="modal-body">
+                <button class="btn btn-primary" @onclick="DeleteYes">Yes</button>
+                <button class="btn btn-danger" @onclick="DeleteNo">No</button>
             </div>
-        </div>
-    </div>
-}
-
-@if (ShowProgressBarPopup)
-{
-    <div class="modal" tabindex="-1" style="display:block" role="dialog">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Upload Status</h4>
-                </div>
-                <div align="center">
-                    <RadzenProgressBar Value="@progress"
-                                   Unit="@info"
-                                   Visible="@(progress > 0)"
-                                   Style="margin-bottom: 20px" />
-                </div>
-            </div>
-        </div>
+        </div></div>
     </div>
 }
 
 @code {
+    [CascadingParameter] private Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
+    [SupplyParameterFromQuery] private int? Buy { get; set; }
 
-    [CascadingParameter] private Task<AuthenticationState> authenticationStateTask { get; set; }
-
-    string ADMINISTRATION_ROLE = "Administrators";
-    bool UserIsAnAdmin = false;
-    bool UserIsLoggiedIn = false;
-    bool LoadingBlogs = false;
-
-    public bool FileUploadPopup = false;
-    public bool FileEditPopup = false;
-    public bool ConfirmDeletePopup = false;
-    private bool ShowProgressBarPopup = false;
-    private int progress;
-    private string info;
-    GeneralSettings objGeneralSettings = new GeneralSettings();
-    bool AllowRegistration = false;
-    System.Security.Claims.ClaimsPrincipal CurrentUser;
-    FilesDTO SelectedFile = new FilesDTO();
+    private bool UserIsAnAdmin;
+    private bool UserIsLoggedIn;
+    private bool LoadingFiles;
+    private bool FileUploadPopup;
+    private bool FileEditPopup;
+    private bool ConfirmDeletePopup;
+    private string ErrorMessage = "";
+    private ApplicationUser CurrentApplicationUser;
+    private ClaimsPrincipal CurrentUser;
+    private FilesDTO SelectedFile = new();
     private int CurrentPage = 1;
-
-    FilesPaged colFiles =
-    new FilesPaged()
-        {
-            Files = new List<FilesDTO>(),
-            FilesCount = 0
-        };
-
-    bool ShowPreviousButton
-    {
-        get
-        {
-            return (CurrentPage > 1);
-        }
-    }
-
-    bool ShowNextButton
-    {
-        get
-        {
-            return (
-                (colFiles.FilesCount > (CurrentPage * 10))
-                );
-        }
-    }
+    private StripeSettings StripeSettings = new();
+    private FilesPaged colFiles = new() { Files = [], FilesCount = 0 };
+    private IEnumerable<FilesDTO> OrderedFiles => Buy.HasValue
+        ? colFiles.Files.OrderByDescending(x => int.TryParse(x.FileId, out var id) && id == Buy.Value)
+        : colFiles.Files;
+    private bool ShowPreviousButton => CurrentPage > 1;
+    private bool ShowNextButton => colFiles.FilesCount > CurrentPage * 10;
 
     protected override async Task OnInitializedAsync()
     {
-        LoadingBlogs = true;
-        StateHasChanged();
+        LoadingFiles = true;
+        CurrentUser = (await AuthenticationStateTask).User;
+        UserIsLoggedIn = CurrentUser.Identity?.IsAuthenticated == true;
+        UserIsAnAdmin = CurrentUser.IsInRole("Administrators");
+        if (UserIsLoggedIn)
+            CurrentApplicationUser = await UserManager.FindByNameAsync(CurrentUser.Identity.Name);
 
-        // Get the current logged in user
-        CurrentUser = (await authenticationStateTask).User;
-
-        if (CurrentUser != null)
-        {
-            UserIsLoggiedIn = CurrentUser.Identity.IsAuthenticated;
-            UserIsAnAdmin = CurrentUser.IsInRole(ADMINISTRATION_ROLE);
-        }
-
-        _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
-        _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
-
-        await LoadGeneralSettingsAsync();
-
-        // Get the users
+        StripeSettings = await ScopedServices.GetRequiredService<StripeSettingsService>().GetAsync();
         await GetFiles();
-
         DisqusState.SetDisplayDisqus(false);
-
-        LoadingBlogs = false;
-        StateHasChanged();
+        LoadingFiles = false;
     }
 
-    protected async Task LoadGeneralSettingsAsync()
+    private async Task GetFiles()
     {
-        objGeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-        AllowRegistration = objGeneralSettings.AllowRegistration;
+        colFiles = await ScopedServices.GetRequiredService<BlogsService>().GetFilesAsync(CurrentPage);
+        if (Buy.HasValue && !colFiles.Files.Any(x => x.FileId == Buy.Value.ToString(CultureInfo.InvariantCulture)))
+        {
+            var target = await ScopedServices.GetRequiredService<BlazorBlogsContext>().Files.AsNoTracking()
+                .Where(x => x.FileId == Buy.Value)
+                .Select(x => new FilesDTO
+                {
+                    FileId = x.FileId.ToString(),
+                    FileName = x.FileName,
+                    FilePath = x.FilePath,
+                    OriginalFileName = x.OriginalFileName,
+                    Price = x.Price,
+                    CreateDate = x.CreateDate,
+                    DownloadCount = x.DownloadCount
+                })
+                .SingleOrDefaultAsync();
+            if (target is not null)
+                colFiles.Files.Insert(0, target);
+        }
+        var owned = await ScopedServices.GetRequiredService<PaidDownloadService>()
+            .GetOwnedFileIdsAsync(CurrentApplicationUser);
+        foreach (var file in colFiles.Files)
+            file.Owned = int.TryParse(file.FileId, out var id) && owned.Contains(id);
     }
 
-    public async Task GetFiles()
-    {
-        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
-    }
-
-    // File
-
-    void UploadFile()
+    private void UploadFile()
     {
         SelectedFile = new FilesDTO();
-        SelectedFile.FileName = "";
         FileUploadPopup = true;
     }
 
-    void CloseUploadPopup()
+    private void CloseUploadPopup() => FileUploadPopup = false;
+    private void EditFile(FilesDTO file)
     {
-        FileUploadPopup = false;
-    }
-
-    void EditFile(FilesDTO paramFile)
-    {
-        SelectedFile = paramFile;
+        SelectedFile = file;
         FileEditPopup = true;
     }
 
-    async Task SaveFile()
+    private async Task SaveFile()
     {
-        await _BlogsService.UpdateFilesAsync(SelectedFile);
-
-        // Refresh collection
-        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
-
-        // Close popup
-        FileEditPopup = false;
-    }
-
-    void DeleteFile()
-    {
-        ConfirmDeletePopup = true;
-    }
-
-    void DeleteNo()
-    {
-        ConfirmDeletePopup = false;
-    }
-
-    void ClosePopup()
-    {
-        FileEditPopup = false;
-    }
-
-    async Task DeleteYes()
-    {
-        // Delete File
-        await _BlogsService.DeleteFilesAsync(SelectedFile);
-
-        // Log
-        await LogAction($"{CurrentUser.Identity.Name} deleted file {SelectedFile.FilePath}");
-
-        // Refresh collection
-        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
-
-        // Close popup
-        ConfirmDeletePopup = false;
-        FileEditPopup = false;
-    }
-
-    // Download File
-
-    async Task DownloadFile(FilesDTO paramFile)
-    {
-        // Log
-        await LogAction($"Download File #{paramFile.FilePath}");
-
-        // Update Download count
-        paramFile.DownloadCount = (paramFile.DownloadCount + 1);
-        await _BlogsService.UpdateFilesAsync(paramFile);
-
-        // Download file
-        NavigationManager.NavigateTo($"api/File/DownloadFile?FileName={paramFile.FilePath}", true);
-    }
-
-    // Upload File
-
-    private void OnProgress(UploadProgressArgs args)
-    {
-        ShowProgressBarPopup = true;
-        this.info = $"{args.Loaded} of {args.Total} bytes.";
-        this.progress = args.Progress;
-
-        StateHasChanged();
-
-        if (args.Loaded == args.Total)
+        try
         {
-            ShowProgressBarPopup = false;
-            FileUploadPopup = false;
-
-            NavigationManager.NavigateTo("FileDownloads", true);
+            await ScopedServices.GetRequiredService<BlogsService>().UpdateFilesAsync(SelectedFile);
+            await GetFiles();
+            FileEditPopup = false;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.GetBaseException().Message;
         }
     }
 
-    // Paging
+    private void DeleteFile() => ConfirmDeletePopup = true;
+    private void DeleteNo() => ConfirmDeletePopup = false;
+    private void ClosePopup() => FileEditPopup = false;
 
-    async Task Previous()
+    private async Task DeleteYes()
+    {
+        try
+        {
+            var id = int.Parse(SelectedFile.FileId);
+            var paid = ScopedServices.GetRequiredService<PaidDownloadService>();
+            if (!await paid.CanDeleteFileAsync(id))
+            {
+                ErrorMessage = "This file has purchases and cannot be deleted.";
+                return;
+            }
+            if (!await ScopedServices.GetRequiredService<BlogsService>().DeleteFilesAsync(SelectedFile))
+                throw new InvalidOperationException("The download no longer exists.");
+            ScopedServices.GetRequiredService<DownloadStorageService>().Delete(SelectedFile.FilePath);
+            await LogAction($"{CurrentUser.Identity?.Name} deleted file {SelectedFile.FilePath}");
+            await GetFiles();
+            ConfirmDeletePopup = false;
+            FileEditPopup = false;
+            ErrorMessage = "";
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.GetBaseException().Message;
+            ToastService.ShowError(ErrorMessage);
+        }
+    }
+
+    private async Task BuyFile(FilesDTO dto)
+    {
+        try
+        {
+            var id = int.Parse(dto.FileId);
+            var context = ScopedServices.GetRequiredService<BlazorBlogsContext>();
+            var file = await context.Files.SingleAsync(x => x.FileId == id);
+            var checkout = await ScopedServices.GetRequiredService<PaidDownloadService>()
+                .StartCheckoutAsync(file, CurrentApplicationUser, NavigationManager.BaseUri);
+            NavigationManager.NavigateTo(checkout.Url, true);
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.GetBaseException().Message;
+            ToastService.ShowError("Payment is unavailable");
+            await LogAction($"Paid download checkout failed: {ErrorMessage}");
+        }
+    }
+
+    private async Task OnProgress(UploadProgressArgs args)
+    {
+        if (args.Loaded == args.Total)
+        {
+            FileUploadPopup = false;
+            await GetFiles();
+        }
+    }
+
+    private void OnUploadError(UploadErrorEventArgs args)
+    {
+        ErrorMessage = args.Message;
+        ToastService.ShowError(args.Message);
+    }
+
+    private async Task Previous()
     {
         if (CurrentPage > 1)
         {
-            CurrentPage = CurrentPage - 1;
-            colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+            CurrentPage--;
+            await GetFiles();
         }
     }
 
-    async Task Next()
+    private async Task Next()
     {
-        CurrentPage = CurrentPage + 1;
-        colFiles = await _BlogsService.GetFilesAsync(CurrentPage);
+        CurrentPage++;
+        await GetFiles();
     }
 
-    // Logging
-
-    private async Task LogAction(string strAction)
+    private async Task LogAction(string action)
     {
-        // Get the current user
-        var CurrentUser = (await authenticationStateTask).User;
-
-        BlazorBlogs.Data.Models.Logs objLog = new BlazorBlogs.Data.Models.Logs();
-        objLog.LogDate = DateTime.Now;
-        objLog.LogAction = strAction;
-        objLog.LogUserName = (CurrentUser.Identity.Name != null) ? CurrentUser.Identity.Name : "";
-        try
+        await ScopedServices.GetRequiredService<BlogsService>().CreateLogAsync(new BlazorBlogs.Data.Models.Logs
         {
-            objLog.LogIpaddress = httpContextAccessor.HttpContext.Connection?.RemoteIpAddress.ToString();
-        }
-        catch
-        {
-            objLog.LogIpaddress = "127.0.0.1";
-        }
-
-        var result = await _BlogsService.CreateLogAsync(objLog);
+            LogDate = DateTime.Now,
+            LogAction = action,
+            LogUserName = CurrentUser.Identity?.Name ?? "",
+            LogIpaddress = HttpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1"
+        });
     }
 }

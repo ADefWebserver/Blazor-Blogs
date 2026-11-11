@@ -17,25 +17,32 @@
 <Title>@SelectedBlog.BlogTitle</Title>
 <Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
 <Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
-<h4>
-    <button type="button" class="btn btn-primary" @onclick="Back">Back</button>&nbsp;
+<article class="post-page">
+<div class="bb-page-actions post-actions">
+    <button type="button" class="btn btn-secondary" @onclick="Back">← All posts</button>
     @if (UserIsAdminOfBlogPost)
     {
-        <button type="button" class="btn btn-secondary" @onclick="EditBlog">Edit Blog</button>
+        <button type="button" class="btn btn-primary" @onclick="EditBlog">Edit post</button>
     }
-</h4>
-<br />
-<i>@SelectedBlog.BlogDate.ToShortDateString()</i>
-<span><b>@SelectedBlog.BlogDisplayName</b></span>
-<div>
-    <h1>@SelectedBlog.BlogTitle</h1>
 </div>
-<hr />
-<div>
-    <div>
-        @((MarkupString)SelectedBlog.BlogContent)
+<header class="post-header">
+    <div class="bb-meta">
+        <time datetime="@SelectedBlog.BlogDate.ToString("yyyy-MM-dd")">@SelectedBlog.BlogDate.ToString("MMMM d, yyyy")</time>
+        <span aria-hidden="true">·</span>
+        <span>@SelectedBlog.BlogDisplayName</span>
     </div>
+    <h1>@SelectedBlog.BlogTitle</h1>
+    </header>
+<div class="post-content">
+    @((MarkupString)SelectedBlog.BlogContent)
 </div>
+<aside class="newsletter-prompt post-newsletter bb-card">
+    <span class="bb-badge">Newsletter</span>
+    <h2>Get new posts in your inbox</h2>
+    <p>Sign in and choose the newsletter updates you want to receive.</p>
+    <a class="btn btn-primary" href="Account/Manage/Newsletter">Manage subscription</a>
+</aside>
+</article>
 <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
 
 @code {

@@ -1,0 +1,13 @@
+- generic [ref=f10e2]:
+  - banner [ref=f10e3]:
+    - link "Blazor Blogs setup" [ref=f10e4] [cursor=pointer]:
+      - /url: /
+      - generic [aria-hidden] [ref=f10e5]: B
+    - generic [ref=f10e7]: Secure setup
+  - main [ref=f10e8]:
+    - generic [ref=f10e9]:
+      - generic [ref=f10e11]:
+        - paragraph [ref=f10e12]: Blazor Blogs
+        - heading "Install and upgrade" [active] [level=1] [ref=f10e13]
+        - paragraph [ref=f10e14]: Follow the guided steps to configure your database and bring the site up to date.
+      - button "[Click Here To Continue]" [ref=f10e15] [cursor=pointer]

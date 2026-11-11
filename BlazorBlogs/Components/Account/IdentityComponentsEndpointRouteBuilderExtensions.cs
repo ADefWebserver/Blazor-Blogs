@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
+using BlazorBlogs;
+using BlazorBlogs.Components.Account;
 using BlazorBlogs.Components.Account.Pages;
 using BlazorBlogs.Components.Account.Pages.Manage;
 using BlazorBlogs.Data;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Authentication.Google;
 
 namespace Microsoft.AspNetCore.Routing
 {
@@ -25,9 +28,17 @@ namespace Microsoft.AspNetCore.Routing
             accountGroup.MapPost("/PerformExternalLogin", (
                 HttpContext context,
                 [FromServices] SignInManager<ApplicationUser> signInManager,
+                [FromServices] ExternalAuthOptionsStore externalAuthOptions,
                 [FromForm] string provider,
                 [FromForm] string returnUrl) =>
             {
+                if (!string.Equals(provider, GoogleDefaults.AuthenticationScheme, StringComparison.Ordinal) ||
+                    !externalAuthOptions.IsGoogleConfigured)
+                {
+                    SetStatusCookie(context, "Google sign-in is not available.");
+                    return Results.LocalRedirect("~/Account/Login");
+                }
+
                 IEnumerable<KeyValuePair<string, StringValues>> query = [
                     new("ReturnUrl", returnUrl),
                     new("Action", ExternalLogin.LoginCallbackAction)];
@@ -38,7 +49,7 @@ namespace Microsoft.AspNetCore.Routing
                     QueryString.Create(query));
 
                 var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
-                return TypedResults.Challenge(properties, [provider]);
+                return Results.Challenge(properties, [provider]);
             });
 
             accountGroup.MapPost("/Logout", async (
@@ -55,8 +66,16 @@ namespace Microsoft.AspNetCore.Routing
             manageGroup.MapPost("/LinkExternalLogin", async (
                 HttpContext context,
                 [FromServices] SignInManager<ApplicationUser> signInManager,
+                [FromServices] ExternalAuthOptionsStore externalAuthOptions,
                 [FromForm] string provider) =>
             {
+                if (!string.Equals(provider, GoogleDefaults.AuthenticationScheme, StringComparison.Ordinal) ||
+                    !externalAuthOptions.IsGoogleConfigured)
+                {
+                    SetStatusCookie(context, "Google sign-in is not available.");
+                    return Results.LocalRedirect("~/Account/Manage/ExternalLogins");
+                }
+
                 // Clear the existing external cookie to ensure a clean login process
                 await context.SignOutAsync(IdentityConstants.ExternalScheme);
 
@@ -66,7 +85,7 @@ namespace Microsoft.AspNetCore.Routing
                     QueryString.Create("Action", ExternalLogins.LinkLoginCallbackAction));
 
                 var properties = signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, signInManager.UserManager.GetUserId(context.User));
-                return TypedResults.Challenge(properties, [provider]);
+                return Results.Challenge(properties, [provider]);
             });
 
             var loggerFactory = endpoints.ServiceProvider.GetRequiredService<ILoggerFactory>();
@@ -109,6 +128,20 @@ namespace Microsoft.AspNetCore.Routing
             });
 
             return accountGroup;
+        }
+
+        private static void SetStatusCookie(HttpContext context, string message)
+        {
+            context.Response.Cookies.Append(
+                IdentityRedirectManager.StatusCookieName,
+                message,
+                new CookieBuilder
+                {
+                    SameSite = SameSiteMode.Strict,
+                    HttpOnly = true,
+                    IsEssential = true,
+                    MaxAge = TimeSpan.FromSeconds(5)
+                }.Build(context));
         }
     }
 }

@@ -1,0 +1,13 @@
+- generic [active] [ref=f8e1]:
+  - heading "HTTP Error 500.31 - ANCM Failed to Find Native Dependencies" [level=1] [ref=f8e2]
+  - heading "Common solutions to this issue:" [level=2] [ref=f8e3]
+  - text: The specified version of Microsoft.NetCore.App or Microsoft.AspNetCore.App was not found.
+  - heading "Troubleshooting steps:" [level=2] [ref=f8e4]
+  - list [ref=f8e5]:
+    - listitem [ref=f8e6]: Check the system event log for error messages
+    - listitem [ref=f8e7]: Enable logging the application process' stdout messages
+    - listitem [ref=f8e8]: Attach a debugger to the application process and inspect
+  - heading [level=2] [ref=f8e9]:
+    - text: "For more information visit:"
+    - link "https://go.microsoft.com/fwlink/?LinkID=2028526" [ref=f8e10] [cursor=pointer]:
+      - /url: https://go.microsoft.com/fwlink/?LinkID=2028526

@@ -1,0 +1,90 @@
+- generic [ref=f5e56]:
+  - generic [ref=f5e57]:
+    - link [ref=f5e60] [cursor=pointer]:
+      - /url: ""
+    - list [ref=f5e63]:
+      - generic [ref=f5e64]:
+        - link "Home" [ref=f5e65] [cursor=pointer]:
+          - /url: ""
+          - generic [aria-hidden] [ref=f5e66]: 
+          - text: Home
+        - link "Downloads" [ref=f5e67] [cursor=pointer]:
+          - /url: filedownloads
+          - generic [aria-hidden] [ref=f5e68]: 
+          - text: Downloads
+      - link "User Administration" [ref=f5e70] [cursor=pointer]:
+        - /url: administration
+        - generic [aria-hidden] [ref=f5e71]: 
+        - text: User Administration
+      - link "Category Administration" [ref=f5e73] [cursor=pointer]:
+        - /url: categories
+        - generic [aria-hidden] [ref=f5e74]: 
+        - text: Category Administration
+      - link "File Manager" [ref=f5e76] [cursor=pointer]:
+        - /url: filemanager
+        - generic [aria-hidden] [ref=f5e77]: 
+        - text: File Manager
+      - link "Import Blogs" [ref=f5e79] [cursor=pointer]:
+        - /url: importblogs
+        - generic [aria-hidden] [ref=f5e80]: 
+        - text: Import Blogs
+      - link "Newsletters" [ref=f5e82] [cursor=pointer]:
+        - /url: newsletter
+        - generic [aria-hidden] [ref=f5e83]: 
+        - text: Newsletters
+      - link "Logs" [ref=f5e85] [cursor=pointer]:
+        - /url: logs
+        - generic [aria-hidden] [ref=f5e86]: 
+        - text: Logs
+      - link "Settings" [ref=f5e88] [cursor=pointer]:
+        - /url: settings
+        - generic [aria-hidden] [ref=f5e89]: 
+        - text: Settings
+      - button "[Logout]" [ref=f5e92] [cursor=pointer]
+  - main [ref=f5e93]:
+    - generic [ref=f5e94]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f5e95] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f5e97] [cursor=pointer]
+      - link "About" [ref=f5e98] [cursor=pointer]:
+        - /url: https://github.com/ADefWebserver/Blazor-Blogs
+      - link "rss_feed" [ref=f5e99] [cursor=pointer]:
+        - /url: api/RSSFeed/Rss
+    - article [ref=f5e101]:
+      - heading [level=1] [ref=f5e103]:
+        - text: Category Administration
+        - button "[Edit Categories]" [ref=f5e104] [cursor=pointer]
+      - generic [ref=f5e105]:
+        - generic [ref=f5e106]:
+          - generic:
+            - textbox "Empty"
+          - generic [ref=f5e107]: Select Blog...
+          - generic [ref=f5e108]: arrow_drop_down
+          - text: search
+        - paragraph
+      - dialog [ref=f5e110]:
+        - generic [ref=f5e111]:
+          - generic [ref=f5e112]:
+            - generic [ref=f5e113]: Category Manager
+            - button [ref=f5e114] [cursor=pointer]: X
+          - generic [ref=f5e116]:
+            - table [ref=f5e117]:
+              - rowgroup [ref=f5e118]:
+                - row [ref=f5e119]:
+                  - columnheader "Title" [ref=f5e120]
+                  - columnheader "Description" [ref=f5e121]
+                  - columnheader [ref=f5e122]
+              - rowgroup
+            - paragraph [ref=f5e123]:
+              - button "Add New Category" [active] [ref=f5e124] [cursor=pointer]
+      - dialog [ref=f5e125]:
+        - generic [ref=f5e126]:
+          - generic [ref=f5e127]:
+            - heading "Edit Category" [level=3] [ref=f5e128]
+            - button [ref=f5e129] [cursor=pointer]: X
+          - generic [ref=f5e130]:
+            - heading "Title" [level=5] [ref=f5e131]
+            - textbox [ref=f5e133]
+            - heading "Description" [level=5] [ref=f5e134]
+            - textbox [ref=f5e136]
+            - button "Save" [ref=f5e137] [cursor=pointer]

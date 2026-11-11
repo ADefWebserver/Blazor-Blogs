@@ -1,0 +1,56 @@
+- generic [ref=f46e2]:
+  - banner [ref=f46e3]:
+    - link "Blazor Blogs" [ref=f46e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f46e6]:
+      - link "Blog" [ref=f46e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f46e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f46e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f46e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f46e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f46e13] [cursor=pointer]
+  - main [ref=f46e14]:
+    - article [ref=f46e15]:
+      - generic [ref=f46e17]:
+        - paragraph [ref=f46e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f46e19]
+      - generic [ref=f46e20]:
+        - heading "Account settings" [level=2] [ref=f46e21]
+        - generic [ref=f46e22]:
+          - list [ref=f46e24]:
+            - listitem [ref=f46e25]:
+              - link "Profile" [ref=f46e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f46e27]:
+              - link "Email" [ref=f46e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f46e29]:
+              - link "Newsletter" [ref=f46e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f46e31]:
+              - link "Password" [ref=f46e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f46e33]:
+              - link "Personal data" [ref=f46e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f46e35]:
+            - heading "Personal Data" [level=3] [ref=f46e36]
+            - generic [ref=f46e38]:
+              - paragraph [ref=f46e39]: Your account contains personal data that you have given us. This page allows you to download or delete that data.
+              - paragraph [ref=f46e40]:
+                - strong [ref=f46e41]: Deleting this data will permanently remove your account, and this cannot be recovered.
+              - button "Download" [ref=f46e43] [cursor=pointer]
+              - paragraph [ref=f46e44]:
+                - link "Delete" [ref=f46e45] [cursor=pointer]:
+                  - /url: Account/Manage/DeletePersonalData
+  - contentinfo [ref=f46e46]:
+    - generic [ref=f46e47]: © 2026
+    - link "RSS feed" [ref=f46e48] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f46e49] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

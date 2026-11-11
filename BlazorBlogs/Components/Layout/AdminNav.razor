@@ -1,0 +1,22 @@
+@inject NavigationManager NavigationManager
+
+<div class="bb-admin-brand">
+    <span class="bb-brand-mark" aria-hidden="true">A</span>
+    <div>
+        <strong>Administration</strong>
+        <span>Site controls</span>
+    </div>
+</div>
+
+<nav class="bb-admin-nav" aria-label="Administration">
+    <NavLink href="/"> <span>Posts</span></NavLink>
+    <NavLink href="categories"><span>Categories</span></NavLink>
+    <NavLink href="administration"><span>Users</span></NavLink>
+    <NavLink href="filemanager"><span>Files</span></NavLink>
+    <NavLink href="newsletter"><span>Newsletter</span></NavLink>
+    <NavLink href="purchases"><span>Purchases</span></NavLink>
+    <NavLink href="logs"><span>Logs</span></NavLink>
+    <NavLink href="settings" Match="NavLinkMatch.All"><span>Settings</span></NavLink>
+</nav>
+
+<a class="bb-admin-return" href="/">View public site</a>

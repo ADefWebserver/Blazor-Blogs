@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 11.0.x
+
+      - name: Install Aspire CLI
+        shell: pwsh
+        run: dotnet tool install --global Aspire.Cli --version 13.6.5
+
+      - name: Restore
+        run: dotnet restore BlazorBlogs.sln
+
+      - name: Build
+        run: dotnet build BlazorBlogs.sln -c Release --no-restore --nologo
+
+      - name: Test
+        run: dotnet test BlazorBlogs.sln -c Release --no-build --nologo
+
+      - name: Validate Aspire deployment model
+        run: |
+          aspire publish --apphost BlazorBlogs.AppHost/BlazorBlogs.AppHost.csproj --list-steps --non-interactive
+          aspire deploy --apphost BlazorBlogs.AppHost/BlazorBlogs.AppHost.csproj --list-steps --non-interactive
+
+      - name: Validate clean publish
+        shell: pwsh
+        run: |
+          $output = Join-Path $env:RUNNER_TEMP 'blazorblogs-publish'
+          dotnet publish BlazorBlogs/BlazorBlogs.csproj -c Release -o $output --no-build --nologo
+          $protected = @('wwwroot/uploads', 'wwwroot/blogs', 'wwwroot/files', 'PrivateFiles')
+          foreach ($path in $protected) {
+            $files = Get-ChildItem (Join-Path $output $path) -File -Recurse -Force -ErrorAction SilentlyContinue
+            if ($files) { throw "Publish contains protected user content under $path." }
+          }

@@ -1,0 +1,41 @@
+@page "/Account/Manage/Newsletter"
+@using BlazorBlogs.Data
+@using Microsoft.AspNetCore.Identity
+@inject IdentityUserAccessor UserAccessor
+@inject UserManager<ApplicationUser> UserManager
+@inject NewsletterSubscriptionService Subscriptions
+
+<PageTitle>Newsletter</PageTitle>
+<h3>Newsletter</h3>
+<p>Email: @user.Email</p>
+<p>You are currently <strong>@(user.NewsletterSubscriber ? "subscribed" : "unsubscribed")</strong>.</p>
+
+<form method="post" @onsubmit="SubmitAsync" @formname="newsletter-account">
+    <AntiforgeryToken />
+    <button class="btn btn-primary" type="submit" name="Action" value="toggle">
+        @(user.NewsletterSubscriber ? "Unsubscribe" : "Subscribe")
+    </button>
+</form>
+
+@code {
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
+    [SupplyParameterFromForm(FormName = "newsletter-account")]
+    private string Action { get; set; }
+    private ApplicationUser user = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserAccessor.GetRequiredUserAsync(HttpContext);
+        if (Action == "toggle")
+        {
+            await Subscriptions.SetByUserIdAsync(
+                user.Id,
+                !user.NewsletterSubscriber,
+                "AccountPage",
+                HttpContext.RequestAborted);
+            user.NewsletterSubscriber = !user.NewsletterSubscriber;
+        }
+    }
+
+    private Task SubmitAsync() => Task.CompletedTask;
+}

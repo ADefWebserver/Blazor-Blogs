@@ -1,0 +1,33 @@
+- generic [ref=f60e2]:
+  - banner [ref=f60e3]:
+    - link "Blazor Blogs" [ref=f60e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f60e6]:
+      - link "Blog" [ref=f60e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f60e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f60e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f60e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f60e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f60e13] [cursor=pointer]
+  - main [ref=f60e14]:
+    - article [ref=f60e15]:
+      - heading "Resend email confirmation" [active] [level=1] [ref=f60e16]
+      - heading "Enter your email." [level=2] [ref=f60e17]
+      - separator [ref=f60e18]
+      - generic [ref=f60e21]:
+        - generic [ref=f60e22]:
+          - textbox "Email" [ref=f60e23]:
+            - /placeholder: name@example.com
+          - generic: Email
+        - button "Resend" [ref=f60e24] [cursor=pointer]
+  - contentinfo [ref=f60e25]:
+    - generic [ref=f60e26]: © 2026
+    - link "RSS feed" [ref=f60e27] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f60e28] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

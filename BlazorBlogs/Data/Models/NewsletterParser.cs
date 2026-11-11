@@ -274,8 +274,13 @@ namespace BlazorBlogsLibrary.Data.Models
         }
         #endregion
 
-        #region public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId, string UserId)  
-        public AlternateView CreateEmailHTML(string EmailContent, Dictionary<string, Image> colImages, string SiteURL, int CampainId, string UserId) 
+        #region public AlternateView CreateEmailHTML
+        public AlternateView CreateEmailHTML(
+            string EmailContent,
+            Dictionary<string, Image> colImages,
+            string SiteURL,
+            int CampainId,
+            string preferencesUrl)
         {
             AlternateView alternateView = null;
 
@@ -292,14 +297,24 @@ namespace BlazorBlogsLibrary.Data.Models
                     var objImage = PngImageToByteArray(ImageData);
                     LinkedResource LinkResource = new LinkedResource(new MemoryStream(objImage));
                     LinkResource.ContentId = Guid.NewGuid().ToString();
-                    LinkResource.ContentType = new ContentType(MediaTypeNames.Image.Jpeg);
+                    LinkResource.ContentType = new ContentType(MediaTypeNames.Image.Png);
 
                     linkedResources.Add(LinkResource);
 
-                    string URLTagToReplace = $"<img src=\"{ImageName}\"";
-
-                    EmailContent = EmailContent.Replace(URLTagToReplace, "<img src='cid:" + LinkResource.ContentId + @"'");
+                    EmailContent = Regex.Replace(
+                        EmailContent,
+                        $@"(<img\b[^>]*\bsrc\s*=\s*[""']){Regex.Escape(ImageName)}([""'])",
+                        "$1cid:" + LinkResource.ContentId + "$2",
+                        RegexOptions.IgnoreCase);
                 }
+
+                EmailContent = Regex.Replace(
+                    EmailContent,
+                    @"(<img\b[^>]*\bsrc\s*=\s*[""'])(?!https?://|cid:|data:)([^""']+)([""'])",
+                    match => match.Groups[1].Value
+                        + new Uri(new Uri(SiteURL.TrimEnd('/') + "/"), match.Groups[2].Value).AbsoluteUri
+                        + match.Groups[3].Value,
+                    RegexOptions.IgnoreCase);
 
                 // Create View Newsletter link
                 string NewsletterLinkText = "Click here if you have trouble seeing this email";
@@ -308,8 +323,8 @@ namespace BlazorBlogsLibrary.Data.Models
                 EmailContent = NewsletterLinkHTML + EmailContent;
 
                 // Create unsubscribe link
-                string UnsubscribeLinkText = "Click here to unsubscribe";
-                string UnsubscribeLinkHTML = $"<br><br><div style=\"text-align: center;\"><a href=\"{SiteURL}NewsletterUnsubscribe/{UserId}\" style=\"color: red; text-decoration: underline;\">{UnsubscribeLinkText}</a></div>";
+                string UnsubscribeLinkText = "Manage your subscription or unsubscribe";
+                string UnsubscribeLinkHTML = $"<br><br><div style=\"text-align: center;\"><a href=\"{preferencesUrl}\" style=\"color: red; text-decoration: underline;\">{UnsubscribeLinkText}</a></div>";
 
                 EmailContent = EmailContent + UnsubscribeLinkHTML;
 

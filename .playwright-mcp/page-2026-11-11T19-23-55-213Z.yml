@@ -1,0 +1,81 @@
+- generic [ref=f47e2]:
+  - banner [ref=f47e3]:
+    - link "Blazor Blogs" [ref=f47e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f47e6]:
+      - link "Blog" [ref=f47e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f47e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f47e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f47e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f47e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f47e13] [cursor=pointer]
+  - main [ref=f47e14]:
+    - article [ref=f47e15]:
+      - generic [ref=f47e17]:
+        - paragraph [ref=f47e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f47e19]
+      - generic [ref=f47e20]:
+        - heading "Account settings" [level=2] [ref=f47e21]
+        - generic [ref=f47e22]:
+          - list [ref=f47e24]:
+            - listitem [ref=f47e25]:
+              - link "Profile" [ref=f47e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f47e27]:
+              - link "Email" [ref=f47e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f47e29]:
+              - link "Newsletter" [ref=f47e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f47e31]:
+              - link "Password" [ref=f47e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f47e33]:
+              - link "Personal data" [ref=f47e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f47e35]:
+            - heading "Configure authenticator app" [level=3] [ref=f47e43]
+            - generic [ref=f47e44]:
+              - paragraph [ref=f47e45]: "To use an authenticator app go through the following steps:"
+              - list [ref=f47e46]:
+                - listitem [ref=f47e47]:
+                  - paragraph [ref=f47e48]:
+                    - text: Download a two-factor authenticator app like Microsoft Authenticator for
+                    - link "Android" [ref=f47e49] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?Linkid=825072
+                    - text: and
+                    - link "iOS" [ref=f47e50] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?Linkid=825073
+                    - text: or Google Authenticator for
+                    - link "Android" [ref=f47e51] [cursor=pointer]:
+                      - /url: https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en
+                    - text: and
+                    - link "iOS" [ref=f47e52] [cursor=pointer]:
+                      - /url: https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8
+                    - text: .
+                - listitem [ref=f47e53]:
+                  - paragraph [ref=f47e54]: Scan the QR Code or enter this key 4ccs avf5 svxr howe j5v5 fe6s wyi5 krn7 into your two factor authenticator app. Spaces and casing do not matter.
+                  - generic [ref=f47e55]:
+                    - text: Learn how to
+                    - link "enable QR code generation" [ref=f47e56] [cursor=pointer]:
+                      - /url: https://go.microsoft.com/fwlink/?Linkid=852423
+                    - text: .
+                - listitem [ref=f47e57]:
+                  - paragraph [ref=f47e58]: Once you have scanned the QR code or input the key above, your two factor authentication app will provide you with a unique code. Enter the code in the confirmation box below.
+                  - generic [ref=f47e61]:
+                    - generic [ref=f47e62]:
+                      - textbox "Verification Code" [ref=f47e63]:
+                        - /placeholder: Enter the code
+                      - generic: Verification Code
+                    - button "Verify" [ref=f47e64] [cursor=pointer]
+  - contentinfo [ref=f47e39]:
+    - generic [ref=f47e40]: © 2026
+    - link "RSS feed" [ref=f47e41] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f47e42] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

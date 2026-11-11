@@ -44,24 +44,21 @@ else
         _GeneralSettingsService = (GeneralSettingsService)ScopedServices.GetService(typeof(GeneralSettingsService));
         _BlogsService = (BlogsService)ScopedServices.GetService(typeof(BlogsService));
 
-        // Get the version Number
-        try
+        var connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "";
+        var versionResult = await SchemaVersionReader.ReadAsync(connectionString);
+        if (versionResult.Outcome is SchemaVersionOutcome.Failed or SchemaVersionOutcome.UnexpectedState)
         {
-            var GeneralSettings = await _GeneralSettingsService.GetGeneralSettingsAsync();
-            VersionNumber = GeneralSettings.VersionNumber;
-        }
-        catch
-        {
-            VersionNumber = "00.00.00";
+            ErrorMessage = versionResult.Error;
+            StateHasChanged();
+            return;
         }
 
+        VersionNumber = versionResult.Version;
         intCurrentDatabaseVersion = ConvertVersionToInteger(VersionNumber);
         StateHasChanged();
         await Task.Delay(1000);
 
         // Get database conection string
-        string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-
         // Get the scripts
         Dictionary<int, string> ColScripts = UpdateScripts();
         foreach (var sqlScript in ColScripts)
@@ -75,7 +72,7 @@ else
                     string strSQLScript = GetSQLScript(sqlScript.Value);
 
                     var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-                    optionsBuilder.UseSqlServer(strDefaultConnection);
+                    BlazorBlogsDbOptions.Configure(optionsBuilder, connectionString, _configuration);
 
                     using (var context = new BlazorBlogsContext(optionsBuilder.Options))
                     {
@@ -139,7 +136,10 @@ else
     private String GetSQLScript(string SQLScript)
     {
         string strSQLScript = "";
-        string strFilePath = _IWebHostEnvironment.ContentRootPath + $@"\SQLScripts\{SQLScript}";
+        string strFilePath = Path.Combine(
+            _IWebHostEnvironment.ContentRootPath,
+            "SQLScripts",
+            SQLScript);
 
         strSQLScript = System.IO.File.ReadAllText(@strFilePath);
 
@@ -168,6 +168,12 @@ else
         ColScripts.Add(ConvertVersionToInteger("03.00.00.sql"), "03.00.00.sql");
         ColScripts.Add(ConvertVersionToInteger("04.00.00.sql"), "04.00.00.sql");
         ColScripts.Add(ConvertVersionToInteger("09.00.00.sql"), "09.00.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.00.00.sql"), "10.00.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.01.00.sql"), "10.01.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.02.00.sql"), "10.02.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.03.00.sql"), "10.03.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.04.00.sql"), "10.04.00.sql");
+        ColScripts.Add(ConvertVersionToInteger("10.05.00.sql"), "10.05.00.sql");
 
         return ColScripts;
     }

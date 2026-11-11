@@ -28,6 +28,7 @@ namespace BlazorBlogs.Data.Models
         public int AccessFailedCount { get; set; }
         public string DisplayName { get; set; }
         public bool? NewsletterSubscriber { get; set; }
+        public string NewsletterToken { get; set; }
 
         public virtual ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }
     }

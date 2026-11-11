@@ -2,13 +2,18 @@
 <RadzenComponents @rendermode="InteractiveServer" />
 <BlazoredToasts />
 
-<div class="page">
-    <div class="sidebar">
-        <InstallWizardNavMenu />
-    </div>
-
-    <main class="content px-4">
-        @Body
+<div class="install-shell">
+    <header class="install-header">
+        <a href="/" class="bb-brand">
+            <span class="bb-brand-mark" aria-hidden="true">B</span>
+            <span>Blazor Blogs setup</span>
+        </a>
+        <span class="bb-badge">Secure setup</span>
+    </header>
+    <main class="install-content">
+        <section class="install-card bb-card">
+            @Body
+        </section>
     </main>
 </div>
 @code {

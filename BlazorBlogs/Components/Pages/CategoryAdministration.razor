@@ -1,4 +1,6 @@
 ﻿@page "/categories"
+@layout BlazorBlogs.Components.Layout.AdminLayout
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrators")]
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
 @using BlazorBlogs.Data.Models;
@@ -8,10 +10,14 @@
 @inherits OwningComponentBase<BlogsService>
 @if (CurrentUser.IsInRole(ADMINISTRATION_ROLE))
 {
-    <div>
-        <h1>Category Administration <button type="button" class="btn btn-link" @onclick="OpenCategoryManagerControl">[Edit Categories]</button></h1>
+    <div class="bb-page-header">
+        <div>
+            <p class="bb-muted">Organize content</p>
+            <h1>Categories</h1>
+        </div>
+        <button type="button" class="btn btn-primary" @onclick="OpenCategoryManagerControl">Edit categories</button>
     </div>
-    <div class="form-group">
+    <div class="bb-card form-group">
         <RadzenDropDown AllowClear="false"
                         AllowFiltering="true"
                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"

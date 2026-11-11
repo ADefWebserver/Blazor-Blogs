@@ -1,0 +1,46 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e3]:
+    - link [ref=f2e6] [cursor=pointer]:
+      - /url: ""
+    - list [ref=f2e9]:
+      - generic [ref=f2e10]:
+        - link "Home" [ref=f2e11] [cursor=pointer]:
+          - /url: ""
+          - generic [aria-hidden] [ref=f2e12]: 
+          - text: Home
+        - link "Downloads" [ref=f2e13] [cursor=pointer]:
+          - /url: filedownloads
+          - generic [aria-hidden] [ref=f2e14]: 
+          - text: Downloads
+      - link "[Login]" [ref=f2e16] [cursor=pointer]:
+        - /url: Account/Login
+        - generic [aria-hidden] [ref=f2e17]: 
+        - text: "[Login]"
+      - link "[Register]" [ref=f2e19] [cursor=pointer]:
+        - /url: Account/Register
+        - generic [aria-hidden] [ref=f2e20]: 
+        - text: "[Register]"
+  - main [ref=f2e21]:
+    - generic [ref=f2e22]:
+      - link "Register" [ref=f2e23] [cursor=pointer]:
+        - /url: Account/Register
+      - link "Log in" [ref=f2e24] [cursor=pointer]:
+        - /url: Account/Login
+      - link "About" [ref=f2e25] [cursor=pointer]:
+        - /url: https://github.com/ADefWebserver/Blazor-Blogs
+      - link "rss_feed" [ref=f2e26] [cursor=pointer]:
+        - /url: api/RSSFeed/Rss
+    - article [ref=f2e28]:
+      - generic [ref=f2e29]:
+        - generic:
+          - textbox "0"
+        - generic [ref=f2e30]: Filter Category...
+        - generic [ref=f2e31]: arrow_drop_down
+        - text: search
+        - generic [ref=f2e33]: close
+      - textbox "Search..." [ref=f2e34]
+      - button "Search" [ref=f2e35] [cursor=pointer]
+      - generic [ref=f2e38]:
+        - button "Terms Of Use" [ref=f2e39] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f2e40] [cursor=pointer]

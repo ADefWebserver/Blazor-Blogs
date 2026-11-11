@@ -1,0 +1,145 @@
+@using BlazorBlogs.Data
+@inject IToastService ToastService
+@inject GeneralSettingsService GeneralSettingsService
+@inject SiteUrlService SiteUrlService
+@inject NavigationManager NavigationManager
+@inherits OwningComponentBase
+
+<section class="settings-card">
+<div class="bb-section-heading">
+    <div>
+        <h2>Payments</h2>
+        <p>Configure Stripe Checkout, customer receipts and automatic tax.</p>
+    </div>
+    @if (isTestMode)
+    {
+        <span class="bb-badge">Test mode</span>
+    }
+</div>
+@if (settings is null)
+{
+    <p>Loading Stripe settings...</p>
+}
+else
+{
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="alert @(connectionError ? "alert-danger" : "alert-info")">@message</div>
+    }
+    @if (!smtpConfigured)
+    {
+        <div class="alert alert-warning">SMTP is not configured; buyers will not receive receipts.</div>
+    }
+    @if (taxNotActive)
+    {
+        <div class="alert alert-warning">Stripe Tax is not active.</div>
+    }
+    <div class="form-check mb-3">
+        <input id="stripe-enabled" class="form-check-input" type="checkbox" @bind="settings.Enabled" />
+        <label class="form-check-label" for="stripe-enabled">Enabled</label>
+    </div>
+    <label for="stripe-secret">Secret key <small>(@(configuredSecret ? "configured" : "not configured"); blank keeps the stored value)</small></label>
+    <input id="stripe-secret" class="form-control" type="password" @bind="secretKeyInput" autocomplete="new-password" />
+    <label for="stripe-webhook-secret">Webhook signing secret <small>(@(configuredWebhook ? "configured" : "not configured"); blank keeps the stored value)</small></label>
+    <input id="stripe-webhook-secret" class="form-control" type="password" @bind="webhookSecretInput" autocomplete="new-password" />
+    <label for="stripe-currency">Currency</label>
+    <input id="stripe-currency" class="form-control" @bind="settings.Currency" />
+    <div class="form-check mt-2">
+        <input id="stripe-tax" class="form-check-input" type="checkbox" @bind="settings.AutomaticTax" />
+        <label class="form-check-label" for="stripe-tax">Automatic tax</label>
+    </div>
+    <label for="stripe-tax-behavior">Tax behaviour</label>
+    <select id="stripe-tax-behavior" class="form-control" @bind="settings.TaxBehavior">
+        <option value="exclusive">exclusive</option>
+        <option value="inclusive">inclusive</option>
+    </select>
+    <label for="stripe-tax-code">Tax code (optional)</label>
+    <input id="stripe-tax-code" class="form-control" @bind="settings.TaxCode" />
+    <label for="stripe-link-days">Guest link days</label>
+    <input id="stripe-link-days" class="form-control" type="number" min="1" max="365" @bind="settings.GuestLinkDays" />
+    <label for="stripe-download-limit">Guest maximum downloads</label>
+    <input id="stripe-download-limit" class="form-control" type="number" min="1" max="100" @bind="settings.GuestMaxDownloads" />
+    @if (isTestMode)
+    {
+        <p class="mt-2"><span class="badge bg-warning text-dark">TEST MODE</span></p>
+    }
+    <p>Webhook URL: <code>@webhookUrl</code></p>
+    <p>Subscribe to <code>checkout.session.completed</code>, <code>checkout.session.async_payment_succeeded</code>,
+        <code>checkout.session.async_payment_failed</code>, <code>checkout.session.expired</code>, and
+        <code>charge.refunded</code>.</p>
+    <button class="btn btn-primary" @onclick="Save">Save Stripe Settings</button>
+    <button class="btn btn-secondary" @onclick="TestConnection">Test connection</button>
+}
+</section>
+
+@code {
+    private StripeSettings settings;
+    private string secretKeyInput = "";
+    private string webhookSecretInput = "";
+    private string message = "";
+    private string webhookUrl = "";
+    private bool connectionError;
+    private bool smtpConfigured;
+    private bool taxNotActive;
+    private bool configuredSecret;
+    private bool configuredWebhook;
+    private bool isTestMode;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var service = ScopedServices.GetRequiredService<StripeSettingsService>();
+        settings = await service.GetAsync();
+        configuredSecret = !string.IsNullOrWhiteSpace(settings.SecretKey);
+        configuredWebhook = !string.IsNullOrWhiteSpace(settings.WebhookSecret);
+        isTestMode = settings.SecretKey.StartsWith("sk_test_", StringComparison.OrdinalIgnoreCase)
+            || settings.SecretKey.StartsWith("rk_test_", StringComparison.OrdinalIgnoreCase);
+        var general = await ScopedServices.GetRequiredService<GeneralSettingsService>().GetGeneralSettingsAsync();
+        smtpConfigured = !string.IsNullOrWhiteSpace(general.SMTPServer);
+        webhookUrl = (await SiteUrlService.GetBaseUrlAsync(NavigationManager.BaseUri)) + "api/StripeWebhook";
+        settings.SecretKey = "";
+        settings.WebhookSecret = "";
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            settings.SecretKey = secretKeyInput;
+            settings.WebhookSecret = webhookSecretInput;
+            await ScopedServices.GetRequiredService<StripeSettingsService>().SaveAsync(settings);
+            ToastService.ShowSuccess("Stripe settings saved.");
+            secretKeyInput = "";
+            webhookSecretInput = "";
+            settings = await ScopedServices.GetRequiredService<StripeSettingsService>().GetAsync();
+            configuredSecret = !string.IsNullOrWhiteSpace(settings.SecretKey);
+            configuredWebhook = !string.IsNullOrWhiteSpace(settings.WebhookSecret);
+            isTestMode = settings.SecretKey.StartsWith("sk_test_", StringComparison.OrdinalIgnoreCase);
+            settings.SecretKey = "";
+            settings.WebhookSecret = "";
+        }
+        catch (Exception ex)
+        {
+            ToastService.ShowError(ex.GetBaseException().Message);
+        }
+    }
+
+    private async Task TestConnection()
+    {
+        try
+        {
+            var candidate = await ScopedServices.GetRequiredService<StripeSettingsService>().GetAsync();
+            if (!string.IsNullOrWhiteSpace(secretKeyInput))
+                candidate.SecretKey = secretKeyInput;
+            candidate.Enabled = true;
+            var result = await ScopedServices.GetRequiredService<IStripeGateway>().TestConnectionAsync(candidate);
+            message = result.Message;
+            connectionError = !result.Connected;
+            taxNotActive = result.Connected && !result.TaxActive;
+        }
+        catch (Exception ex)
+        {
+            connectionError = true;
+            message = ex.GetBaseException().Message;
+        }
+    }
+}

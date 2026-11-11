@@ -16,6 +16,7 @@ using BlazorBlogsLibrary.Data.Models;
 using System.Net.Mail;
 using System.Drawing;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 
 namespace BlazorBlogs.Data
 {
@@ -449,24 +450,32 @@ namespace BlazorBlogs.Data
         #endregion
 
         #region public Task<bool> DeleteNewslettersAsync(BlogDTO objBlog)
-        public Task<bool> DeleteNewslettersAsync(BlogDTO objBlog)
+        public async Task<bool> DeleteNewslettersAsync(BlogDTO objBlog)
         {
-            var ExistingNewsletters =
-                _context.Newsletters
-                .Where(x => x.Id == objBlog.BlogId)
-                .FirstOrDefault();
+            var ExistingNewsletters = await _context.Newsletters
+                .FirstOrDefaultAsync(x => x.Id == objBlog.BlogId);
 
-            if (ExistingNewsletters != null)
-            {
-                _context.Newsletters.Remove(ExistingNewsletters);
-                _context.SaveChanges();
-            }
-            else
-            {
-                return Task.FromResult(false);
-            }
+            if (ExistingNewsletters is null)
+                return false;
 
-            return Task.FromResult(true);
+            var campaignIds = await _context.NewslettersCampain
+                .Where(x => x.NewsletterId == objBlog.BlogId)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            var logs = await _context.NewslettersLogs
+                .Where(x => campaignIds.Contains(x.NewsletterCampainId))
+                .ToListAsync();
+            var campaigns = await _context.NewslettersCampain
+                .Where(x => campaignIds.Contains(x.Id))
+                .ToListAsync();
+
+            _context.NewslettersLogs.RemoveRange(logs);
+            _context.NewslettersCampain.RemoveRange(campaigns);
+            _context.Newsletters.Remove(ExistingNewsletters);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
         #endregion
 
@@ -661,48 +670,116 @@ namespace BlazorBlogs.Data
         }
         #endregion
 
-        #region public async Task SendNewslettersCampainEmailAsync(string paramUser, NewslettersCampain SelectedNewslettersCampainId, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender, string SiteURL)
-        public async Task SendNewslettersCampainEmailAsync(string paramUser, NewslettersCampain SelectedNewslettersCampain, string EmailContents, Dictionary<string, Image> colImages, string EmailSubject, string EmailSender, string SiteURL)
+        #region newsletter campaign send
+        public async Task<CampaignSendResult> SendNewslettersCampainEmailAsync(
+            NewsletterRecipient recipient,
+            NewslettersCampain campaign,
+            string emailSubject,
+            string emailContents,
+            Dictionary<string, Image> images,
+            string emailSender,
+            string siteUrl,
+            bool logCampaign,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                string UserId = "";
-                var user = await _userManager.FindByNameAsync(paramUser);
-
-                if (user != null)
+                var preferencesUrl = $"{siteUrl.TrimEnd('/')}/newsletter/preferences/{recipient.Token}";
+                var parser = new NewsletterParser();
+                var alternateView = parser.CreateEmailHTML(
+                    emailContents,
+                    images,
+                    siteUrl,
+                    campaign.NewsletterId,
+                    preferencesUrl);
+                if (alternateView is null)
                 {
-                    UserId = user.Id;
+                    const string bodyError = "Error:CreateEmailHTML";
+                    if (logCampaign)
+                    {
+                        await LogToNewslettersLogsAsync(
+                            campaign.Id,
+                            recipient.Email,
+                            bodyError,
+                            "The HTML email could not be created.",
+                            cancellationToken);
+                    }
+                    return new CampaignSendResult(false, bodyError);
                 }
 
-                // Create HTML Email Content
-                NewsletterParser objNewsletterParser = new NewsletterParser();
-                AlternateView objAlternateView = objNewsletterParser.CreateEmailHTML(EmailContents, colImages, SiteURL, SelectedNewslettersCampain.NewsletterId, UserId);
-
-                // Send Email
-                string strError = await _emailService.SendMailAlternateViewAsync(
-                     false,
-                     paramUser,
-                     paramUser,
-                     "", "",
-                     EmailSender,
-                     EmailSubject,
-                     $"{EmailContents}",
-                     objAlternateView);
-
-                if (strError == "")
+                var plainBody = $"{emailContents}{Environment.NewLine}{Environment.NewLine}" +
+                    $"Manage your subscription or unsubscribe: {preferencesUrl}";
+                var unsubscribeUrl = $"{siteUrl.TrimEnd('/')}/api/Newsletter/Unsubscribe/{recipient.Token}";
+                var headers = new Dictionary<string, string>
                 {
-                    LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Email Sent", "");
-                }
-                else
+                    ["List-Unsubscribe"] = $"<{unsubscribeUrl}>",
+                    ["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+                };
+
+                var pendingLogId = logCampaign
+                    ? await BeginNewslettersLogAsync(
+                        campaign.Id,
+                        recipient.Email,
+                        cancellationToken)
+                    : (int?)null;
+
+                var error = await _emailService.SendMailAlternateViewAsync(
+                    false,
+                    recipient.Email,
+                    recipient.Email,
+                    "",
+                    "",
+                    emailSender,
+                    emailSubject,
+                    plainBody,
+                    alternateView,
+                    headers);
+
+                if (logCampaign)
                 {
-                    LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Error:SendMailAsync", strError);
+                    try
+                    {
+                        await CompleteNewslettersLogAsync(
+                            pendingLogId!.Value,
+                            campaign.Id,
+                            recipient.Email,
+                            string.IsNullOrEmpty(error) ? "Email Sent" : "Error:SendMailAsync",
+                            error,
+                            cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        foreach (var entry in _context.ChangeTracker
+                                     .Entries<NewslettersLogs>()
+                                     .Where(x => x.State == EntityState.Added
+                                         || x.State == EntityState.Modified))
+                        {
+                            entry.State = EntityState.Detached;
+                        }
+
+                        System.Diagnostics.Trace.TraceWarning(
+                            "Campaign send status could not be persisted for {0}: {1}",
+                            recipient.Email,
+                            ex.GetBaseException().Message);
+                    }
                 }
+
+                return new CampaignSendResult(string.IsNullOrEmpty(error), error);
             }
             catch (Exception ex)
             {
-                LogToNewslettersLogs(SelectedNewslettersCampain.Id, paramUser, "Error:SendNewslettersCampainEmailAsync", ex.Message);
+                if (logCampaign)
+                {
+                    await LogToNewslettersLogsAsync(
+                        campaign.Id,
+                        recipient.Email,
+                        "Error:SendNewslettersCampainEmailAsync",
+                        ex.GetBaseException().Message,
+                        cancellationToken);
+                }
+                return new CampaignSendResult(false, ex.GetBaseException().Message);
             }
-        } 
+        }
         #endregion
 
         #region public void LogToNewslettersLogs(int paramCampainId, string paramUser, string LogType, string LogDetails)
@@ -718,6 +795,62 @@ namespace BlazorBlogs.Data
 
             _context.NewslettersLogs.Add(objNewslettersLogs);
             _context.SaveChanges();
+        }
+
+        public async Task LogToNewslettersLogsAsync(
+            int campaignId,
+            string email,
+            string logType,
+            string logDetails,
+            CancellationToken cancellationToken = default)
+        {
+            _context.NewslettersLogs.Add(new NewslettersLogs
+            {
+                NewsletterCampainId = campaignId,
+                UserName = email.ToLowerInvariant(),
+                LogType = logType,
+                LogDetails = logDetails
+            });
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task<int> BeginNewslettersLogAsync(
+            int campaignId,
+            string email,
+            CancellationToken cancellationToken)
+        {
+            var entry = new NewslettersLogs
+            {
+                NewsletterCampainId = campaignId,
+                UserName = email.ToLowerInvariant(),
+                LogType = "Email Sending",
+                LogDetails = "SMTP submission started."
+            };
+            _context.NewslettersLogs.Add(entry);
+            await _context.SaveChangesAsync(cancellationToken);
+            return entry.Id;
+        }
+
+        private async Task CompleteNewslettersLogAsync(
+            int logId,
+            int campaignId,
+            string email,
+            string logType,
+            string logDetails,
+            CancellationToken cancellationToken)
+        {
+            var entry = await _context.NewslettersLogs
+                .SingleOrDefaultAsync(x => x.Id == logId, cancellationToken);
+            if (entry is null)
+            {
+                await LogToNewslettersLogsAsync(
+                    campaignId, email, logType, logDetails, cancellationToken);
+                return;
+            }
+
+            entry.LogType = logType;
+            entry.LogDetails = logDetails;
+            await _context.SaveChangesAsync(cancellationToken);
         }
         #endregion
 
@@ -857,6 +990,8 @@ namespace BlazorBlogs.Data
                               DownloadCount = Files.DownloadCount,
                               FileName = Files.FileName,
                               FilePath = Files.FilePath,
+                              Price = Files.Price,
+                              OriginalFileName = Files.OriginalFileName
                           }).AsNoTracking().OrderBy(x => x.FileName).ToListAsync();
         }
         #endregion
@@ -880,6 +1015,8 @@ namespace BlazorBlogs.Data
                                              DownloadCount = Files.DownloadCount,
                                              FileName = Files.FileName,
                                              FilePath = Files.FilePath.Replace("\\files", "files"),
+                                             Price = Files.Price,
+                                             OriginalFileName = Files.OriginalFileName
                                          }).AsNoTracking()
                                                  .OrderBy(x => x.FileName)
                                                  .Skip(page * 10)
@@ -899,6 +1036,8 @@ namespace BlazorBlogs.Data
                 objFiles.DownloadCount = 0;
                 objFiles.FileName = objFilesDTO.FileName;
                 objFiles.FilePath = objFilesDTO.FilePath;
+                objFiles.Price = objFilesDTO.Price;
+                objFiles.OriginalFileName = objFilesDTO.OriginalFileName;
 
                 _context.Files.Add(objFiles);
                 _context.SaveChanges();
@@ -926,14 +1065,14 @@ namespace BlazorBlogs.Data
 
                 if (ExistingFiles != null)
                 {
-                    ExistingFiles.DownloadCount =
-                        objFilesDTO.DownloadCount;
-
                     ExistingFiles.FileName =
                         objFilesDTO.FileName;
 
                     ExistingFiles.FilePath =
                         objFilesDTO.FilePath;
+
+                    ExistingFiles.Price = objFilesDTO.Price;
+                    ExistingFiles.OriginalFileName = objFilesDTO.OriginalFileName;
 
                     _context.SaveChanges();
                 }
@@ -964,12 +1103,16 @@ namespace BlazorBlogs.Data
 
             if (ExistingFiles != null)
             {
+                if (_context.FilePurchases.Any(x => x.FileId == intFilesId &&
+                    (x.Status == "Paid" || x.Status == "Refunded")))
+                    throw new InvalidOperationException("This file has purchases and cannot be deleted.");
+
+                var removablePurchases = _context.FilePurchases
+                    .Where(x => x.FileId == intFilesId && x.Status != "Paid" && x.Status != "Refunded");
+                _context.FilePurchases.RemoveRange(removablePurchases);
                 _context.Files.Remove(ExistingFiles);
                 _context.SaveChanges();
 
-                // Delete the file
-                FileController objFileController = new FileController(_environment);
-                objFileController.DeleteFile(objFilesDTO.FilePath);
             }
             else
             {
@@ -1194,7 +1337,7 @@ namespace BlazorBlogs.Data
         public async Task<bool> AdminExistsAsync(string strDefaultConnection)
         {
             var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-            optionsBuilder.UseSqlServer(strDefaultConnection);
+            BlazorBlogsDbOptions.Configure(optionsBuilder, strDefaultConnection);
 
             using (var context = new BlazorBlogsContext(optionsBuilder.Options))
             {
@@ -1228,7 +1371,7 @@ namespace BlazorBlogs.Data
         public async Task<bool> IsDatabaseSetUpAsync(string strDefaultConnection)
         {
             var optionsBuilder = new DbContextOptionsBuilder<BlazorBlogsContext>();
-            optionsBuilder.UseSqlServer(strDefaultConnection);
+            BlazorBlogsDbOptions.Configure(optionsBuilder, strDefaultConnection, retry: false);
 
             try
             {
@@ -1251,7 +1394,7 @@ namespace BlazorBlogs.Data
                     }
                 }
             }
-            catch
+            catch (SqlException ex) when (ex.Number == 208)
             {
                 return false;
             }

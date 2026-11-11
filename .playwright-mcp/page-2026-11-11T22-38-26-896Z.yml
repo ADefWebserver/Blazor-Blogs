@@ -1,0 +1,129 @@
+- generic [ref=f6e2]:
+  - generic [ref=f6e3]:
+    - link [ref=f6e6] [cursor=pointer]:
+      - /url: ""
+    - list [ref=f6e9]:
+      - generic [ref=f6e10]:
+        - link "Home" [ref=f6e11] [cursor=pointer]:
+          - /url: ""
+          - generic [aria-hidden] [ref=f6e12]: 
+          - text: Home
+        - link "Downloads" [ref=f6e13] [cursor=pointer]:
+          - /url: filedownloads
+          - generic [aria-hidden] [ref=f6e14]: 
+          - text: Downloads
+      - link "User Administration" [ref=f6e16] [cursor=pointer]:
+        - /url: administration
+        - generic [aria-hidden] [ref=f6e17]: 
+        - text: User Administration
+      - link "Category Administration" [ref=f6e19] [cursor=pointer]:
+        - /url: categories
+        - generic [aria-hidden] [ref=f6e20]: 
+        - text: Category Administration
+      - link "File Manager" [ref=f6e22] [cursor=pointer]:
+        - /url: filemanager
+        - generic [aria-hidden] [ref=f6e23]: 
+        - text: File Manager
+      - link "Import Blogs" [ref=f6e25] [cursor=pointer]:
+        - /url: importblogs
+        - generic [aria-hidden] [ref=f6e26]: 
+        - text: Import Blogs
+      - link "Newsletters" [ref=f6e28] [cursor=pointer]:
+        - /url: newsletter
+        - generic [aria-hidden] [ref=f6e29]: 
+        - text: Newsletters
+      - link "Logs" [ref=f6e31] [cursor=pointer]:
+        - /url: logs
+        - generic [aria-hidden] [ref=f6e32]: 
+        - text: Logs
+      - link "Settings" [ref=f6e34] [cursor=pointer]:
+        - /url: settings
+        - generic [aria-hidden] [ref=f6e35]: 
+        - text: Settings
+      - button "[Logout]" [ref=f6e38] [cursor=pointer]
+  - main [ref=f6e39]:
+    - generic [ref=f6e40]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f6e41] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f6e43] [cursor=pointer]
+      - link "About" [ref=f6e44] [cursor=pointer]:
+        - /url: https://github.com/ADefWebserver/Blazor-Blogs
+      - link "rss_feed" [ref=f6e45] [cursor=pointer]:
+        - /url: api/RSSFeed/Rss
+    - article [ref=f6e47]:
+      - heading "Settings" [level=1] [ref=f6e48]
+      - table [ref=f6e49]:
+        - rowgroup [ref=f6e50]:
+          - row [ref=f6e51]:
+            - 'cell "Application Version: 09.00.00" [ref=f6e52]'
+          - row [ref=f6e53]:
+            - cell "Application Name" [ref=f6e54]
+            - cell [ref=f6e55]:
+              - textbox [ref=f6e56]
+          - row [ref=f6e57]:
+            - cell "Application Logo" [ref=f6e58]
+            - cell [ref=f6e59]:
+              - button "[Select]" [ref=f6e61] [cursor=pointer]
+          - row [ref=f6e62]:
+            - cell "Application Header" [ref=f6e63]
+            - cell [ref=f6e64]:
+              - textbox [ref=f6e65]
+              - button [ref=f6e66] [cursor=pointer]:
+                - heading "[Rich Text Editor]" [level=6] [ref=f6e67]
+          - row [ref=f6e68]:
+            - cell "Allow Registration" [ref=f6e69]
+            - cell "True" [ref=f6e70]:
+              - combobox [ref=f6e71]:
+                - option "True" [selected]
+                - option "False"
+          - row [ref=f6e72]:
+            - cell "Verified Registration" [ref=f6e73]
+            - cell "False" [ref=f6e74]:
+              - combobox [ref=f6e75]:
+                - option "True"
+                - option "False" [selected]
+          - row [ref=f6e76]:
+            - cell "SMTP Server" [ref=f6e77]
+            - cell [ref=f6e78]:
+              - textbox [ref=f6e79]
+          - row [ref=f6e80]:
+            - cell "SMTP Authentication" [ref=f6e81]
+            - cell "Anonymous" [ref=f6e82]:
+              - combobox [ref=f6e83]:
+                - option "Anonymous" [selected]
+                - option "Basic"
+                - option "NTLM"
+          - row [ref=f6e84]:
+            - cell "SMTP Secure" [ref=f6e85]
+            - cell "False" [ref=f6e86]:
+              - combobox [ref=f6e87]:
+                - option "True"
+                - option "False" [selected]
+          - row [ref=f6e88]:
+            - cell "SMTP User Name" [ref=f6e89]
+            - cell [ref=f6e90]:
+              - textbox [ref=f6e91]
+          - row [ref=f6e92]:
+            - cell "SMTP Password" [ref=f6e93]
+            - cell [ref=f6e94]:
+              - textbox [ref=f6e95]
+          - row [ref=f6e96]:
+            - cell "SMTP From Email" [ref=f6e97]
+            - cell [ref=f6e98]:
+              - textbox [ref=f6e99]
+          - row [ref=f6e100]:
+            - cell "Enable Disqus Comments" [ref=f6e101]
+            - cell "False" [ref=f6e102]:
+              - combobox [ref=f6e103]:
+                - option "True"
+                - option "False" [selected]
+          - row [ref=f6e104]:
+            - cell "Disqus ShortName" [ref=f6e105]
+            - cell [ref=f6e106]:
+              - textbox [ref=f6e107]
+          - row [ref=f6e108]:
+            - cell "Google Tracking ID" [ref=f6e109]
+            - cell [ref=f6e110]:
+              - textbox [ref=f6e111]
+      - button "Save" [ref=f6e112] [cursor=pointer]
+      - button "Send Test Email" [ref=f6e113] [cursor=pointer]

@@ -2,6 +2,7 @@
 
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authentication.Google
 @using BlazorBlogs.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -9,6 +10,7 @@
 @inject IdentityUserAccessor UserAccessor
 @inject IUserStore<ApplicationUser> UserStore
 @inject IdentityRedirectManager RedirectManager
+@inject ExternalAuthOptionsStore ExternalAuthOptionsStore
 
 <PageTitle>Manage your external logins</PageTitle>
 
@@ -89,6 +91,9 @@
         currentLogins = await UserManager.GetLoginsAsync(user);
         otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(auth => currentLogins.All(ul => auth.Name != ul.LoginProvider))
+            .Where(auth =>
+                auth.Name != GoogleDefaults.AuthenticationScheme ||
+                ExternalAuthOptionsStore.IsGoogleConfigured)
             .ToList();
 
         string passwordHash = null;

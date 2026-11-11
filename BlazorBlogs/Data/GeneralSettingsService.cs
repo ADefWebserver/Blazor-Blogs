@@ -19,41 +19,64 @@ namespace BlazorBlogs.Data
         #region public async Task<GeneralSettings> GetGeneralSettingsAsync()
         public async Task<GeneralSettings> GetGeneralSettingsAsync()
         {
-            GeneralSettings objGeneralSettings = new GeneralSettings();
+            var settings = (await _context.Settings.AsNoTracking().ToListAsync())
+                .ToDictionary(x => x.SettingName, x => x.SettingValue ?? "", StringComparer.OrdinalIgnoreCase);
 
-            var resuts = await _context.Settings.AsNoTracking().ToListAsync();
+            string Get(string name, string fallback = "") =>
+                settings.TryGetValue(name, out var value) ? value : fallback;
+            bool GetBoolean(string name, bool fallback = false) =>
+                bool.TryParse(Get(name), out var value) ? value : fallback;
 
-            objGeneralSettings.SMTPServer = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPServer").SettingValue);
-            objGeneralSettings.SMTPAuthendication = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPAuthendication").SettingValue);
-            objGeneralSettings.SMTPSecure = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "SMTPSecure").SettingValue);
-            objGeneralSettings.SMTPUserName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPUserName").SettingValue);
-            objGeneralSettings.SMTPPassword = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPPassword").SettingValue);
-            objGeneralSettings.SMTPFromEmail = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "SMTPFromEmail").SettingValue);
-
-            objGeneralSettings.AllowRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "AllowRegistration").SettingValue);
-            objGeneralSettings.VerifiedRegistration = Convert.ToBoolean(resuts.FirstOrDefault(x => x.SettingName == "VerifiedRegistration").SettingValue);
-
-            objGeneralSettings.ApplicationName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationName").SettingValue);
-            objGeneralSettings.ApplicationLogo = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationLogo").SettingValue);
-            objGeneralSettings.ApplicationHeader = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "ApplicationHeader").SettingValue);
-
-            objGeneralSettings.DisqusEnabled = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusEnabled").SettingValue);
-            objGeneralSettings.DisqusShortName = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "DisqusShortName").SettingValue);
-
-            if (resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID") != null)
+            return new GeneralSettings
             {
-                objGeneralSettings.GoogleTrackingID = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "GoogleTrackingID").SettingValue);
-            }
-            else
-            {
-                objGeneralSettings.GoogleTrackingID = "";
-            }
-
-            objGeneralSettings.VersionNumber = Convert.ToString(resuts.FirstOrDefault(x => x.SettingName == "VersionNumber").SettingValue);
-
-            return objGeneralSettings;
+                SMTPServer = Get("SMTPServer"),
+                SMTPAuthendication = Get("SMTPAuthendication"),
+                SMTPSecure = GetBoolean("SMTPSecure"),
+                SMTPUserName = Get("SMTPUserName"),
+                SMTPPassword = Get("SMTPPassword"),
+                SMTPFromEmail = Get("SMTPFromEmail"),
+                AllowRegistration = GetBoolean("AllowRegistration"),
+                VerifiedRegistration = GetBoolean("VerifiedRegistration"),
+                ApplicationName = Get("ApplicationName"),
+                ApplicationLogo = Get("ApplicationLogo"),
+                ApplicationHeader = Get("ApplicationHeader"),
+                ApplicationHeaderEnabled = GetBoolean("ApplicationHeaderEnabled", true),
+                ApplicationHeaderEditorMode = Get("ApplicationHeaderEditorMode", string.IsNullOrWhiteSpace(Get("ApplicationHeader")) ? "Rich" : "Raw"),
+                SiteBaseUrl = Get("SiteBaseUrl"),
+                ThemeAccentColor = Get("ThemeAccentColor", ThemeDefaults.AccentColor),
+                DisqusEnabled = Get("DisqusEnabled"),
+                DisqusShortName = Get("DisqusShortName"),
+                GoogleTrackingID = Get("GoogleTrackingID"),
+                VersionNumber = Get("VersionNumber")
+            };
         }
         #endregion
+
+        public async Task<string> GetSettingAsync(string settingName, string defaultValue = "")
+        {
+            var value = await _context.Settings
+                .AsNoTracking()
+                .Where(x => x.SettingName == settingName)
+                .Select(x => x.SettingValue)
+                .FirstOrDefaultAsync();
+
+            return value ?? defaultValue;
+        }
+
+        public async Task SetSettingAsync(string settingName, string value)
+        {
+            var setting = await _context.Settings
+                .FirstOrDefaultAsync(x => x.SettingName == settingName);
+
+            if (setting is null)
+            {
+                setting = new Settings { SettingName = settingName };
+                _context.Settings.Add(setting);
+            }
+
+            setting.SettingValue = value ?? "";
+            await _context.SaveChangesAsync();
+        }
 
         #region UpdateSMTPServer
         public Task<bool> UpdateSMTPServerAsync(string SMTPServer)

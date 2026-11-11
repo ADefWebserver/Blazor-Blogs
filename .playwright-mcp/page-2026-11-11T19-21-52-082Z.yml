@@ -1,0 +1,54 @@
+- generic [ref=f43e2]:
+  - banner [ref=f43e3]:
+    - link "Blazor Blogs" [ref=f43e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f43e6]:
+      - link "Blog" [ref=f43e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f43e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f43e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f43e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f43e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f43e13] [cursor=pointer]
+  - main [ref=f43e14]:
+    - article [ref=f43e15]:
+      - generic [ref=f43e17]:
+        - paragraph [ref=f43e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f43e19]
+      - generic [ref=f43e20]:
+        - heading "Account settings" [level=2] [ref=f43e21]
+        - generic [ref=f43e22]:
+          - list [ref=f43e24]:
+            - listitem [ref=f43e25]:
+              - link "Profile" [ref=f43e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f43e27]:
+              - link "Email" [ref=f43e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f43e29]:
+              - link "Newsletter" [ref=f43e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f43e31]:
+              - link "Password" [ref=f43e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f43e33]:
+              - link "Personal data" [ref=f43e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f43e35]:
+            - heading "Newsletter" [level=3] [ref=f43e36]
+            - paragraph [ref=f43e37]: "Email: webmaster@adefwebserver.com"
+            - paragraph [ref=f43e38]:
+              - text: You are currently
+              - strong [ref=f43e39]: unsubscribed
+              - text: .
+            - button "Subscribe" [ref=f43e41] [cursor=pointer]
+  - contentinfo [ref=f43e42]:
+    - generic [ref=f43e43]: © 2026
+    - link "RSS feed" [ref=f43e44] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f43e45] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

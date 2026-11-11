@@ -1,0 +1,62 @@
+- generic [ref=f44e2]:
+  - banner [ref=f44e3]:
+    - link "Blazor Blogs" [ref=f44e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f44e6]:
+      - link "Blog" [ref=f44e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f44e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f44e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f44e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f44e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f44e13] [cursor=pointer]
+  - main [ref=f44e14]:
+    - article [ref=f44e15]:
+      - generic [ref=f44e17]:
+        - paragraph [ref=f44e18]: Account
+        - heading "Manage your account" [active] [level=1] [ref=f44e19]
+      - generic [ref=f44e20]:
+        - heading "Account settings" [level=2] [ref=f44e21]
+        - generic [ref=f44e22]:
+          - list [ref=f44e24]:
+            - listitem [ref=f44e25]:
+              - link "Profile" [ref=f44e26] [cursor=pointer]:
+                - /url: Account/Manage
+            - listitem [ref=f44e27]:
+              - link "Email" [ref=f44e28] [cursor=pointer]:
+                - /url: Account/Manage/Email
+            - listitem [ref=f44e29]:
+              - link "Newsletter" [ref=f44e30] [cursor=pointer]:
+                - /url: Account/Manage/Newsletter
+            - listitem [ref=f44e31]:
+              - link "Password" [ref=f44e32] [cursor=pointer]:
+                - /url: Account/Manage/ChangePassword
+            - listitem [ref=f44e33]:
+              - link "Personal data" [ref=f44e34] [cursor=pointer]:
+                - /url: Account/Manage/PersonalData
+          - generic [ref=f44e35]:
+            - heading "Change password" [level=3] [ref=f44e36]
+            - generic [ref=f44e39]:
+              - generic [ref=f44e40]:
+                - textbox "Old password" [ref=f44e41]:
+                  - /placeholder: Enter the old password
+                - generic: Old password
+              - generic [ref=f44e42]:
+                - textbox "New password" [ref=f44e43]:
+                  - /placeholder: Enter the new password
+                - generic: New password
+              - generic [ref=f44e44]:
+                - textbox "Confirm password" [ref=f44e45]:
+                  - /placeholder: Enter the new password
+                - generic: Confirm password
+              - button "Update password" [ref=f44e46] [cursor=pointer]
+  - contentinfo [ref=f44e47]:
+    - generic [ref=f44e48]: © 2026
+    - link "RSS feed" [ref=f44e49] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f44e50] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

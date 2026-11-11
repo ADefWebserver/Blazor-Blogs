@@ -1,0 +1,57 @@
+- generic [ref=f16e2]:
+  - banner [ref=f16e3]:
+    - link "Blazor Blogs" [ref=f16e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f16e6]:
+      - link "Blog" [ref=f16e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f16e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f16e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f16e10]:
+      - link "Register" [ref=f16e11] [cursor=pointer]:
+        - /url: Account/Register
+      - link "Log in" [ref=f16e12] [cursor=pointer]:
+        - /url: Account/Login
+  - main [ref=f16e13]:
+    - article [ref=f16e14]:
+      - heading "Log in" [active] [level=1] [ref=f16e15]
+      - generic [ref=f16e16]:
+        - generic [ref=f16e19]:
+          - heading "Use a local account to log in." [level=2] [ref=f16e20]
+          - separator [ref=f16e21]
+          - generic [ref=f16e22]:
+            - textbox "Email" [ref=f16e23]:
+              - /placeholder: name@example.com
+              - text: webmaster@adefwebserver.com
+            - generic: Email
+          - generic [ref=f16e24]:
+            - textbox "Password" [ref=f16e25]:
+              - /placeholder: password
+              - text: Password#1
+            - generic: Password
+          - generic [ref=f16e27]:
+            - checkbox "Remember me" [ref=f16e28]
+            - text: Remember me
+          - button "Log in" [ref=f16e30] [cursor=pointer]
+          - generic [ref=f16e31]:
+            - paragraph [ref=f16e32]:
+              - link "Forgot your password?" [ref=f16e33] [cursor=pointer]:
+                - /url: Account/ForgotPassword
+            - paragraph [ref=f16e34]:
+              - link "Register as a new user" [ref=f16e35] [cursor=pointer]:
+                - /url: Account/Register
+            - paragraph [ref=f16e36]:
+              - link "Resend email confirmation" [ref=f16e37] [cursor=pointer]:
+                - /url: Account/ResendEmailConfirmation
+        - generic [ref=f16e39]:
+          - heading "Use another service to log in." [level=2] [ref=f16e40]
+          - separator [ref=f16e41]
+  - contentinfo [ref=f16e42]:
+    - generic [ref=f16e43]: © 2026
+    - link "RSS feed" [ref=f16e44] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f16e45] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

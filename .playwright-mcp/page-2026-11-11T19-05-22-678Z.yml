@@ -1,0 +1,119 @@
+- generic [ref=f30e61]:
+  - banner [ref=f30e62]:
+    - link "Blazor Blogs" [ref=f30e63] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f30e65]:
+      - link "Blog" [ref=f30e66] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f30e67] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f30e68] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f30e69]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f30e70] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f30e72] [cursor=pointer]
+  - main [ref=f30e73]:
+    - article [ref=f30e74]:
+      - generic [ref=f30e75]:
+        - complementary "Administration navigation" [ref=f30e76]:
+          - generic [ref=f30e77]:
+            - generic [aria-hidden] [ref=f30e78]: A
+            - generic [ref=f30e79]:
+              - strong [ref=f30e80]: Administration
+              - generic [ref=f30e81]: Site controls
+          - navigation "Administration" [ref=f30e82]:
+            - link "Posts" [ref=f30e83] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f30e85] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f30e87] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f30e89] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f30e91] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f30e93] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f30e95] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f30e97] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f30e99] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f30e100]:
+          - generic [ref=f30e101]:
+            - generic [ref=f30e102]:
+              - paragraph [ref=f30e103]: Email publishing
+              - heading "Newsletter" [level=1] [ref=f30e104]
+            - button "Create newsletter" [active] [ref=f30e105] [cursor=pointer]
+          - generic [ref=f30e106]:
+            - generic [ref=f30e107]:
+              - generic [ref=f30e108]: Newsletters
+              - strong [ref=f30e109]: "0"
+            - generic [ref=f30e110]:
+              - generic [ref=f30e111]: Campaigns
+              - strong [ref=f30e112]: "0"
+            - generic [ref=f30e113]:
+              - generic [ref=f30e114]: Status
+              - strong [ref=f30e115]: Ready
+          - dialog [ref=f30e116]:
+            - generic [ref=f30e117]:
+              - generic [ref=f30e118]:
+                - heading "Edit Newsletter" [level=3] [ref=f30e119]
+                - button [ref=f30e120] [cursor=pointer]
+              - generic [ref=f30e121]:
+                - textbox [ref=f30e123]: 2026-11-11
+                - heading "Subject" [level=5] [ref=f30e124]
+                - textbox [ref=f30e126]
+                - heading "Content" [level=5] [ref=f30e127]
+                - generic [ref=f30e130]:
+                  - button "Undo" [disabled] [ref=f30e131]:
+                    - generic [aria-hidden] [ref=f30e133]: undo
+                  - button "Redo" [disabled] [ref=f30e134]:
+                    - generic [aria-hidden] [ref=f30e136]: redo
+                  - button "Bold (Ctrl+B)" [ref=f30e138] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e140]: format_bold
+                  - button "Italic (Ctrl+I)" [ref=f30e141] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e143]: format_italic
+                  - button "Underline (Ctrl+U)" [ref=f30e144] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e146]: format_underlined
+                  - button "Strikethrough" [ref=f30e147] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e149]: strikethrough_s
+                  - generic "Text color" [ref=f30e150]:
+                    - button [ref=f30e151] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f30e152]: title
+                      - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                  - generic "Background color" [ref=f30e154]:
+                    - button [ref=f30e155] [cursor=pointer]:
+                      - generic [aria-hidden] [ref=f30e156]: opacity
+                      - text: expand_less expand_more expand_less expand_more expand_less expand_more expand_less expand_more
+                  - button "Ordered list" [ref=f30e159] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e161]: format_list_numbered
+                  - button "Bullet list" [ref=f30e162] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e164]: format_list_bulleted
+                  - button "Insert link" [ref=f30e165] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e167]: insert_link
+                  - button "Format block arrow_drop_down" [ref=f30e168] [cursor=pointer]:
+                    - generic [ref=f30e169]: Format block
+                    - generic [ref=f30e170]: arrow_drop_down
+                  - button "Align left" [ref=f30e172] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e174]: format_align_left
+                  - button "Align center" [ref=f30e175] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e177]: format_align_center
+                  - button "Align right" [ref=f30e178] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e180]: format_align_right
+                  - button "Remove styling" [ref=f30e181] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e183]: format_clear
+                  - button "Insert image" [ref=f30e184] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e186]: image
+                  - button "View source" [ref=f30e187] [cursor=pointer]:
+                    - generic [aria-hidden] [ref=f30e189]: code
+                - button "Save" [ref=f30e191] [cursor=pointer]
+  - contentinfo [ref=f30e192]:
+    - generic [ref=f30e193]: © 2026
+    - link "RSS feed" [ref=f30e194] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f30e195] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

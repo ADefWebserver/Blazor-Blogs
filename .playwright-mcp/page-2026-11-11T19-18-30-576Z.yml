@@ -1,0 +1,73 @@
+- generic [active] [ref=f40e1]:
+  - heading "An unhandled exception occurred while processing the request." [level=1] [ref=f40e2]
+  - generic [ref=f40e3]: "NullReferenceException: Object reference not set to an instance of an object."
+  - paragraph [ref=f40e4]:
+    - text: BlazorBlogs.Components.Account.Pages.Manage.Newsletter.BuildRenderTree(RenderTreeBuilder __builder) in
+    - code [ref=f40e5]: Newsletter.razor
+    - text: ", line 10"
+  - list [ref=f40e6]:
+    - listitem [ref=f40e7] [cursor=pointer]: Stack
+    - listitem [ref=f40e8] [cursor=pointer]: Query
+    - listitem [ref=f40e9] [cursor=pointer]: Cookies
+    - listitem [ref=f40e10] [cursor=pointer]: Headers
+    - listitem [ref=f40e11] [cursor=pointer]: Routing
+  - list [ref=f40e13]:
+    - listitem [ref=f40e14]:
+      - 'heading "NullReferenceException: Object reference not set to an instance of an object." [level=2] [ref=f40e15]'
+      - list [ref=f40e16]:
+        - listitem [ref=f40e17]:
+          - heading [level=3] [ref=f40e18]:
+            - text: BlazorBlogs.Components.Account.Pages.Manage.Newsletter.BuildRenderTree(RenderTreeBuilder __builder) in
+            - code [ref=f40e19]: Newsletter.razor
+          - button "+" [ref=f40e20] [cursor=pointer]
+          - list [ref=f40e22]:
+            - listitem [ref=f40e23]: "<p>Email: @user.Email</p>"
+        - listitem [ref=f40e24]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.RenderIntoBatch(RenderBatchBuilder batchBuilder, RenderFragment renderFragment, out Exception renderFragmentException)" [level=3] [ref=f40e25]
+        - listitem [ref=f40e26]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f40e27]
+        - listitem [ref=f40e28]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f40e29]
+        - listitem [ref=f40e30]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.StateHasChanged()" [level=3] [ref=f40e31]
+        - listitem [ref=f40e32]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.RunInitAndSetParametersAsync()" [level=3] [ref=f40e33]
+        - listitem [ref=f40e34]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f40e35]
+        - listitem [ref=f40e36]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f40e37]
+        - listitem [ref=f40e38]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.<WaitForNonStreamingPendingTasks>g__Execute|58_0()" [level=3] [ref=f40e39]
+        - listitem [ref=f40e40]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.WaitForResultReady(bool waitForQuiescence, PrerenderedComponentHtmlContent result)" [level=3] [ref=f40e41]
+        - listitem [ref=f40e42]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.RenderEndpointComponent(HttpContext httpContext, Type rootComponentType, ParameterView parameters, bool waitForQuiescence)" [level=3] [ref=f40e43]
+        - listitem [ref=f40e44]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f40e45]
+        - listitem [ref=f40e46]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f40e47]
+        - listitem [ref=f40e48]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.RendererSynchronizationContext+<>c+<<InvokeAsync>b__10_0>d.MoveNext()" [level=3] [ref=f40e49]
+        - listitem [ref=f40e50]:
+          - heading "Microsoft.AspNetCore.Builder.ServerRazorComponentsEndpointConventionBuilderExtensions+<>c__DisplayClass1_1.<AddInteractiveServerRenderMode>b__1(HttpContext context)" [level=3] [ref=f40e51]
+        - listitem [ref=f40e52]:
+          - heading [level=3] [ref=f40e53]:
+            - text: BlazorBlogs.Program+<>c+<<Main>b__3_6>d.MoveNext() in
+            - code [ref=f40e54]: Program.cs
+          - button "+" [ref=f40e55] [cursor=pointer]
+          - list [ref=f40e57]:
+            - listitem [ref=f40e58]: await next();
+        - listitem [ref=f40e59]:
+          - heading "WilderMinds.MetaWeblog.MetaWeblogMiddleware.Invoke(HttpContext context, MetaWeblogService service)" [level=3] [ref=f40e60]
+        - listitem [ref=f40e61]:
+          - heading "Toolbelt.Blazor.HeadElement.Middlewares.HeadElementServerPrerenderingMiddleware.InvokeAsync(HttpContext context, IHeadElementHelperStore store)" [level=3] [ref=f40e62]
+        - listitem [ref=f40e63]:
+          - heading "Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f40e64]
+        - listitem [ref=f40e65]:
+          - heading "Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f40e66]
+        - listitem [ref=f40e67]:
+          - heading "Microsoft.AspNetCore.Antiforgery.CsrfProtectionMiddleware.InvokeCoreAsync(HttpContext context)" [level=3] [ref=f40e68]
+        - listitem [ref=f40e69]:
+          - heading "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)" [level=3] [ref=f40e70]
+    - listitem [ref=f40e71]:
+      - button "Show raw exception details" [ref=f40e73] [cursor=pointer]

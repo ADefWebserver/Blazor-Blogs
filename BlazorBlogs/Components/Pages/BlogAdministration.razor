@@ -35,111 +35,11 @@
                     </div>
                     <h5>Summary</h5>
                     <div class="form-group">
-                        @if (!RichTextEditorModeSummary)
-                        {
-                            <textarea class="form-control" @bind="@SelectedBlog.BlogSummary" rows="2" />
-                        }
-                        else
-                        {
-                            <BlazoredTextEditor @ref="@QuillHtmlSummary">
-                                <ToolbarContent>
-                                    <select class="ql-header">
-                                        <option selected=""></option>
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                    </select>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="btn btn-link" id="custom-button"
-                                                @onclick="InsertImageSummaryClick">
-                                            <img src="imageIcon.png" style="border:hidden" />
-                                        </button>
-                                    </span>
-                                </ToolbarContent>
-                                <EditorContent>
-                                    @((MarkupString)SelectedBlog.BlogSummary)
-                                </EditorContent>
-                            </BlazoredTextEditor>
-                        }
-                        @if (!RichTextEditorModeSummary)
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RichTextEditorSummary"><h6>[Rich Text Editor]</h6></button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditorSummary"><h6>[Raw HTML Editor]</h6></button>
-                        }
+                        <HtmlEditor @bind-Value="SelectedBlog.BlogSummary" />
                     </div>
                     <h5>Content</h5>
                     <div class="form-group">
-                        @if (!RichTextEditorMode)
-                        {
-                            <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
-                        }
-                        else
-                        {
-                            <BlazoredTextEditor @ref="@QuillHtml">
-                                <ToolbarContent>
-                                    <select class="ql-header">
-                                        <option selected=""></option>
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                    </select>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="btn btn-link" id="custom-button"
-                                                @onclick="InsertImageClick">
-                                            <img src="imageIcon.png" style="border:hidden" />
-                                        </button>
-                                    </span>
-                                </ToolbarContent>
-                                <EditorContent>
-                                    @((MarkupString)SelectedBlog.BlogContent)
-                                </EditorContent>
-                            </BlazoredTextEditor>
-                        }
-                        @if (!RichTextEditorMode)
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
-                        }
+                        <HtmlEditor @bind-Value="SelectedBlog.BlogContent" />
                     </div>
                     <br />
                     <!-- Button to save the user -->
@@ -188,11 +88,6 @@
         </div>
     }
 
-    <FileSelector @ref="FileManagerControlSummary"
-                 ImageSelected="InsertImageSummary" />
-
-    <FileSelector @ref="FileManagerControl"
-                 ImageSelected="InsertImage" />
 }
 
 @code {
@@ -207,14 +102,6 @@
     public bool ConFirmDeletePopup = false;
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
-
-    private FileSelector FileManagerControlSummary;
-    private FileSelector FileManagerControl;
-
-    BlazoredTextEditor QuillHtmlSummary;
-    BlazoredTextEditor QuillHtml;
-    bool RichTextEditorMode = true;
-    bool RichTextEditorModeSummary = true;
 
     string strError;
 
@@ -279,27 +166,8 @@
                 objNewBlog.BlogTitle =
                     SelectedBlog.BlogTitle;
 
-                if (RichTextEditorModeSummary)
-                {
-                    objNewBlog.BlogSummary =
-                        await this.QuillHtmlSummary.GetHTML();
-                }
-                else
-                {
-                    objNewBlog.BlogSummary =
-                        SelectedBlog.BlogSummary;
-                }
-
-                if (RichTextEditorMode)
-                {
-                    objNewBlog.BlogContent =
-                        await this.QuillHtml.GetHTML();
-                }
-                else
-                {
-                    objNewBlog.BlogContent =
-                        SelectedBlog.BlogContent;
-                }
+                objNewBlog.BlogSummary = SelectedBlog.BlogSummary ?? "";
+                objNewBlog.BlogContent = SelectedBlog.BlogContent ?? "";
 
                 objNewBlog.BlogUserName =
                     CurrentUser.Identity.Name;
@@ -312,19 +180,8 @@
             }
             else
             {
-                // Get HTML Content
-
-                if (RichTextEditorModeSummary)
-                {
-                    SelectedBlog.BlogSummary =
-                        await this.QuillHtmlSummary.GetHTML();
-                }
-
-                if (RichTextEditorMode)
-                {
-                    SelectedBlog.BlogContent =
-                        await this.QuillHtml.GetHTML();
-                }
+                SelectedBlog.BlogSummary ??= "";
+                SelectedBlog.BlogContent ??= "";
 
                 await Service.UpdateBlogAsync(SelectedBlog);
 
@@ -368,60 +225,6 @@
         {
             strError = ex.GetBaseException().Message;
         }
-    }
-
-    //Summary
-
-    private void RichTextEditorSummary()
-    {
-        RichTextEditorModeSummary = true;
-        StateHasChanged();
-    }
-
-    private async Task RawHTMLEditorSummary()
-    {
-        RichTextEditorModeSummary = false;
-        SelectedBlog.BlogSummary =
-            await this.QuillHtmlSummary.GetHTML();
-    }
-
-    private void RichTextEditor()
-    {
-        RichTextEditorMode = true;
-        StateHasChanged();
-    }
-
-    private async Task RawHTMLEditor()
-    {
-        RichTextEditorMode = false;
-        SelectedBlog.BlogContent =
-            await this.QuillHtml.GetHTML();
-    }
-
-    // Inserting Images
-
-    private void InsertImageSummaryClick()
-    {
-        FileManagerControlSummary.SetShowFileManager(true);
-    }
-
-    private void InsertImageClick()
-    {
-        FileManagerControl.SetShowFileManager(true);
-    }
-
-    async Task InsertImageSummary(string paramImageURL)
-    {
-        await this.QuillHtmlSummary.InsertImage(paramImageURL);
-
-        FileManagerControl.SetShowFileManager(false);
-    }
-
-    async Task InsertImage(string paramImageURL)
-    {
-        await this.QuillHtml.InsertImage(paramImageURL);
-
-        FileManagerControl.SetShowFileManager(false);
     }
 
     private async Task LogAction(string strAction)

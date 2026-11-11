@@ -1,0 +1,71 @@
+- generic [ref=f11e2]:
+  - banner [ref=f11e3]:
+    - link "Blazor Blogs" [ref=f11e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f11e6]:
+      - link "Blog" [ref=f11e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f11e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f11e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f11e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f11e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f11e13] [cursor=pointer]
+  - main [ref=f11e14]:
+    - article [ref=f11e15]:
+      - generic [ref=f11e16]:
+        - generic [ref=f11e17]:
+          - paragraph [ref=f11e18]: Latest stories and updates
+          - heading "From the blog" [active] [level=1] [ref=f11e19]
+        - button "Write a post" [ref=f11e20] [cursor=pointer]
+      - region "Post filters" [ref=f11e21]:
+        - generic [ref=f11e22]:
+          - generic [ref=f11e23]: Filter by category
+          - combobox "Empty" [ref=f11e24]:
+            - textbox [aria-hidden] [ref=f11e25]: "0"
+            - generic [ref=f11e26]: All categories
+            - generic [ref=f11e27]: arrow_drop_down
+            - text: search
+            - button "Clear" [ref=f11e29] [cursor=pointer]: close
+        - generic [ref=f11e30]:
+          - generic [ref=f11e31]: Search posts
+          - textbox "Search posts" [ref=f11e32]
+        - button "Search" [ref=f11e33] [cursor=pointer]
+      - generic [ref=f11e36]:
+        - main "Blog posts" [ref=f11e37]:
+          - article [ref=f11e38]:
+            - generic [ref=f11e39]: November 11, 2026
+            - heading [level=2] [ref=f11e40]:
+              - link "Azure Upgrade Baseline 09.00.00" [ref=f11e41] [cursor=pointer]:
+                - /url: ViewBlogPost/1
+            - paragraph [ref=f11e43]: Baseline summary created in 09.00.00 before upgrade.
+            - link "Read Azure Upgrade Baseline 09.00.00" [ref=f11e44] [cursor=pointer]:
+              - /url: ViewBlogPost/1
+              - text: Read more
+              - generic [aria-hidden] [ref=f11e45]: →
+        - complementary [ref=f11e46]:
+          - generic [ref=f11e47]:
+            - generic [ref=f11e48]: Newsletter
+            - heading "Stay in the loop" [level=2] [ref=f11e49]
+            - paragraph [ref=f11e50]: Sign in to manage email updates and follow new posts.
+            - link "Manage subscription" [ref=f11e51] [cursor=pointer]:
+              - /url: Account/Manage/Newsletter
+          - generic [ref=f11e52]:
+            - heading "Categories" [level=2] [ref=f11e53]
+            - button "Upgrade Baseline Category" [ref=f11e55] [cursor=pointer]
+      - navigation "Post pages" [ref=f11e56]:
+        - button "← Newer" [disabled]
+        - button "Older →" [disabled]
+      - generic [ref=f11e57]:
+        - button "Terms Of Use" [ref=f11e58] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f11e59] [cursor=pointer]
+  - contentinfo [ref=f11e60]:
+    - generic [ref=f11e61]: © 2026
+    - link "RSS feed" [ref=f11e62] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f11e63] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

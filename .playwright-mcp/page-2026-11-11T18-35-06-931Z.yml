@@ -1,0 +1,55 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - link "Blazor Blogs" [ref=f3e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f3e6]:
+      - link "Blog" [ref=f3e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f3e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f3e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f3e10]:
+      - link "Register" [ref=f3e11] [cursor=pointer]:
+        - /url: Account/Register
+      - link "Log in" [ref=f3e12] [cursor=pointer]:
+        - /url: Account/Login
+  - main [ref=f3e13]:
+    - article [ref=f3e14]:
+      - heading "Log in" [active] [level=1] [ref=f3e15]
+      - generic [ref=f3e16]:
+        - generic [ref=f3e19]:
+          - heading "Use a local account to log in." [level=2] [ref=f3e20]
+          - separator [ref=f3e21]
+          - generic [ref=f3e22]:
+            - textbox "Email" [ref=f3e23]:
+              - /placeholder: name@example.com
+            - generic: Email
+          - generic [ref=f3e24]:
+            - textbox "Password" [ref=f3e25]:
+              - /placeholder: password
+            - generic: Password
+          - generic [ref=f3e27]:
+            - checkbox "Remember me" [ref=f3e28]
+            - text: Remember me
+          - button "Log in" [ref=f3e30] [cursor=pointer]
+          - generic [ref=f3e31]:
+            - paragraph [ref=f3e32]:
+              - link "Forgot your password?" [ref=f3e33] [cursor=pointer]:
+                - /url: Account/ForgotPassword
+            - paragraph [ref=f3e34]:
+              - link "Register as a new user" [ref=f3e35] [cursor=pointer]:
+                - /url: Account/Register
+            - paragraph [ref=f3e36]:
+              - link "Resend email confirmation" [ref=f3e37] [cursor=pointer]:
+                - /url: Account/ResendEmailConfirmation
+        - generic [ref=f3e39]:
+          - heading "Use another service to log in." [level=2] [ref=f3e40]
+          - separator [ref=f3e41]
+  - contentinfo [ref=f3e42]:
+    - generic [ref=f3e43]: © 2026
+    - link "RSS feed" [ref=f3e44] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f3e45] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

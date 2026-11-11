@@ -1,15 +1,22 @@
 ﻿@page "/filemanager"
+@layout BlazorBlogs.Components.Layout.AdminLayout
 @using System.IO
 @using System.Text
 @using System.Web
 @using System.Drawing;
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@inject UserContentPaths UserContentPaths
 <PageTitle>File Manager</PageTitle>
 @if (UserIsAnAdmin)
 {
-    <h1>File Manager</h1>
-    <br />
-    <div class="row">
+    <div class="bb-page-header">
+        <div>
+            <p class="bb-muted">Media library</p>
+            <h1>Files</h1>
+            <p>Upload and organize images used by posts and the site header.</p>
+        </div>
+    </div>
+    <div class="row bb-card bb-file-toolbar">
         <RadzenUpload ChooseText="Upload Files" Multiple="true"
                   Accept="image/*"
                   Url=@($"api/upload/multiple?CurrentDirectory={HttpUtility.UrlEncode(CurrentDirectory.ToLower().Replace(CurrentRoot.ToLower(), ""))}")
@@ -31,7 +38,7 @@
                   ButtonStyle="ButtonStyle.Danger"
                   Style="margin-bottom: 20px;height: 35px" />
     </div>
-    <div class="row">
+    <div class="row bb-card bb-file-browser">
         <div class="col-md-4" style="margin-bottom: 16px">
             <RadzenTree Change="@LogChange" Data="@Directories"
                     Expand="@LoadDirectory"
@@ -139,7 +146,7 @@
             UserIsAnAdmin = CurrentUser.IsInRole(ADMINISTRATION_ROLE);
         }
 
-        CurrentRoot = Path.Combine(HostEnvironment.WebRootPath, "uploads");
+        CurrentRoot = UserContentPaths.UploadsPath;
         CurrentDirectory = CurrentRoot;
         Directories.Add(CurrentDirectory);
         LoadFiles();
@@ -246,8 +253,7 @@
                             FileName =
                                     Path.GetFileName(item),
                             FilePath =
-                                    item.Replace(HostEnvironment.WebRootPath, "")
-                                    .Replace("\\uploads", "uploads"),
+                                    UserContentPaths.ToRelativeUrl(item),
                             Height = image.Height,
                             Width = image.Width,
                             ThumbnailHeight = Convert.ToInt32(thumbnailHeight),
@@ -261,8 +267,7 @@
                 Files.Add(new FileObject()
                     {
                         FileName = Path.GetFileName(item),
-                        FilePath = item.Replace(HostEnvironment.WebRootPath, "")
-                                .Replace("\\uploads", "uploads"),
+                        FilePath = UserContentPaths.ToRelativeUrl(item),
                         Height = 100,
                         Width = 100,
                         ThumbnailHeight = Convert.ToInt32(100),
@@ -318,14 +323,7 @@
 
     private void DeleteSelectedFile()
     {
-        string RequestedPath = SelectedFile.FilePath;
-
-        RequestedPath =
-            RequestedPath.Replace("\\uploads\\", "uploads\\");
-
-        string path = Path.Combine(
-            HostEnvironment.WebRootPath,
-            RequestedPath);
+        string path = UserContentPaths.ResolvePublicPath(SelectedFile.FilePath);
 
         if (File.Exists(path))
         {
@@ -349,10 +347,7 @@
 
     private void AddFolderName()
     {
-        string path = Path.Combine(
-            HostEnvironment.WebRootPath,
-            CurrentDirectory,
-            NewFolderName);
+        string path = Path.Combine(CurrentDirectory, NewFolderName);
 
         if (!Directory.Exists(path))
         {
@@ -375,9 +370,7 @@
             // Delete
             if (item.Value == "Delete")
             {
-                string path = Path.Combine(
-                    HostEnvironment.WebRootPath,
-                    CurrentDirectory);
+                string path = CurrentDirectory;
 
                 if (path.ToLower() != CurrentRoot.ToLower())
                 {
@@ -385,9 +378,7 @@
                     {
                         Directory.Delete(path, true);
 
-                        CurrentDirectory = Path.Combine(
-                            HostEnvironment.WebRootPath,
-                            "uploads");
+                        CurrentDirectory = UserContentPaths.UploadsPath;
 
                         LoadFiles();
                     }

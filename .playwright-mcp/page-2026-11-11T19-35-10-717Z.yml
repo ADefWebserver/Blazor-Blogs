@@ -1,0 +1,113 @@
+- generic [ref=f55e63]:
+  - banner [ref=f55e64]:
+    - link "Blazor Blogs" [ref=f55e65] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f55e67]:
+      - link "Blog" [ref=f55e68] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f55e69] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f55e70] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f55e71]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f55e72] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f55e74] [cursor=pointer]
+  - main [ref=f55e75]:
+    - article [ref=f55e76]:
+      - generic [ref=f55e77]:
+        - generic [ref=f55e78]:
+          - paragraph [ref=f55e79]: Latest stories and updates
+          - heading "From the blog" [level=1] [ref=f55e80]
+        - button "Write a post" [ref=f55e81] [cursor=pointer]
+      - region "Post filters" [ref=f55e82]:
+        - generic [ref=f55e83]:
+          - generic [ref=f55e84]: Filter by category
+          - combobox "Empty" [ref=f55e85]:
+            - textbox [aria-hidden] [ref=f55e86]: "0"
+            - generic [ref=f55e87]: All categories
+            - generic [ref=f55e88]: arrow_drop_down
+            - text: search
+            - button "Clear" [ref=f55e90] [cursor=pointer]: close
+        - generic [ref=f55e91]:
+          - generic [ref=f55e92]: Search posts
+          - textbox "Search posts" [ref=f55e93]
+        - button "Search" [ref=f55e94] [cursor=pointer]
+      - generic [ref=f55e97]:
+        - main "Blog posts" [ref=f55e98]:
+          - article [ref=f55e99]:
+            - generic [ref=f55e100]: November 11, 2026
+            - heading [level=2] [ref=f55e101]:
+              - link "Automated E2E Test Post - Updated" [ref=f55e102] [cursor=pointer]:
+                - /url: ViewBlogPost/1
+            - generic [ref=f55e103]: Updated summary.
+            - link "Read Automated E2E Test Post - Updated" [ref=f55e104] [cursor=pointer]:
+              - /url: ViewBlogPost/1
+              - text: Read more
+              - generic [aria-hidden] [ref=f55e105]: →
+        - complementary [ref=f55e106]:
+          - generic [ref=f55e107]:
+            - generic [ref=f55e108]: Newsletter
+            - heading "Stay in the loop" [level=2] [ref=f55e109]
+            - paragraph [ref=f55e110]: Sign in to manage email updates and follow new posts.
+            - link "Manage subscription" [ref=f55e111] [cursor=pointer]:
+              - /url: Account/Manage/Newsletter
+          - generic [ref=f55e112]:
+            - heading "Categories" [level=2] [ref=f55e113]
+            - button "E2E Category" [ref=f55e115] [cursor=pointer]
+      - dialog [ref=f55e116]:
+        - generic [ref=f55e117]:
+          - generic [ref=f55e118]:
+            - heading "Terms Of Use" [level=3] [ref=f55e119]
+            - button "Close" [ref=f55e120] [cursor=pointer]
+          - generic [ref=f55e121]:
+            - heading "AGREEMENT BETWEEN USER AND" [level=4] [ref=f55e122]
+            - text: The Web Site is comprised of various Web pages operated by . The Web Site is offered to you conditioned on your acceptance without modification of the terms, conditions, and notices contained herein. Your use of the Web Site constitutes your agreement to all such terms, conditions, and notices.
+            - heading "MODIFICATION OF THESE TERMS OF USE" [level=4] [ref=f55e123]
+            - text: reserves the right to change the terms, conditions, and notices under which the Web Site is offered, including but not limited to the charges associated with the use of the Web Site.
+            - heading "LINKS TO THIRD PARTY SITES" [level=4] [ref=f55e124]
+            - text: The Web Site may contain links to other Web Sites ("Linked Sites"). The Linked Sites are not under the control of and is not responsible for the contents of any Linked Site, including without limitation any link contained in a Linked Site, or any changes or updates to a Linked Site. is not responsible for webcasting or any other form of transmission received from any Linked Site. is providing these links to you only as a convenience, and the inclusion of any link does not imply endorsement by of the site or any association with its operators.
+            - heading "NO UNLAWFUL OR PROHIBITED USE" [level=4] [ref=f55e125]
+            - text: As a condition of your use of the Web Site, you warrant to that you will not use the Web Site for any purpose that is unlawful or prohibited by these terms, conditions, and notices. You may not use the Web Site in any manner which could damage, disable, overburden, or impair the Web Site or interfere with any other party's use and enjoyment of the Web Site. You may not obtain or attempt to obtain any materials or information through any means not intentionally made available or provided for through the Web Sites.
+            - heading "USE OF COMMUNICATION SERVICES" [level=4] [ref=f55e126]
+            - text: "The Web Site may contain bulletin board services, chat areas, news groups, forums, communities, personal web pages, calendars, and/or other message or communication facilities designed to enable you to communicate with the public at large or with a group (collectively, \"Communication Services\"), you agree to use the Communication Services only to post, send and receive messages and material that are proper and related to the particular Communication Service. By way of example, and not as a limitation, you agree that when using a Communication Service, you will not:"
+            - list [ref=f55e127]:
+              - listitem [ref=f55e128]: Defame, abuse, harass, stalk, threaten or otherwise violate the legal rights (such as rights of privacy and publicity) of others.
+              - listitem [ref=f55e129]: Publish, post, upload, distribute or disseminate any inappropriate, profane, defamatory, infringing, obscene, indecent or unlawful topic, name, material or information.
+              - listitem [ref=f55e130]: Upload files that contain software or other material protected by intellectual property laws (or by rights of privacy of publicity) unless you own or control the rights thereto or have received all necessary consents.
+              - listitem [ref=f55e131]: Upload files that contain viruses, corrupted files, or any other similar software or programs that may damage the operation of another's computer.
+              - listitem [ref=f55e132]: Advertise or offer to sell or buy any goods or services for any business purpose, unless such Communication Service specifically allows such messages.
+              - listitem [ref=f55e133]: Conduct or forward surveys, contests, pyramid schemes or chain letters.
+              - listitem [ref=f55e134]: Download any file posted by another user of a Communication Service that you know, or reasonably should know, cannot be legally distributed in such manner.
+              - listitem [ref=f55e135]: Falsify or delete any author attributions, legal or other proper notices or proprietary designations or labels of the origin or source of software or other material contained in a file that is uploaded.
+              - listitem [ref=f55e136]: Restrict or inhibit any other user from using and enjoying the Communication Services.
+              - listitem [ref=f55e137]: Violate any code of conduct or other guidelines which may be applicable for any particular Communication Service.
+              - listitem [ref=f55e138]: Harvest or otherwise collect information about others, including e-mail addresses, without their consent.
+              - listitem [ref=f55e139]: Violate any applicable laws or regulations.
+            - text: has no obligation to monitor the Communication Services. However, reserves the right to review materials posted to a Communication Service and to remove any materials in its sole discretion. reserves the right to terminate your access to any or all of the Communication Services at any time without notice for any reason whatsoever. reserves the right at all times to disclose any information as necessary to satisfy any applicable law, regulation, legal process or governmental request, or to edit, refuse to post or to remove any information or materials, in whole or in part, in 's sole discretion. Always use caution when giving out any personally identifying information about yourself or your children in any Communication Service. does not control or endorse the content, messages or information found in any Communication Service and, therefore, specifically disclaims any liability with regard to the Communication Services and any actions resulting from your participation in any Communication Service. Managers and hosts are not authorized spokespersons, and their views do not necessarily reflect those of . Materials uploaded to a Communication Service may be subject to posted limitations on usage, reproduction and/or dissemination. You are responsible for adhering to such limitations if you download the materials.
+            - heading "MATERIALS PROVIDED TO OR POSTED AT ANY WEB SITE" [level=4] [ref=f55e140]
+            - text: "does not claim ownership of the materials you provide to (including feedback and suggestions) or post, upload, input or submit to any Web Site or its associated services (collectively \"Submissions\"). However, by posting, uploading, inputting, providing or submitting your Submission you are granting , its affiliated companies and necessary sublicensees permission to use your Submission in connection with the operation of their Internet businesses including, without limitation, the rights to: copy, distribute, transmit, publicly display, publicly perform, reproduce, edit, translate and reformat your Submission; and to publish your name in connection with your Submission. No compensation will be paid with respect to the use of your Submission, as provided herein. is under no obligation to post or use any Submission you may provide and may remove any Submission at any time in 's sole discretion. By posting, uploading, inputting, providing or submitting your Submission you warrant and represent that you own or otherwise control all of the rights to your Submission as described in this section including, without limitation, all the rights necessary for you to provide, post, upload, input or submit the Submissions."
+            - heading "LIABILITY DISCLAIMER" [level=4] [ref=f55e141]
+            - text: "THE INFORMATION, SOFTWARE, PRODUCTS, AND SERVICES INCLUDED IN OR AVAILABLE THROUGH THE WEB SITE MAY INCLUDE INACCURACIES OR TYPOGRAPHICAL ERRORS. CHANGES ARE PERIODICALLY ADDED TO THE INFORMATION HEREIN. AND/OR ITS SUPPLIERS MAY MAKE IMPROVEMENTS AND/OR CHANGES IN THE WEB SITE AT ANY TIME. ADVICE RECEIVED VIA THE WEB SITE SHOULD NOT BE RELIED UPON FOR PERSONAL, MEDICAL, LEGAL OR FINANCIAL DECISIONS AND YOU SHOULD CONSULT AN APPROPRIATE PROFESSIONAL FOR SPECIFIC ADVICE TAILORED TO YOUR SITUATION. AND/OR ITS SUPPLIERS MAKE NO REPRESENTATIONS ABOUT THE SUITABILITY, RELIABILITY, AVAILABILITY, TIMELINESS, AND ACCURACY OF THE INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS CONTAINED ON THE WEB SITE FOR ANY PURPOSE. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ALL SUCH INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS ARE PROVIDED \"AS IS\" WITHOUT WARRANTY OR CONDITION OF ANY KIND. AND/OR ITS SUPPLIERS HEREBY DISCLAIM ALL WARRANTIES AND CONDITIONS WITH REGARD TO THIS INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS, INCLUDING ALL IMPLIED WARRANTIES OR CONDITIONS OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL AND/OR ITS SUPPLIERS BE LIABLE FOR ANY DIRECT, INDIRECT, PUNITIVE, INCIDENTAL, SPECIAL, CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF USE, DATA OR PROFITS, ARISING OUT OF OR IN ANY WAY CONNECTED WITH THE USE OR PERFORMANCE OF THE WEB SITE, WITH THE DELAY OR INABILITY TO USE THE WEB SITE OR RELATED SERVICES, THE PROVISION OF OR FAILURE TO PROVIDE SERVICES, OR FOR ANY INFORMATION, SOFTWARE, PRODUCTS, SERVICES AND RELATED GRAPHICS OBTAINED THROUGH THE WEB SITE, OR OTHERWISE ARISING OUT OF THE USE OF THE WEB SITE, WHETHER BASED ON CONTRACT, TORT, NEGLIGENCE, STRICT LIABILITY OR OTHERWISE, EVEN IF OR ANY OF ITS SUPPLIERS HAS BEEN ADVISED OF THE POSSIBILITY OF DAMAGES. BECAUSE SOME STATES/JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE ABOVE LIMITATION MAY NOT APPLY TO YOU. IF YOU ARE DISSATISFIED WITH ANY PORTION OF THE WEB SITE, OR WITH ANY OF THESE TERMS OF USE, YOUR SOLE AND EXCLUSIVE REMEDY IS TO DISCONTINUE USING THE WEB SITE. SERVICE CONTACT :"
+            - heading "TERMINATION/ACCESS RESTRICTION" [level=4] [ref=f55e142]
+            - text: reserves the right, in its sole discretion, to terminate your access to the Web Site and the related services or any portion thereof at any time, without notice. GENERAL To the maximum extent permitted by law, this agreement is governed by the laws of the State of Washington, U.S.A. and you hereby consent to the exclusive jurisdiction and venue of courts in San Mateo County, California, U.S.A. in all disputes arising out of or relating to the use of the Web Site. Use of the Web Site is unauthorized in any jurisdiction that does not give effect to all provisions of these terms and conditions, including without limitation this paragraph. You agree that no joint venture, partnership, employment, or agency relationship exists between you and as a result of this agreement or use of the Web Site. 's performance of this agreement is subject to existing laws and legal process, and nothing contained in this agreement is in derogation of 's right to comply with governmental, court and law enforcement requests or requirements relating to your use of the Web Site or information provided to or gathered by with respect to such use. If any part of this agreement is determined to be invalid or unenforceable pursuant to applicable law including, but not limited to, the warranty disclaimers and liability limitations set forth above, then the invalid or unenforceable provision will be deemed superseded by a valid, enforceable provision that most closely matches the intent of the original provision and the remainder of the agreement shall continue in effect. Unless otherwise specified herein, this agreement constitutes the entire agreement between the user and with respect to the Web Site and it supersedes all prior or contemporaneous communications and proposals, whether electronic, oral or written, between the user and with respect to the Web Site. A printed version of this agreement and of any notice given in electronic form shall be admissible in judicial or administrative proceedings based upon or relating to this agreement to the same extent an d subject to the same conditions as other business documents and records originally generated and maintained in printed form. It is the express wish to the parties that this agreement and all related documents be drawn up in English.
+            - heading "COPYRIGHT AND TRADEMARK NOTICES:" [level=4] [ref=f55e143]
+            - text: "All contents of the Web Site are: Copyright 2026 by and/or its suppliers. All rights reserved."
+            - heading "TRADEMARKS" [level=4] [ref=f55e144]
+            - text: The names of actual companies and products mentioned herein may be the trademarks of their respective owners. The example companies, organizations, products, people and events depicted herein are fictitious. No association with any real company, organization, product, person, or event is intended or should be inferred. Any rights not expressly granted herein are reserved.
+            - heading "NOTICES AND PROCEDURE FOR MAKING CLAIMS OF COPYRIGHT INFRINGEMENT" [level=4] [ref=f55e145]
+            - text: Pursuant to Title 17, United States Code, Section 512(c)(2), notifications of claimed copyright infringement under United States copyright law should be sent to Service Provider's Designated Agent. ALL INQUIRIES NOT RELEVANT TO THE FOLLOWING PROCEDURE WILL RECEIVE NO RESPONSE. See Notice and Procedure for Making Claims of Copyright Infringement.
+      - navigation "Post pages" [ref=f55e146]:
+        - button "← Newer" [disabled]
+        - button "Older →" [disabled]
+      - generic [ref=f55e147]:
+        - button "Terms Of Use" [active] [ref=f55e148] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f55e149] [cursor=pointer]
+  - contentinfo [ref=f55e150]:
+    - generic [ref=f55e151]: © 2026
+    - link "RSS feed" [ref=f55e152] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f55e153] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

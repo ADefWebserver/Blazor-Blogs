@@ -1,0 +1,48 @@
+- generic [ref=f58e2]:
+  - banner [ref=f58e3]:
+    - link "Blazor Blogs" [ref=f58e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f58e6]:
+      - link "Blog" [ref=f58e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f58e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f58e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f58e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f58e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f58e13] [cursor=pointer]
+  - main [ref=f58e14]:
+    - article [ref=f58e15]:
+      - heading "Register" [active] [level=1] [ref=f58e16]
+      - generic [ref=f58e17]:
+        - generic [ref=f58e19]:
+          - heading "Create a new account." [level=2] [ref=f58e20]
+          - separator [ref=f58e21]
+          - generic [ref=f58e22]:
+            - textbox "Email" [ref=f58e23]:
+              - /placeholder: name@example.com
+            - generic: Email
+          - generic [ref=f58e24]:
+            - textbox "Password" [ref=f58e25]:
+              - /placeholder: password
+            - generic: Password
+          - generic [ref=f58e26]:
+            - textbox "Confirm Password" [ref=f58e27]:
+              - /placeholder: password
+            - generic: Confirm Password
+          - generic [ref=f58e29]:
+            - checkbox "Email me the newsletter" [ref=f58e30]
+            - text: Email me the newsletter
+          - button "Register" [ref=f58e31] [cursor=pointer]
+        - generic [ref=f58e33]:
+          - heading "Use another service to register." [level=2] [ref=f58e34]
+          - separator [ref=f58e35]
+  - contentinfo [ref=f58e36]:
+    - generic [ref=f58e37]: © 2026
+    - link "RSS feed" [ref=f58e38] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f58e39] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

@@ -12,11 +12,16 @@ namespace BlazorBlogs.Data
     {
         private readonly BlazorBlogsContext _context;
         private readonly GeneralSettingsService _generalSettingsService;
+        private readonly ILogger<EmailService> _logger;
 
-        public EmailService(BlazorBlogsContext context, GeneralSettingsService generalSettingsService)
+        public EmailService(
+            BlazorBlogsContext context,
+            GeneralSettingsService generalSettingsService,
+            ILogger<EmailService> logger)
         {
             _context = context;
             _generalSettingsService = generalSettingsService;
+            _logger = logger;
         }
 
         #region public async Task<string> SendMailAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body)
@@ -35,12 +40,37 @@ namespace BlazorBlogs.Data
                 GeneralSettings.SMTPFromEmail, MailTo, MailToDisplayName,
                 Cc, Bcc, ReplyTo, System.Net.Mail.MailPriority.Normal,
                 Subject, Encoding.UTF8, Body, arrAttachments, "", "", "", "",
-                GeneralSettings.SMTPSecure, null);
+                GeneralSettings.SMTPSecure, null, null);
         }
         #endregion
 
         #region public async Task<string> SendMailAlternateViewAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body, AlternateView objAlternateView)
         public async Task<string> SendMailAlternateViewAsync(bool SendAsync, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, string Subject, string Body, AlternateView objAlternateView)
+        {
+            return await SendMailAlternateViewAsync(
+                SendAsync,
+                MailTo,
+                MailToDisplayName,
+                Cc,
+                Bcc,
+                ReplyTo,
+                Subject,
+                Body,
+                objAlternateView,
+                null);
+        }
+
+        public async Task<string> SendMailAlternateViewAsync(
+            bool SendAsync,
+            string MailTo,
+            string MailToDisplayName,
+            string Cc,
+            string Bcc,
+            string ReplyTo,
+            string Subject,
+            string Body,
+            AlternateView objAlternateView,
+            IDictionary<string, string> headers)
         {
             GeneralSettings GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
 
@@ -55,13 +85,13 @@ namespace BlazorBlogs.Data
                 GeneralSettings.SMTPFromEmail, MailTo, MailToDisplayName,
                 Cc, Bcc, ReplyTo, System.Net.Mail.MailPriority.Normal,
                 Subject, Encoding.UTF8, Body, arrAttachments, "", "", "", "",
-                GeneralSettings.SMTPSecure, objAlternateView);
+                GeneralSettings.SMTPSecure, objAlternateView, headers);
         }
         #endregion
 
         #region private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority, string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL, AlternateView objAlternateView)
         private async Task<string> SendMailAsync(bool SendAsync, string MailFrom, string MailTo, string MailToDisplayName, string Cc, string Bcc, string ReplyTo, System.Net.Mail.MailPriority Priority,
-            string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL, AlternateView objAlternateView)
+            string Subject, Encoding BodyEncoding, string Body, string[] Attachment, string SMTPServer, string SMTPAuthentication, string SMTPUsername, string SMTPPassword, bool SMTPEnableSSL, AlternateView objAlternateView, IDictionary<string, string> headers = null)
         {
             string strSendMail = "";
             GeneralSettings GeneralSettings = await _generalSettingsService.GetGeneralSettingsAsync();
@@ -130,6 +160,12 @@ namespace BlazorBlogs.Data
                 objMail.SubjectEncoding = BodyEncoding;
                 objMail.Subject = Subject.Trim();
                 objMail.BodyEncoding = BodyEncoding;
+
+                if (headers != null)
+                {
+                    foreach (var header in headers)
+                        objMail.Headers[header.Key] = header.Value;
+                }
 
                 System.Net.Mail.AlternateView PlainView =
                     System.Net.Mail.AlternateView.CreateAlternateViewFromString(Utility.ConvertToText(Body),
@@ -226,8 +262,24 @@ namespace BlazorBlogs.Data
                         smtpClient.Send(objMail);
                         strSendMail = "";
 
-                        // Log the Email
-                        LogEmail(objMail);
+                        try
+                        {
+                            LogEmail(objMail);
+                        }
+                        catch (Exception ex)
+                        {
+                            foreach (var entry in _context.ChangeTracker
+                                         .Entries<Logs>()
+                                         .Where(x => x.State == Microsoft.EntityFrameworkCore.EntityState.Added))
+                            {
+                                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                            }
+
+                            _logger.LogWarning(
+                                ex,
+                                "SMTP accepted the message, but the email audit log could not be written for {Recipient}.",
+                                objMail.To);
+                        }
 
                         objMail.Dispose();
                         smtpClient.Dispose();

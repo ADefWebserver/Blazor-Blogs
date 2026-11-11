@@ -1,0 +1,66 @@
+- generic [ref=f28e2]:
+  - banner [ref=f28e3]:
+    - link "Blazor Blogs" [ref=f28e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f28e6]:
+      - link "Blog" [ref=f28e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f28e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f28e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f28e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f28e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f28e13] [cursor=pointer]
+  - main [ref=f28e14]:
+    - article [ref=f28e15]:
+      - generic [ref=f28e16]:
+        - complementary "Administration navigation" [ref=f28e17]:
+          - generic [ref=f28e18]:
+            - generic [aria-hidden] [ref=f28e19]: A
+            - generic [ref=f28e20]:
+              - strong [ref=f28e21]: Administration
+              - generic [ref=f28e22]: Site controls
+          - navigation "Administration" [ref=f28e23]:
+            - link "Posts" [ref=f28e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f28e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f28e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f28e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f28e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f28e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f28e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f28e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f28e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f28e41]:
+          - generic [ref=f28e42]:
+            - generic [ref=f28e43]:
+              - paragraph [ref=f28e44]: Email publishing
+              - heading "Newsletter" [level=1] [ref=f28e45]
+            - button "Create newsletter" [ref=f28e46] [cursor=pointer]
+          - generic [ref=f28e47]:
+            - generic [ref=f28e48]:
+              - generic [ref=f28e49]: Newsletters
+              - strong [ref=f28e50]: "0"
+            - generic [ref=f28e51]:
+              - generic [ref=f28e52]: Campaigns
+              - strong [ref=f28e53]: "0"
+            - generic [ref=f28e54]:
+              - generic [ref=f28e55]: Status
+              - strong [ref=f28e56]: Ready
+  - contentinfo [ref=f28e57]:
+    - generic [ref=f28e58]: © 2026
+    - link "RSS feed" [ref=f28e59] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f28e60] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

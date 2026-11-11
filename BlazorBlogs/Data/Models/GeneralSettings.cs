@@ -18,6 +18,10 @@ namespace BlazorBlogs.Data.Models
         public string ApplicationName { get; set; }
         public string ApplicationLogo { get; set; }
         public string ApplicationHeader { get; set; }
+        public bool ApplicationHeaderEnabled { get; set; } = true;
+        public string ApplicationHeaderEditorMode { get; set; } = "Rich";
+        public string SiteBaseUrl { get; set; } = "";
+        public string ThemeAccentColor { get; set; } = ThemeDefaults.AccentColor;
         public string DisqusEnabled { get; set; }
         public string DisqusShortName { get; set; }
         public string VersionNumber { get; set; }

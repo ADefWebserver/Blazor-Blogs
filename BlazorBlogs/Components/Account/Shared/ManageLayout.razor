@@ -1,16 +1,20 @@
 ﻿@inherits LayoutComponentBase
 @layout BlazorBlogs.Components.Layout.MainLayout
 
-<h1>Manage your account</h1>
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Account</p>
+        <h1>Manage your account</h1>
+    </div>
+</div>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
+<div class="account-card">
+    <h2>Account settings</h2>
+    <div class="row g-4">
         <div class="col-lg-3">
             <ManageNavMenu />
         </div>
-        <div class="col-lg-9">
+        <div class="col-lg-9 account-content">
             @Body
         </div>
     </div>

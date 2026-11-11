@@ -55,6 +55,12 @@ BenchmarkDotNet.Artifacts/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+.aspire/
+BlazorBlogs/appsettings.Local.json
+BlazorBlogs/PrivateFiles/
+/BlazorBlogs/wwwroot/uploads/
+/BlazorBlogs/wwwroot/blogs/
+/BlazorBlogs/wwwroot/files/
 
 # StyleCop
 StyleCopReport.xml

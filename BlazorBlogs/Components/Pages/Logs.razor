@@ -1,4 +1,5 @@
 ﻿@page "/logs"
+@layout BlazorBlogs.Components.Layout.AdminLayout
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Identity;
 @using BlazorBlogs.Data;
@@ -11,7 +12,9 @@
 @inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 
-<h1>Logs</h1>
+<div class="bb-page-header">
+    <div><p class="bb-muted">Application activity</p><h1>Logs</h1></div>
+</div>
 <!-- AuthorizeView allows us to only show sections of the page -->
 <!-- based on the security on the current user -->
 <AuthorizeView>
@@ -57,13 +60,13 @@
             }
 
             <br />
-            <button class="btn btn-warning"
+            <button class="btn btn-secondary"
                     @onclick="Previous">
                 <b>&#x3C;</b>
             </button>
             @if (ShowNextButton)
             {
-                <button class="btn btn-warning"
+                <button class="btn btn-secondary"
                         @onclick="Next">
                     <b>&#x3E;</b>
                 </button>

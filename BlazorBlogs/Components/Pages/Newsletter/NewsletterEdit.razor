@@ -35,57 +35,7 @@
                     </div>
                     <h5>Content</h5>
                     <div class="form-group">
-                        @if (!RichTextEditorMode)
-                        {
-                            <textarea class="form-control" @bind="@SelectedBlog.BlogContent" rows="5" />
-                        }
-                        else
-                        {
-                            <BlazoredTextEditor @ref="@QuillHtml">
-                                <ToolbarContent>
-                                    <select class="ql-header">
-                                        <option selected=""></option>
-                                        <option value="1"></option>
-                                        <option value="2"></option>
-                                        <option value="3"></option>
-                                        <option value="4"></option>
-                                        <option value="5"></option>
-                                    </select>
-                                    <span class="ql-formats">
-                                        <button class="ql-bold"></button>
-                                        <button class="ql-italic"></button>
-                                        <button class="ql-underline"></button>
-                                        <button class="ql-strike"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <select class="ql-color"></select>
-                                        <select class="ql-background"></select>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-list" value="ordered"></button>
-                                        <button class="ql-list" value="bullet"></button>
-                                    </span>
-                                    <span class="ql-formats">
-                                        <button class="ql-link"></button>
-                                        <button class="btn btn-link" id="custom-button"
-                                        @onclick="InsertImageClick">
-                                            <img src="imageIcon.png" style="border:hidden" />
-                                        </button>
-                                    </span>
-                                </ToolbarContent>
-                                <EditorContent>
-                                    @((MarkupString)SelectedBlog.BlogContent)
-                                </EditorContent>
-                            </BlazoredTextEditor>
-                        }
-                        @if (!RichTextEditorMode)
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RichTextEditor"><h6>[Rich Text Editor]</h6></button>
-                        }
-                        else
-                        {
-                            <button type="button" class="btn btn-link" @onclick="RawHTMLEditor"><h6>[Raw HTML Editor]</h6></button>
-                        }
+                        <HtmlEditor @bind-Value="SelectedBlog.BlogContent" />
                     </div>
                     <br />
                     <!-- Button to save the user -->
@@ -134,8 +84,6 @@
         </div>
     }
 
-    <FileSelector @ref="FileManagerControl"
-                  ImageSelected="InsertImage" />
 }
 
 @code {
@@ -150,11 +98,6 @@
     public bool ConFirmDeletePopup = false;
 
     public System.Security.Claims.ClaimsPrincipal CurrentUser;
-
-    private FileSelector FileManagerControl;
-
-    BlazoredTextEditor QuillHtml;
-    bool RichTextEditorMode = true;
 
     string strError;
 
@@ -188,6 +131,7 @@
         strError = "";
         // Open the Popup
         ShowAdmin = true;
+        StateHasChanged();
     }
 
     public void EditBlog(BlogDTO Blog)
@@ -201,6 +145,7 @@
 
         // Open the Popup
         ShowAdmin = true;
+        StateHasChanged();
     }
 
     async Task SaveBlog()
@@ -221,23 +166,14 @@
 
                 objNewBlog.BlogSummary = "";
 
-                if (RichTextEditorMode)
-                {
-                    objNewBlog.BlogContent =
-                        await this.QuillHtml.GetHTML();
-                }
-                else
-                {
-                    objNewBlog.BlogContent =
-                        SelectedBlog.BlogContent;
-                }
+                objNewBlog.BlogContent = SelectedBlog.BlogContent ?? "";
 
                 objNewBlog.BlogUserName =
                     CurrentUser.Identity.Name;
 
                 // Save the result
                 var result =
-                @Service.CreateNewslettersAsync(objNewBlog);
+                await @Service.CreateNewslettersAsync(objNewBlog);
 
                 // Log
                 await LogAction($"Create Newsletter #{objNewBlog.BlogId}");
@@ -248,14 +184,10 @@
 
                 SelectedBlog.BlogSummary = "";
 
-                if (RichTextEditorMode)
-                {
-                    SelectedBlog.BlogContent =
-                        await this.QuillHtml.GetHTML();
-                }
+                SelectedBlog.BlogContent ??= "";
 
                 var result =
-                @Service.UpdateNewslettersAsync(SelectedBlog);
+                await @Service.UpdateNewslettersAsync(SelectedBlog);
 
                 // Log
                 await LogAction($"Update Newsletter #{SelectedBlog.BlogId}");
@@ -286,7 +218,7 @@
             int BlogId = SelectedBlog.BlogId;
 
             // Delete the Blog
-            var result = @Service.DeleteNewslettersAsync(SelectedBlog);
+            var result = await @Service.DeleteNewslettersAsync(SelectedBlog);
 
             // Log
             await LogAction($"Delete Newsletter #{BlogId}");
@@ -297,33 +229,6 @@
         {
             strError = ex.GetBaseException().Message;
         }
-    }
-
-    private void RichTextEditor()
-    {
-        RichTextEditorMode = true;
-        StateHasChanged();
-    }
-
-    private async Task RawHTMLEditor()
-    {
-        RichTextEditorMode = false;
-        SelectedBlog.BlogContent =
-            await this.QuillHtml.GetHTML();
-    }
-
-    // Inserting Images
-
-    private void InsertImageClick()
-    {
-        FileManagerControl.SetShowFileManager(true);
-    }
-
-    async Task InsertImage(string paramImageURL)
-    {
-        await this.QuillHtml.InsertImage(paramImageURL);
-
-        FileManagerControl.SetShowFileManager(false);
     }
 
     private async Task LogAction(string strAction)

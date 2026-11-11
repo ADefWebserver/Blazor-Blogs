@@ -26,8 +26,10 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Comment> Comment { get; set; }
         public virtual DbSet<ExternalConnections> ExternalConnections { get; set; }
         public virtual DbSet<Files> Files { get; set; }
+        public virtual DbSet<FilePurchases> FilePurchases { get; set; }
         public virtual DbSet<Logs> Logs { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
+        public virtual DbSet<StripeRefundEvents> StripeRefundEvents { get; set; }
 
         public virtual DbSet<Newsletters> Newsletters { get; set; }
 
@@ -121,6 +123,11 @@ namespace BlazorBlogs.Data
                 entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
 
                 entity.Property(e => e.UserName).HasMaxLength(256);
+
+                entity.HasIndex(e => e.NewsletterToken)
+                    .IsUnique()
+                    .HasFilter("([NewsletterToken] IS NOT NULL)");
+                entity.Property(e => e.NewsletterToken).HasMaxLength(64);
             });
 
             modelBuilder.Entity<BlogCategory>(entity =>
@@ -230,6 +237,37 @@ namespace BlazorBlogs.Data
                 entity.Property(e => e.FilePath)
                     .IsRequired()
                     .HasMaxLength(4000);
+
+                entity.Property(e => e.OriginalFileName).HasMaxLength(260);
+                entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
+            });
+
+            modelBuilder.Entity<FilePurchases>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.Property(e => e.BuyerEmail).HasMaxLength(256);
+                entity.Property(e => e.Amount).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.TaxAmount).HasColumnType("decimal(10,2)");
+                entity.Property(e => e.Currency).IsRequired().HasMaxLength(3);
+                entity.Property(e => e.StripeSessionId).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.StripePaymentIntentId).HasMaxLength(255);
+                entity.Property(e => e.DownloadToken).HasMaxLength(64);
+                entity.Property(e => e.CreatedUtc).HasColumnType("datetime");
+                entity.Property(e => e.PaidUtc).HasColumnType("datetime");
+                entity.Property(e => e.RefundedUtc).HasColumnType("datetime");
+                entity.Property(e => e.TokenExpiresUtc).HasColumnType("datetime");
+                entity.Property(e => e.LastLinkSentUtc).HasColumnType("datetime");
+                entity.HasIndex(e => e.StripeSessionId).IsUnique();
+                entity.HasIndex(e => new { e.UserId, e.FileId });
+                entity.HasIndex(e => e.BuyerEmail);
+                entity.HasIndex(e => e.StripePaymentIntentId);
+                entity.HasIndex(e => e.DownloadToken).IsUnique().HasFilter("([DownloadToken] IS NOT NULL)");
+                entity.HasOne(e => e.File)
+                    .WithMany()
+                    .HasForeignKey(e => e.FileId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Logs>(entity =>
@@ -264,6 +302,13 @@ namespace BlazorBlogs.Data
                 entity.Property(e => e.SettingValue)
                     .IsRequired()
                     .HasMaxLength(4000);
+            });
+
+            modelBuilder.Entity<StripeRefundEvents>(entity =>
+            {
+                entity.HasKey(e => e.StripePaymentIntentId);
+                entity.Property(e => e.StripePaymentIntentId).HasMaxLength(255);
+                entity.Property(e => e.CreatedUtc).HasColumnType("datetime");
             });
 
             OnModelCreatingPartial(modelBuilder);

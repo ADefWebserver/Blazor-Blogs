@@ -9,12 +9,24 @@
 @inject NavigationManager NavigationManager
 @inject BlogsService _BlogsService
 @inject IHostApplicationLifetime HostApplicationLifetime
+@using BlazorBlogs
 
-<h3>Install Upgrade Wizard</h3>
-<br />
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Blazor Blogs</p>
+        <h1>Install and upgrade</h1>
+        <p>Follow the guided steps to configure your database and bring the site up to date.</p>
+    </div>
+</div>
 
 @if (WizardMode == "INSTALL")
 {
+    @if (WizardStage == "DatabaseUnavailable")
+    {
+        <h4>The database is not available.</h4>
+        <p><a href="/">Retry</a></p>
+    }
+
     @if (WizardStage == "DatabaseConfiguration")
     {
         <InstallWizardDatabaseConfiguration DatabaseConfigurationChanged="@DatabaseConfigurationComplete" />
@@ -49,7 +61,11 @@
 {
     @if (WizardStage == "VerifyAdministrator")
     {
-        <InstallWizardLoginAdministrator />
+        <p>
+            <a href="/Account/Login?ReturnUrl=%2Finstallwizard%2FUPGRADE">
+                Sign in as an administrator to upgrade
+            </a>
+        </p>
     }
 
     @if (WizardStage == "RunScripts")
@@ -93,7 +109,9 @@
 
         if (WizardMode == "INSTALL")
         {
-            WizardStage = "DatabaseConfiguration";
+            WizardStage = ConnectionStringStore.IsHostManaged(_configuration)
+                ? "DatabaseUnavailable"
+                : "DatabaseConfiguration";
         }
 
         if (WizardMode == "RUNSCRIPTS")
@@ -162,4 +180,3 @@
         NavigationManager.NavigateTo(url, true);
     }
 }
-

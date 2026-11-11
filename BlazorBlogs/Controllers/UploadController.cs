@@ -1,19 +1,13 @@
 ﻿using BlazorBlogs.Data;
 using BlazorBlogs.Data.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
 
 namespace BlazorBlogs
 {
@@ -33,26 +27,18 @@ namespace BlazorBlogs
     [Authorize(Roles = "Administrators")]
     public class UploadController : Controller
     {
-        private readonly IWebHostEnvironment environment;
         private readonly BlazorBlogsContext blogsContext;
-        private readonly GeneralSettingsService generalSettingsService;
-        private IHostApplicationLifetime applicationLifetime;
-        private EmailService emailService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserContentPaths _userContentPaths;
+        private readonly DownloadStorageService _downloadStorage;
 
-        public UploadController(IWebHostEnvironment environment, 
+        public UploadController(
             BlazorBlogsContext context,
-            GeneralSettingsService generalSettingsService,
-            IHostApplicationLifetime appLifetime,
-            EmailService emailService,
-            UserManager<ApplicationUser> userManager)
+            UserContentPaths userContentPaths,
+            DownloadStorageService downloadStorage)
         {
-            this.environment = environment;
             this.blogsContext = context;
-            this.generalSettingsService = generalSettingsService;
-            this.applicationLifetime = appLifetime;
-            this.emailService = emailService;
-            _userManager = userManager;
+            _userContentPaths = userContentPaths;
+            _downloadStorage = downloadStorage;
         }
 
         #region public async Task<IActionResult> MultipleAsync(IFormFile[] files, string CurrentDirectory)    
@@ -74,31 +60,14 @@ namespace BlazorBlogs
                             CurrentDirectory = "";
                         }
 
-                        string RequestedPath =
-                            CurrentDirectory.ToLower()
-                            .Replace(environment.WebRootPath.ToLower(), "");
-
-                        if (RequestedPath.Contains("\\uploads\\"))
-                        {
-                            RequestedPath =
-                                RequestedPath.Replace("\\uploads\\", "");
-                        }
-
-                        // If RequestedPath begins with \\ remove them
-                        if (RequestedPath.Length > 1)
-                        {
-                            if (RequestedPath.Substring(0, 1) == @"\")
-                            {
-                                RequestedPath = RequestedPath.Remove(0, 1);
-                            }
-                        }
-
-                        string path =
-                            Path.Combine(
-                                environment.WebRootPath,
-                                "uploads\\",
-                                RequestedPath,
-                                file.FileName);
+                        var relativeDirectory = (CurrentDirectory ?? "")
+                            .Replace('\\', '/')
+                            .Trim('/');
+                        var directory = string.IsNullOrWhiteSpace(relativeDirectory)
+                            ? _userContentPaths.UploadsPath
+                            : _userContentPaths.ResolvePublicPath($"uploads/{relativeDirectory}");
+                        Directory.CreateDirectory(directory);
+                        string path = Path.Combine(directory, Path.GetFileName(file.FileName));
 
                         using (var stream =
                             new FileStream(path, FileMode.Create))
@@ -119,231 +88,51 @@ namespace BlazorBlogs
         #region public async Task<IActionResult> SingleAsync(IFormFile file, string FileTitle)
         [HttpPost("[action]")]
         public async Task<IActionResult> SingleAsync(
-            IFormFile file, string FileTitle)
+            IFormFile file, string FileTitle, string Price)
         {
             try
             {
-                if (HttpContext.Request.Form.Files.Any())
+                if (file is null || file.Length == 0)
+                    return BadRequest("Select a ZIP file to upload.");
+                if (!string.Equals(Path.GetExtension(file.FileName), ".zip", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest("Only .zip files are accepted.");
+                if (!decimal.TryParse(Price, NumberStyles.Number, CultureInfo.InvariantCulture, out var price)
+                    || price < 0 || price > 99999999.99m)
+                    return BadRequest("Enter a valid non-negative price.");
+
+                await using var source = file.OpenReadStream();
+                var signature = new byte[2];
+                if (await source.ReadAsync(signature) != 2 || signature[0] != (byte)'P' || signature[1] != (byte)'K')
+                    return BadRequest("The uploaded file is not a valid ZIP archive.");
+                source.Position = 0;
+
+                var saved = await _downloadStorage.SaveAsync(file);
+                try
                 {
-                    // Only accept .zip files
-                    if (file.ContentType == "application/x-zip-compressed")
+                    blogsContext.Files.Add(new Files
                     {
-                        string path =
-                            Path.Combine(
-                                environment.WebRootPath,
-                                "files",
-                                file.FileName);
-
-                        // Create directory if not exists
-                        string directoryName = Path.GetDirectoryName(path);
-                        if (!Directory.Exists(directoryName))
-                        {
-                            Directory.CreateDirectory(directoryName);
-                        }
-
-                        using (var stream =
-                            new FileStream(path, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        // Save to database
-                        if (FileTitle == "")
-                        {
-                            FileTitle = "[Unknown]";
-                        }
-
-                        FilesDTO objFilesDTO = new FilesDTO();
-                        objFilesDTO.FileName = FileTitle;
-                        objFilesDTO.FilePath = file.FileName;
-
-                        BlogsService objBlogsService = new BlogsService(blogsContext, environment, emailService, _userManager);
-                        await objBlogsService.CreateFilesAsync(objFilesDTO);
-                    }
+                        FileName = string.IsNullOrWhiteSpace(FileTitle) ? "[Unknown]" : FileTitle.Trim(),
+                        FilePath = saved.StoredName,
+                        OriginalFileName = saved.OriginalName,
+                        Price = decimal.Round(price, 2),
+                        CreateDate = DateTime.Now,
+                        DownloadCount = 0
+                    });
+                    await blogsContext.SaveChangesAsync();
+                    return Ok();
                 }
-                return StatusCode(200);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
-        }
-        #endregion
-
-        #region public async Task<IActionResult> UpgradeAsync(IFormFile file, string FileTitle)
-        [HttpPost("[action]")]
-        public async Task<IActionResult> UpgradeAsync(
-            IFormFile file, string FileTitle)
-        {
-            try
-            {
-                if (HttpContext.Request.Form.Files.Any())
+                catch
                 {
-                    // Only accept .zip files
-                    if (file.ContentType == "application/x-zip-compressed")
-                    {
-                        string UploadPath =
-                            Path.Combine(
-                                environment.ContentRootPath,
-                                "Uploads");
-
-                        string UploadPathAndFile =
-                            Path.Combine(
-                                environment.ContentRootPath,
-                                "Uploads",
-                                "BlazorBlogsUpgrade.zip");
-
-                        string UpgradePath = Path.Combine(
-                            environment.ContentRootPath,
-                            "Upgrade");
-
-                        // Upload Upgrade package to Upload Folder
-                        if (!Directory.Exists(UpgradePath))
-                        {
-                            Directory.CreateDirectory(UpgradePath);
-                        }
-
-                        using (var stream =
-                            new FileStream(UploadPathAndFile, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
-
-                        DeleteFiles(UpgradePath);
-
-                        // Unzip files to Upgrade folder
-                        ZipFile.ExtractToDirectory(UploadPathAndFile, UpgradePath, true);
-
-                        #region Check upgrade - Get current version
-                        Version objVersion = new Version();
-                        var GeneralSettings = await generalSettingsService.GetGeneralSettingsAsync();
-                        objVersion.VersionNumber = GeneralSettings.VersionNumber;
-                        #endregion
-
-                        #region Examine the manifest file
-                        objVersion = ReadManifest(objVersion, UpgradePath);
-
-                        try
-                        {
-                            if (objVersion.ManifestLowestVersion == "")
-                            {
-                                // Delete the files
-                                DeleteFiles(UpgradePath);
-                                return Ok("Error: could not find manifest");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            return Ok(ex.ToString());
-                        }
-                        #endregion
-
-                        #region Show error if needed and delete upgrade files 
-                        if
-                            (
-                            (ConvertToInteger(objVersion.VersionNumber) > ConvertToInteger(objVersion.ManifestHighestVersion)) ||
-                            (ConvertToInteger(objVersion.VersionNumber) < ConvertToInteger(objVersion.ManifestLowestVersion))
-                            )
-                        {
-                            // Delete the files
-                            DeleteFiles(UpgradePath);
-
-                            // Return the error response
-                            return Ok(objVersion.ManifestFailure);
-                        }
-                        #endregion
-
-                        // Proceed with upgrade...
-
-                        DeleteFiles(UpgradePath);
-
-                        // Unzip files to final paths
-                        ZipFile.ExtractToDirectory(UploadPathAndFile, environment.ContentRootPath, true);
-
-                        await Task.Delay(4000); // Wait 4 seconds
-                    }
+                    _downloadStorage.Delete(saved.StoredName);
+                    throw;
                 }
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-
-            return Ok();
         }
         #endregion
 
-        // Upgrade Code
-
-        #region private static void DeleteFiles(string FilePath)
-        private static void DeleteFiles(string FilePath)
-        {            
-            if (System.IO.Directory.Exists(FilePath))
-            {
-                DirectoryInfo Directory = new DirectoryInfo(FilePath);
-                Directory.Delete(true);
-                Directory.Create();
-            }
-        }
-        #endregion
-
-        #region private Version ReadManifest(Version objVersion, string UpgradePath)
-        private Version ReadManifest(Version objVersion, string UpgradePath)
-        {
-            string strManifest;
-            string strFilePath = Path.Combine(UpgradePath, "Manifest.json");
-
-            if (!System.IO.File.Exists(strFilePath))
-            {
-                // Manifest not found
-                objVersion.ManifestLowestVersion = "";
-                return objVersion;
-            }
-
-            using (StreamReader reader = new StreamReader(strFilePath))
-            {
-                strManifest = reader.ReadToEnd();
-                reader.Close();
-            }
-
-            var manifest = JsonSerializer.Deserialize<Version>(
-                strManifest,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (manifest != null)
-            {
-                objVersion.ManifestHighestVersion = manifest.ManifestHighestVersion;
-                objVersion.ManifestLowestVersion = manifest.ManifestLowestVersion;
-                objVersion.ManifestSuccess = manifest.ManifestSuccess;
-                objVersion.ManifestFailure = manifest.ManifestFailure;
-            }
-
-            return objVersion;
-        }
-        #endregion
-
-        #region private int ConvertToInteger(string strParamVersion)
-        private int ConvertToInteger(string strParamVersion)
-        {
-            int intVersionNumber = 0;
-            string strVersion = strParamVersion;
-
-            // Split into parts seperated by periods
-            char[] splitchar = { '.' };
-            var strSegments = strVersion.Split(splitchar);
-
-            // Process the segments
-            int i = 0;
-            List<int> colMultiplyers = new List<int> { 10000, 100, 1 };
-            foreach (var strSegment in strSegments)
-            {
-                int intSegmentNumber = Convert.ToInt32(strSegment);
-                intVersionNumber = intVersionNumber + (intSegmentNumber * colMultiplyers[i]);
-                i++;
-            }
-
-            return intVersionNumber;
-        }
-        #endregion
     }
 }

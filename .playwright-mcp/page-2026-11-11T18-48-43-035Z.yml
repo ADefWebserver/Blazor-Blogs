@@ -1,0 +1,75 @@
+- generic [ref=f17e2]:
+  - banner [ref=f17e3]:
+    - link "Blazor Blogs" [ref=f17e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f17e6]:
+      - link "Blog" [ref=f17e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f17e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f17e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f17e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f17e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f17e13] [cursor=pointer]
+  - main [ref=f17e14]:
+    - article [ref=f17e15]:
+      - generic [ref=f17e16]:
+        - complementary "Administration navigation" [ref=f17e17]:
+          - generic [ref=f17e18]:
+            - generic [aria-hidden] [ref=f17e19]: A
+            - generic [ref=f17e20]:
+              - strong [ref=f17e21]: Administration
+              - generic [ref=f17e22]: Site controls
+          - navigation "Administration" [ref=f17e23]:
+            - link "Posts" [ref=f17e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f17e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f17e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f17e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f17e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f17e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f17e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f17e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f17e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f17e41]:
+          - generic [ref=f17e43]:
+            - paragraph [ref=f17e44]: Media library
+            - heading "Files" [level=1] [ref=f17e45]
+            - paragraph [ref=f17e46]: Upload and organize images used by posts and the site header.
+          - generic [ref=f17e47]:
+            - button "Upload Files" [ref=f17e50] [cursor=pointer]:
+              - button "Choose File" [ref=f17e51]
+              - text: Upload Files
+            - generic [ref=f17e52]:
+              - button "Button" [ref=f17e53] [cursor=pointer]:
+                - generic [ref=f17e54]: Folder
+              - button "Open" [ref=f17e56] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f17e57]: arrow_drop_down
+            - button "Delete" [disabled] [ref=f17e58]
+          - generic [ref=f17e61]:
+            - tree [ref=f17e63]:
+              - treeitem [level=1] [ref=f17e64] [cursor=pointer]:
+                - generic [aria-hidden] [ref=f17e65]: arrow_right
+                - generic [ref=f17e66]:
+                  - generic [aria-hidden] [ref=f17e67]: folder
+                  - text: uploads
+            - generic [ref=f17e70]:
+              - button "image" [ref=f17e71] [cursor=pointer]
+              - button "image" [ref=f17e72] [cursor=pointer]
+  - contentinfo [ref=f17e73]:
+    - generic [ref=f17e74]: © 2026
+    - link "RSS feed" [ref=f17e75] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f17e76] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

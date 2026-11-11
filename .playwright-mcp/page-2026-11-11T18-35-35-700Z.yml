@@ -1,0 +1,59 @@
+- generic [ref=f4e2]:
+  - banner [ref=f4e3]:
+    - link "Blazor Blogs" [ref=f4e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f4e6]:
+      - link "Blog" [ref=f4e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f4e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f4e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f4e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f4e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f4e13] [cursor=pointer]
+  - main [ref=f4e14]:
+    - article [ref=f4e15]:
+      - generic [ref=f4e16]:
+        - generic [ref=f4e17]:
+          - paragraph [ref=f4e18]: Latest stories and updates
+          - heading "From the blog" [level=1] [ref=f4e19]
+        - button "Write a post" [ref=f4e20] [cursor=pointer]
+      - region "Post filters" [ref=f4e21]:
+        - generic [ref=f4e22]:
+          - generic [ref=f4e23]: Filter by category
+          - combobox "Empty" [ref=f4e24]:
+            - textbox [aria-hidden] [ref=f4e25]: "0"
+            - generic [ref=f4e26]: All categories
+            - generic [ref=f4e27]: arrow_drop_down
+            - text: search
+            - button "Clear" [ref=f4e29] [cursor=pointer]: close
+        - generic [ref=f4e30]:
+          - generic [ref=f4e31]: Search posts
+          - textbox "Search posts" [ref=f4e32]
+        - button "Search" [ref=f4e33] [cursor=pointer]
+      - generic [ref=f4e36]:
+        - main "Blog posts"
+        - complementary [ref=f4e37]:
+          - generic [ref=f4e38]:
+            - generic [ref=f4e39]: Newsletter
+            - heading "Stay in the loop" [level=2] [ref=f4e40]
+            - paragraph [ref=f4e41]: Sign in to manage email updates and follow new posts.
+            - link "Manage subscription" [ref=f4e42] [cursor=pointer]:
+              - /url: Account/Manage/Newsletter
+          - heading "Categories" [level=2] [ref=f4e44]
+      - navigation "Post pages" [ref=f4e45]:
+        - button "← Newer" [disabled]
+        - button "Older →" [disabled]
+      - generic [ref=f4e46]:
+        - button "Terms Of Use" [ref=f4e47] [cursor=pointer]
+        - text: "|"
+        - button "Privacy Statement" [ref=f4e48] [cursor=pointer]
+  - contentinfo [ref=f4e49]:
+    - generic [ref=f4e50]: © 2026
+    - link "RSS feed" [ref=f4e51] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f4e52] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

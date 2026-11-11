@@ -1,0 +1,100 @@
+@using Radzen
+
+<RadzenHtmlEditor @ref="editor"
+                  Value="@EditorValue"
+                  ValueChanged="ValueChangedAsync"
+                  Mode="@mode"
+                  ModeChanged="ModeChangedAsync"
+                  Execute="ExecuteAsync"
+                  Immediate="true"
+                  Style="height: 20rem;">
+    <RadzenHtmlEditorUndo />
+    <RadzenHtmlEditorRedo />
+    <RadzenHtmlEditorSeparator />
+    <RadzenHtmlEditorBold />
+    <RadzenHtmlEditorItalic />
+    <RadzenHtmlEditorUnderline />
+    <RadzenHtmlEditorStrikeThrough />
+    <RadzenHtmlEditorColor />
+    <RadzenHtmlEditorBackground />
+    <RadzenHtmlEditorSeparator />
+    <RadzenHtmlEditorOrderedList />
+    <RadzenHtmlEditorUnorderedList />
+    <RadzenHtmlEditorLink />
+    <RadzenHtmlEditorFormatBlock />
+    <RadzenHtmlEditorAlignLeft />
+    <RadzenHtmlEditorAlignCenter />
+    <RadzenHtmlEditorAlignRight />
+    <RadzenHtmlEditorRemoveFormat />
+    <RadzenHtmlEditorCustomTool CommandName="InsertImageFromFiles"
+                               Icon="image"
+                               Title="Insert image" />
+    <RadzenHtmlEditorSource />
+</RadzenHtmlEditor>
+
+<FileSelector @ref="fileSelector" ImageSelected="InsertImageAsync" />
+
+@code {
+    private RadzenHtmlEditor editor;
+    private FileSelector fileSelector;
+    private HtmlEditorMode mode;
+    private bool modeInitialized;
+
+    [Parameter]
+    public string Value { get; set; }
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    [Parameter]
+    public HtmlEditorMode InitialMode { get; set; } = HtmlEditorMode.Design;
+
+    private string EditorValue => Value ?? "";
+
+    public HtmlEditorMode GetMode() => mode;
+
+    protected override void OnParametersSet()
+    {
+        if (!modeInitialized)
+        {
+            mode = InitialMode;
+            modeInitialized = true;
+        }
+    }
+
+    private async Task ValueChangedAsync(string value)
+    {
+        Value = value ?? "";
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private Task ModeChangedAsync(HtmlEditorMode value)
+    {
+        mode = value;
+        return Task.CompletedTask;
+    }
+
+    private async Task ExecuteAsync(HtmlEditorExecuteEventArgs args)
+    {
+        if (args.CommandName != "InsertImageFromFiles")
+        {
+            return;
+        }
+
+        await args.Editor.SaveSelectionAsync();
+        fileSelector?.SetShowFileManager(true);
+    }
+
+    private async Task InsertImageAsync(string imageUrl)
+    {
+        fileSelector?.SetShowFileManager(false);
+        if (editor is null)
+        {
+            return;
+        }
+
+        await editor.RestoreSelectionAsync();
+        var url = (imageUrl ?? "").Replace('\\', '/');
+        await editor.ExecuteCommandAsync(HtmlEditorCommands.InsertHtml, $"<img src=\"{url}\" alt=\"\">");
+    }
+}

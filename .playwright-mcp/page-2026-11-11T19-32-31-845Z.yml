@@ -1,0 +1,70 @@
+- generic [ref=f52e2]:
+  - banner [ref=f52e3]:
+    - link "Blazor Blogs" [ref=f52e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f52e6]:
+      - link "Blog" [ref=f52e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f52e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f52e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f52e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f52e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f52e13] [cursor=pointer]
+  - main [ref=f52e14]:
+    - article [ref=f52e15]:
+      - generic [ref=f52e16]:
+        - complementary "Administration navigation" [ref=f52e17]:
+          - generic [ref=f52e18]:
+            - generic [aria-hidden] [ref=f52e19]: A
+            - generic [ref=f52e20]:
+              - strong [ref=f52e21]: Administration
+              - generic [ref=f52e22]: Site controls
+          - navigation "Administration" [ref=f52e23]:
+            - link "Posts" [ref=f52e24] [cursor=pointer]:
+              - /url: /
+            - link "Categories" [ref=f52e26] [cursor=pointer]:
+              - /url: categories
+            - link "Users" [ref=f52e28] [cursor=pointer]:
+              - /url: administration
+            - link "Files" [ref=f52e30] [cursor=pointer]:
+              - /url: filemanager
+            - link "Newsletter" [ref=f52e32] [cursor=pointer]:
+              - /url: newsletter
+            - link "Purchases" [ref=f52e34] [cursor=pointer]:
+              - /url: purchases
+            - link "Logs" [ref=f52e36] [cursor=pointer]:
+              - /url: logs
+            - link "Settings" [ref=f52e38] [cursor=pointer]:
+              - /url: settings
+          - link "View public site" [ref=f52e40] [cursor=pointer]:
+            - /url: /
+        - generic [ref=f52e41]:
+          - generic [ref=f52e43]:
+            - paragraph [ref=f52e44]: Paid downloads
+            - heading "Purchases" [level=1] [ref=f52e45]
+            - paragraph [ref=f52e46]: Review checkout status, collected tax and guest download delivery.
+          - table [ref=f52e47]:
+            - rowgroup [ref=f52e48]:
+              - row [ref=f52e49]:
+                - columnheader "Date" [ref=f52e50]
+                - columnheader "File" [ref=f52e51]
+                - columnheader "Buyer" [ref=f52e52]
+                - columnheader "Amount" [ref=f52e53]
+                - columnheader "Tax" [ref=f52e54]
+                - columnheader "Status" [ref=f52e55]
+                - columnheader "Mode" [ref=f52e56]
+                - columnheader [ref=f52e57]
+            - rowgroup
+          - navigation "Purchase pages" [ref=f52e58]:
+            - button "← Previous" [disabled]
+            - button "Next →" [disabled]
+  - contentinfo [ref=f52e59]:
+    - generic [ref=f52e60]: © 2026
+    - link "RSS feed" [ref=f52e61] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f52e62] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

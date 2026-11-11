@@ -1,0 +1,53 @@
+@page "/checkout/success"
+@attribute [ExcludeFromInteractiveRouting]
+@using BlazorBlogs.Data
+@inject PaidDownloadService PaidDownloadService
+@inject NavigationManager NavigationManager
+
+<section class="status-card account-card checkout-status">
+<div class="status-icon" aria-hidden="true">✓</div>
+<h1>Checkout</h1>
+@if (loading)
+{
+    <p>Confirming payment...</p>
+}
+else if (result?.Paid == true)
+{
+    <h2>Thank you</h2>
+    <p>Your payment for <strong>@result.FileTitle</strong> was received.</p>
+    <a class="btn btn-primary"
+       href="@($"/api/File/Download/{result.FileId}" + (string.IsNullOrWhiteSpace(result.DownloadToken) ? "" : $"?t={Uri.EscapeDataString(result.DownloadToken)}"))">
+        Download
+    </a>
+}
+else if (result is not null)
+{
+    <p>Payment is processing; we will email you when it is complete.</p>
+}
+else
+{
+    <p>We could not find this checkout session.</p>
+}
+</section>
+
+@code {
+    [SupplyParameterFromQuery(Name = "session_id")] public string SessionId { get; set; }
+    private DownloadFulfilmentResult result;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(SessionId))
+        {
+            try
+            {
+                result = await PaidDownloadService.ConfirmCheckoutAsync(SessionId, NavigationManager.BaseUri);
+            }
+            catch
+            {
+                result = null;
+            }
+        }
+        loading = false;
+    }
+}

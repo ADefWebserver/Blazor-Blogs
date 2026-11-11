@@ -21,17 +21,20 @@ namespace BlazorBlogs
         private IHttpContextAccessor _httpContextAccessor;
         private readonly BlazorBlogsContext _BlazorBlogsContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserContentPaths _userContentPaths;
 
         public MetaWeblogService(
             IWebHostEnvironment environment,
             IHttpContextAccessor httpContextAccessor,
             BlazorBlogsContext blazorBlogsContext,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            UserContentPaths userContentPaths)
         {
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _BlazorBlogsContext = blazorBlogsContext;
             _userManager = userManager;
+            _userContentPaths = userContentPaths;
         }
 
         #region public async Task<UserInfo> GetUserInfoAsync(string key, string username, string password)
@@ -385,8 +388,7 @@ namespace BlazorBlogs
                 string fileName = Path.GetFileName(mediaObject.name);
 
                 string PathOnly = Path.Combine(
-                    _environment.WebRootPath,
-                    "blogs",
+                    _userContentPaths.BlogsPath,
                     $"{blogid}",
                     Path.GetDirectoryName(mediaObject.name));
 

@@ -1,0 +1,33 @@
+- generic [ref=f25e2]:
+  - banner [ref=f25e3]:
+    - link "Blazor Blogs" [ref=f25e4] [cursor=pointer]:
+      - /url: /
+    - navigation "Primary navigation" [ref=f25e6]:
+      - link "Blog" [ref=f25e7] [cursor=pointer]:
+        - /url: /
+      - link "Downloads" [ref=f25e8] [cursor=pointer]:
+        - /url: filedownloads
+      - link "Newsletter" [ref=f25e9] [cursor=pointer]:
+        - /url: Account/Manage/Newsletter
+    - generic [ref=f25e10]:
+      - link "Hello, webmaster@adefwebserver.com!" [ref=f25e11] [cursor=pointer]:
+        - /url: Account/Manage
+      - button "Log out" [ref=f25e13] [cursor=pointer]
+  - main [ref=f25e14]:
+    - article [ref=f25e15]:
+      - generic [ref=f25e16]:
+        - generic [ref=f25e18]:
+          - paragraph [ref=f25e19]: Purchase recovery
+          - heading "Resend download links" [active] [level=1] [ref=f25e20]
+        - paragraph [ref=f25e21]: Enter the email address used for the purchase. If paid guest downloads exist, new links will be sent.
+        - generic [ref=f25e22]:
+          - generic [ref=f25e23]: Email
+          - textbox "Email" [ref=f25e24]
+          - button "Send links" [ref=f25e25] [cursor=pointer]
+  - contentinfo [ref=f25e26]:
+    - generic [ref=f25e27]: © 2026
+    - link "RSS feed" [ref=f25e28] [cursor=pointer]:
+      - /url: api/RSSFeed/Rss
+      - text: RSS
+    - link "About" [ref=f25e29] [cursor=pointer]:
+      - /url: https://github.com/ADefWebserver/Blazor-Blogs

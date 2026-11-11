@@ -1,0 +1,85 @@
+- generic [active] [ref=f35e1]:
+  - heading "An unhandled exception occurred while processing the request." [level=1] [ref=f35e2]
+  - generic [ref=f35e3]: "InvalidOperationException: EditForm requires either a Model parameter, or an EditContext parameter, please provide one of these."
+  - paragraph [ref=f35e4]: Microsoft.AspNetCore.Components.Forms.EditForm.OnParametersSet()
+  - list [ref=f35e5]:
+    - listitem [ref=f35e6] [cursor=pointer]: Stack
+    - listitem [ref=f35e7] [cursor=pointer]: Query
+    - listitem [ref=f35e8] [cursor=pointer]: Cookies
+    - listitem [ref=f35e9] [cursor=pointer]: Headers
+    - listitem [ref=f35e10] [cursor=pointer]: Routing
+  - list [ref=f35e12]:
+    - listitem [ref=f35e13]:
+      - 'heading "InvalidOperationException: EditForm requires either a Model parameter, or an EditContext parameter, please provide one of these." [level=2] [ref=f35e14]'
+      - list [ref=f35e15]:
+        - listitem [ref=f35e16]:
+          - heading "Microsoft.AspNetCore.Components.Forms.EditForm.OnParametersSet()" [level=3] [ref=f35e17]
+        - listitem [ref=f35e18]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.CallOnParametersSetAsync()" [level=3] [ref=f35e19]
+        - listitem [ref=f35e20]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.RunInitAndSetParametersAsync()" [level=3] [ref=f35e21]
+        - listitem [ref=f35e22]:
+          - heading "Microsoft.AspNetCore.Components.ComponentsMetrics.CaptureParametersDuration(Task task, long startTimestamp, string componentType)" [level=3] [ref=f35e23]
+        - listitem [ref=f35e24]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.SupplyCombinedParameters(ParameterView directAndCascadingParameters)" [level=3] [ref=f35e25]
+        - listitem [ref=f35e26]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.InitializeNewComponentFrame(ref DiffContext diffContext, int frameIndex)" [level=3] [ref=f35e27]
+        - listitem [ref=f35e28]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.InitializeNewSubtree(ref DiffContext diffContext, int frameIndex)" [level=3] [ref=f35e29]
+        - listitem [ref=f35e30]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.InsertNewFrame(ref DiffContext diffContext, int newFrameIndex)" [level=3] [ref=f35e31]
+        - listitem [ref=f35e32]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.AppendDiffEntriesForRange(ref DiffContext diffContext, int oldStartIndex, int oldEndIndexExcl, int newStartIndex, int newEndIndexExcl)" [level=3] [ref=f35e33]
+        - listitem [ref=f35e34]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.RenderTreeDiffBuilder.ComputeDiff(Renderer renderer, RenderBatchBuilder batchBuilder, int componentId, ArrayRange<RenderTreeFrame> oldTree, ArrayRange<RenderTreeFrame> newTree)" [level=3] [ref=f35e35]
+        - listitem [ref=f35e36]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.ComponentState.RenderIntoBatch(RenderBatchBuilder batchBuilder, RenderFragment renderFragment, out Exception renderFragmentException)" [level=3] [ref=f35e37]
+        - listitem [ref=f35e38]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f35e39]
+        - listitem [ref=f35e40]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.ProcessRenderQueue()" [level=3] [ref=f35e41]
+        - listitem [ref=f35e42]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.StateHasChanged()" [level=3] [ref=f35e43]
+        - listitem [ref=f35e44]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.CallOnParametersSetAsync()" [level=3] [ref=f35e45]
+        - listitem [ref=f35e46]:
+          - heading "Microsoft.AspNetCore.Components.ComponentBase.RunInitAndSetParametersAsync()" [level=3] [ref=f35e47]
+        - listitem [ref=f35e48]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f35e49]
+        - listitem [ref=f35e50]:
+          - heading "Microsoft.AspNetCore.Components.RenderTree.Renderer.GetErrorHandledTask(Task taskToHandle, ComponentState owningComponentState)" [level=3] [ref=f35e51]
+        - listitem [ref=f35e52]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.<WaitForNonStreamingPendingTasks>g__Execute|58_0()" [level=3] [ref=f35e53]
+        - listitem [ref=f35e54]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.WaitForResultReady(bool waitForQuiescence, PrerenderedComponentHtmlContent result)" [level=3] [ref=f35e55]
+        - listitem [ref=f35e56]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.EndpointHtmlRenderer.RenderEndpointComponent(HttpContext httpContext, Type rootComponentType, ParameterView parameters, bool waitForQuiescence)" [level=3] [ref=f35e57]
+        - listitem [ref=f35e58]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f35e59]
+        - listitem [ref=f35e60]:
+          - heading "Microsoft.AspNetCore.Components.Endpoints.RazorComponentEndpointInvoker.RenderComponentCore(HttpContext context)" [level=3] [ref=f35e61]
+        - listitem [ref=f35e62]:
+          - heading "Microsoft.AspNetCore.Components.Rendering.RendererSynchronizationContext+<>c+<<InvokeAsync>b__10_0>d.MoveNext()" [level=3] [ref=f35e63]
+        - listitem [ref=f35e64]:
+          - heading "Microsoft.AspNetCore.Builder.ServerRazorComponentsEndpointConventionBuilderExtensions+<>c__DisplayClass1_1.<AddInteractiveServerRenderMode>b__1(HttpContext context)" [level=3] [ref=f35e65]
+        - listitem [ref=f35e66]:
+          - heading [level=3] [ref=f35e67]:
+            - text: BlazorBlogs.Program+<>c+<<Main>b__3_6>d.MoveNext() in
+            - code [ref=f35e68]: Program.cs
+          - button "+" [ref=f35e69] [cursor=pointer]
+          - list [ref=f35e71]:
+            - listitem [ref=f35e72]: await next();
+        - listitem [ref=f35e73]:
+          - heading "WilderMinds.MetaWeblog.MetaWeblogMiddleware.Invoke(HttpContext context, MetaWeblogService service)" [level=3] [ref=f35e74]
+        - listitem [ref=f35e75]:
+          - heading "Toolbelt.Blazor.HeadElement.Middlewares.HeadElementServerPrerenderingMiddleware.InvokeAsync(HttpContext context, IHeadElementHelperStore store)" [level=3] [ref=f35e76]
+        - listitem [ref=f35e77]:
+          - heading "Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f35e78]
+        - listitem [ref=f35e79]:
+          - heading "Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)" [level=3] [ref=f35e80]
+        - listitem [ref=f35e81]:
+          - heading "Microsoft.AspNetCore.Antiforgery.CsrfProtectionMiddleware.InvokeCoreAsync(HttpContext context)" [level=3] [ref=f35e82]
+        - listitem [ref=f35e83]:
+          - heading "Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)" [level=3] [ref=f35e84]
+    - listitem [ref=f35e85]:
+      - button "Show raw exception details" [ref=f35e87] [cursor=pointer]
