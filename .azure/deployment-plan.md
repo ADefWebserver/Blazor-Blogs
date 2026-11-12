@@ -1,116 +1,93 @@
-# Blazor Blogs Production Backup and Deployment Plan
+# Blazor Help Website 10.06.00 Deployment Plan
 
 **Status:** Completed - Deployment Verified
 
 ## 1. Objective
 
-Create a recoverable backup of the existing production Azure App Service deployment,
-then deploy the current workspace release with no destructive site cleanup.
+Deploy the validated Blazor Blogs 10.06.00 release to the existing production
+Blazor Help Website Azure App Service without changing infrastructure or deleting
+user content.
 
-## 2. Azure Target
+## 2. Target
 
-- Subscription: Existing production subscription
-- Tenant: Existing production tenant
-- Resource group: Existing production resource group
-- App Service: Existing production app
-- Location: Existing production region
-- Current SKU: Production App Service tier
-- Current runtime: Windows, .NET 9
-- Current endpoint: Existing public production endpoint
+- Existing production App Service named by the user.
+- Existing production subscription and resource group.
+- Code-only Windows App Service deployment.
+- Release package: self-contained .NET 11 `win-x64`.
 
 ## 3. Scope
 
-- Verify the authenticated Azure context and target resource.
-- Build and test the current workspace release.
-- Capture a local recovery package and a point-in-time copy of production
-  application content and configuration required for rollback.
-- Confirm the production database is protected independently.
-- Publish a self-contained Windows x64 package and deploy it with `--clean false`.
-- Verify the production endpoint and application behavior after deployment.
-- Excluded: infrastructure replacement, resource-group deletion, database reset,
-  schema rollback, and deletion of user content.
+- Confirm the App Service exists, is running, and is a Blazor Blogs installation.
+- Build and test the current `main` branch.
+- Capture and verify a temporary live-site rollback archive.
+- Export and verify a temporary database BACPAC before schema changes.
+- Preserve the existing database connection as `appsettings.Local.json` when
+  required.
+- Deploy with `--clean false` and reject protected content from the publish package.
+- Apply only schema scripts newer than the site's stored database version.
+- Verify public routes, schema version, and protected-content hashes.
+- Delete all temporary archives and deployment artifacts after success.
 
-## 4. Backup and Rollback
+## 4. Exclusions
 
-- Preserve the production site package as a timestamped rollback artifact.
-- Preserve the live `site\wwwroot` tree, which contains the legacy persistent user
-  content because this production app does not define `Storage__UserContentPath`.
-- Confirm a database restore point or documented database backup before upload.
-- Deploy with ZIP deployment and `--clean false`; if verification fails, redeploy the
-  captured rollback package and verify again.
+- No infrastructure, App Service plan, slot, custom-domain, database-tier, or
+  resource-group changes.
+- No resource deletion or destructive database rollback.
+- No subscription IDs, tenant details, credentials, connection strings, or backup
+  files in source control.
 
-## 5. Deployment Recipe
+## 5. Rollback
 
-- Local `dotnet publish` in `Release` mode with the existing
-  `deploy/Deploy-Website.ps1` safeguards.
-- Azure App Service ZIP deployment to the existing production resource.
-- No Bicep or ARM infrastructure modification is planned.
+If verification fails, redeploy the captured pre-deployment site archive with
+`--clean false`. Database changes are forward-only, so no schema update will begin
+until the temporary BACPAC is verified.
 
-## 6. Validation and Execution Gates
+## 6. Deployment Recipe
+
+- Recipe type: Azure CLI, code-only App Service ZIP deployment.
+- Build: Release tests, build, and self-contained Windows x64 publish.
+- Upload: `az webapp deploy --type zip --clean false`.
+
+## 7. Validation Gates
 
 ### All validation checks pass
 
-- [x] 1. Core Validation (CLI, auth, build, package safety, target App Service).
-- [x] 2. Docker Build (not applicable; the App Service deployment is self-contained).
+- [x] 1. Core Validation (CLI, authentication, build, tests, package safety).
+- [x] 2. Docker Build (not applicable).
 - [x] 3. Azure Policy Validation.
 
-- [x] Confirm production subscription and App Service target.
-- [x] Confirm current app state, runtime, SKU, slots, and backup capabilities.
-- [x] Confirm database and persistent content backup status.
-- [x] Correct the stale schema-registration test for release `10.06.00`.
-- [x] Run tests and build/publish validation.
-- [x] Obtain deployment approval.
-- [x] Create rollback artifacts and back up production.
-- [x] Deploy the current package.
-- [x] Verify endpoint availability and application health.
-- [x] Record rollback and verification evidence.
+- [x] Confirm the target App Service and current runtime.
+- [x] Confirm the current public endpoint is healthy.
+- [x] Receive deployment approval.
+- [x] Create and verify temporary site and database backups.
+- [x] Deploy, preserve connection configuration, and upgrade schema.
+- [x] Verify endpoint and protected-content integrity.
+- [x] Delete temporary artifacts and record sanitized proof.
 
-## 7. Validation Proof
+## 8. Validation Proof
 
-- 2026-11-11: Azure authentication selected the approved production tenant and
-  subscription.
-- 2026-11-11: The production App Service is Running; HTTPS-only and Always On are
-  enabled.
-- 2026-11-11: No deployment slots or configured App Service backup schedules were
-  found.
-- 2026-11-11: Current production root endpoint returned HTTP 200. The production
-  runtime reports .NET 9 and no `Storage__UserContentPath` override, so rollback
-  must include the live site files.
-- 2026-11-11: Release build succeeded. Tests reported 4/5 passing because the
-  schema-registration test still expects `10.05.00` while the app and complete
-  `10.06.00` script registration target `10.06.00`.
-- 2026-11-11: Updated the schema-registration test to assert version `10.06.00`.
-  All 5/5 tests then passed. The Release build completed with 0 errors, and the
-  self-contained `win-x64` publish succeeded with the protected-content guard
-  finding no uploaded/private files in the package.
-- 2026-11-11: Policy review found only the inherited region restriction, MFA write/
-  delete enforcement, and Defender for Cloud audit policies; none blocks a West US
-  code-only ZIP deployment.
-- 2026-11-11: Core validation passed for the code-only recipe: Azure CLI 2.84.0
-  authenticated to the approved tenant and subscription, the target App Service was
-  resolved and healthy, 5/5 tests passed, Release build completed, and the
-  self-contained `win-x64` publish passed the protected-content check. No
-  infrastructure template is changed, so ARM/Bicep deployment validation is not
-  applicable.
-- 2026-11-11: Captured and hash-verified a temporary live-site rollback archive;
-  the archive was deleted after deployment.
-- 2026-11-11: Verified the production database was Online and exported a
-  hash-verified temporary BACPAC; the archive was deleted after deployment.
-- 2026-11-11: Deployed the Release self-contained `win-x64` package with
-  `--clean false`; the OneDeploy deployment completed successfully.
-- 2026-11-11: Restored the legacy connection string into
-  `appsettings.Local.json`, applied registered schema scripts `10.00.00` through
-  `10.06.00` after the pre-upgrade BACPAC, and verified database version
-  `10.06.00`.
-- 2026-11-11: Verified the site is Running and `/`, `/api/RSSFeed/Rss`,
-  `/Account/Login`, and `/filedownloads` all returned HTTP 200. Database counts
-  remained 10 blogs, 4 categories, 1 file, and 666 users.
-- 2026-11-11: Restored 2 legacy `wwwroot/files` entries omitted by the incremental
-  deployment. Final byte-for-byte checks verified 5 uploads, 174 blog files, and
-  2 downloadable files with 0 missing and 0 changed.
+- 2026-11-12: The target App Service is Running on Windows PremiumV3 in the
+  production region, uses .NET 9, has no deployment slots, and its root endpoint
+  returned HTTP 200.
+- 2026-11-12: All 5/5 automated tests passed, and the Release build completed with
+  0 errors.
+- 2026-11-12: Policy review found only audit, region-restriction, and MFA
+  enforcement policies; none blocks an in-region code-only ZIP deployment.
+- 2026-11-12: Self-contained `win-x64` publish succeeded and contained no
+  protected user-content files.
+- 2026-11-12: Captured and verified temporary pre-deployment site and database
+  rollback archives before any schema change.
+- 2026-11-12: OneDeploy completed successfully with `--clean false`; the existing
+  connection configuration was preserved.
+- 2026-11-12: Applied only pending upgrade scripts and verified database schema
+  version `10.06.00`.
+- 2026-11-12: Verified 3,560 protected files with 0 missing and 0 changed after
+  restoring 56 legacy files omitted by incremental deployment.
+- 2026-11-12: The root, RSS, login, and downloads routes all returned HTTP 200.
+- 2026-11-12: All temporary site archives, database BACPACs, publish output, and
+  deployment packages were deleted after verification.
 
 ## Role Assignment Verification
 
 - Status: Not applicable to this code-only deployment.
-- The deployment changes no identities or RBAC assignments. Existing production
-  application configuration and database access remain unchanged.
+- No identities or RBAC assignments are changed.
