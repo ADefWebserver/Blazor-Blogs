@@ -119,6 +119,9 @@
 		<None Update="SQLScripts\10.05.00.sql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="SQLScripts\10.06.00.sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<Content Update="wwwroot\uploads\**\*">
 		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>

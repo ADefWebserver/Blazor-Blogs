@@ -120,8 +120,13 @@
         await BlogUpdated.InvokeAsync(true);
     }
 
-    public void AddNewBlog()
+    public async Task AddNewBlog()
     {
+        if (!await IsAdministratorAsync())
+        {
+            return;
+        }
+
         // Make new Blog
         SelectedBlog = new BlogDTO();
         // Set the default date
@@ -136,8 +141,13 @@
         StateHasChanged();
     }
 
-    public void EditBlog(BlogDTO Blog)
+    public async Task EditBlog(BlogDTO Blog)
     {
+        if (!await CanManageBlogAsync(Blog))
+        {
+            return;
+        }
+
         // Set the selected Blog
         // as the current Blog
         SelectedBlog = Blog;
@@ -154,6 +164,12 @@
     {
         try
         {
+            if (SelectedBlog is null || !await CanManageBlogAsync(SelectedBlog))
+            {
+                strError = "You are not authorized to save this post.";
+                return;
+            }
+
             // A new Blog will have the Id set to 0
             if (SelectedBlog.BlogId == 0)
             {
@@ -211,6 +227,12 @@
     {
         try
         {
+            if (SelectedBlog is null || !await CanManageBlogAsync(SelectedBlog))
+            {
+                strError = "You are not authorized to delete this post.";
+                return;
+            }
+
             int BlogId = SelectedBlog.BlogId;
 
             // Delete the Blog
@@ -225,6 +247,32 @@
         {
             strError = ex.GetBaseException().Message;
         }
+    }
+
+    private async Task<bool> CanManageBlogAsync(BlogDTO blog)
+    {
+        if (await IsAdministratorAsync())
+        {
+            return true;
+        }
+
+        var userName = (await authenticationStateTask).User.Identity?.Name;
+        return blog.BlogId != 0 &&
+            !string.IsNullOrWhiteSpace(userName) &&
+            string.Equals(blog.BlogUserName, userName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<bool> IsAdministratorAsync()
+    {
+        var userName = (await authenticationStateTask).User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return false;
+        }
+
+        var user = await _UserManager.FindByNameAsync(userName);
+        return user is not null &&
+            await _UserManager.IsInRoleAsync(user, "Administrators");
     }
 
     private async Task LogAction(string strAction)

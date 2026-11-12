@@ -129,9 +129,9 @@
         }
     }
 
-    void EditBlog()
+    async Task EditBlog()
     {
-        BlogAdministrationControl.EditBlog(SelectedBlog);
+        await BlogAdministrationControl.EditBlog(SelectedBlog);
     }
 
     void Back()

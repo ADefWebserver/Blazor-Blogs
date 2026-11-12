@@ -32,11 +32,9 @@
                     <label for="Input.Password" class="form-label">Password</label>
                     <ValidationMessage For="() => Input.Password" class="text-danger" />
                 </div>
-                <div class="checkbox mb-3">
-                    <label class="form-label">
-                        <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                        Remember me
-                    </label>
+                <div class="form-check mb-3">
+                    <InputCheckbox @bind-Value="Input.RememberMe" id="remember-me" class="darker-border-checkbox form-check-input" />
+                    <label for="remember-me" class="form-check-label">Remember me</label>
                 </div>
                 <div>
                     <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
@@ -96,8 +94,8 @@
     public async Task LoginUser()
     {
         // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        // Failed attempts count toward account lockout (see Identity Lockout options in Program.cs).
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");

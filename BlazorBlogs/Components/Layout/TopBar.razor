@@ -18,6 +18,11 @@
         <NavLink href="/" Match="NavLinkMatch.All">Blog</NavLink>
         <NavLink href="filedownloads">Downloads</NavLink>
         <NavLink href="Account/Manage/Newsletter">Newsletter</NavLink>
+        <AuthorizeView Roles="Administrators">
+            <Authorized>
+                <NavLink href="administration">Administration</NavLink>
+            </Authorized>
+        </AuthorizeView>
     </nav>
 
     <div class="bb-account-nav">

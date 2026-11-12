@@ -49,7 +49,7 @@ public sealed class StripeGateway : IStripeGateway
         var options = new SessionCreateOptions
         {
             Mode = "payment",
-            ClientReferenceId = request.UserId ?? "",
+            ClientReferenceId = string.IsNullOrWhiteSpace(request.UserId) ? null : request.UserId,
             CustomerEmail = string.IsNullOrWhiteSpace(request.UserId) ? null : request.BuyerEmail,
             SuccessUrl = baseUrl + "checkout/success?session_id={CHECKOUT_SESSION_ID}",
             CancelUrl = baseUrl + "filedownloads",

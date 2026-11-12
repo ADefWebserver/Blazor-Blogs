@@ -14,6 +14,8 @@
     <h4>@ErrorMessage</h4>
 }
 
+@if (!AdminExists)
+{
 <table class="form-group" cellpadding="4" cellspacing="4">
     <tbody>
         <tr>
@@ -43,6 +45,7 @@
         </tr>
     </tbody>
 </table>
+}
 
 
 @code {
@@ -57,13 +60,17 @@
     string ADMINISTRATION_ROLE = "Administrators";
     string strAdministratorUserName = "";
     string strAdministratorPassword = "";
+    bool AdminExists = false;
+
+    // Serializes administrator creation so two concurrent requests cannot both succeed.
+    private static readonly SemaphoreSlim CreateAdminLock = new(1, 1);
 
     protected override async Task OnInitializedAsync()
     {
         // Don't allow this to be used if an Administrator already exists
         // Get database conection string
         string strDefaultConnection = _configuration["ConnectionStrings:DefaultConnection"];
-        var AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
+        AdminExists = await _BlogsService.AdminExistsAsync(strDefaultConnection);
 
         if (AdminExists)
         {
@@ -73,10 +80,20 @@
     }
 
     #region private async void CreateAdministrator()
-    private async void CreateAdministrator()
+    private async Task CreateAdministrator()
     {
+        await CreateAdminLock.WaitAsync();
         try
         {
+            // Re-check on the server at action time; never trust the initial render.
+            if (await _BlogsService.AdminExistsAsync(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                AdminExists = true;
+                ErrorMessage = "Administrator Already Exists";
+                StateHasChanged();
+                return;
+            }
+
             // ensure there is a ADMINISTRATION_ROLE
             var RoleResult = await _RoleManager.FindByNameAsync(ADMINISTRATION_ROLE);
             if (RoleResult == null)
@@ -116,11 +133,15 @@
             // Notify parent component
             await CreateAdministratorChanged.InvokeAsync(true);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ErrorMessage = ex.Message;
+            ErrorMessage = "The administrator account could not be created.";
             StateHasChanged();
             return;
+        }
+        finally
+        {
+            CreateAdminLock.Release();
         }
     }
     #endregion

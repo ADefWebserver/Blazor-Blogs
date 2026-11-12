@@ -19,6 +19,12 @@
     </div>
 </div>
 
+@if (WizardStage == "AlreadyInstalled")
+{
+    <h4>This site is already installed.</h4>
+    <p><a href="/">Return to the home page</a></p>
+}
+
 @if (WizardMode == "INSTALL")
 {
     @if (WizardStage == "DatabaseUnavailable")
@@ -107,6 +113,15 @@
         // Get current user
         CurrentUser = (await authenticationStateTask).User;
 
+        // Once the site is installed (schema present and an administrator exists),
+        // only the administrator-only UPGRADE mode may be used. This is enforced
+        // here on the server, not just by hiding UI.
+        if (WizardMode != "UPGRADE" && await IsSiteInstalledAsync())
+        {
+            WizardStage = "AlreadyInstalled";
+            return;
+        }
+
         if (WizardMode == "INSTALL")
         {
             WizardStage = ConnectionStringStore.IsHostManaged(_configuration)
@@ -137,6 +152,21 @@
         }
     }
 
+    private async Task<bool> IsSiteInstalledAsync()
+    {
+        var connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "";
+        try
+        {
+            return await _BlogsService.IsDatabaseSetUpAsync(connectionString)
+                && await _BlogsService.AdminExistsAsync(connectionString);
+        }
+        catch
+        {
+            // Database unreachable or schema missing: treat as not installed.
+            return false;
+        }
+    }
+
     // Methods
 
     void DatabaseConfigurationComplete(bool paramValue)
@@ -163,11 +193,12 @@
         }
     }
 
-    void Continue()
+    async Task Continue()
     {
         if (WizardMode == "INSTALL")
         {
-            @if (WizardStage == "RunScriptsComplete")
+            // Only restart during a genuine first install; re-check at action time.
+            if (WizardStage == "RunScriptsComplete" && !await IsSiteInstalledAsync())
             {
                 // Restart site
                 HostApplicationLifetime.StopApplication();

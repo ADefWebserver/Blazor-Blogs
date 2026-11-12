@@ -99,7 +99,6 @@ namespace BlazorBlogs
                 if (!decimal.TryParse(Price, NumberStyles.Number, CultureInfo.InvariantCulture, out var price)
                     || price < 0 || price > 99999999.99m)
                     return BadRequest("Enter a valid non-negative price.");
-
                 await using var source = file.OpenReadStream();
                 var signature = new byte[2];
                 if (await source.ReadAsync(signature) != 2 || signature[0] != (byte)'P' || signature[1] != (byte)'K')
@@ -109,7 +108,7 @@ namespace BlazorBlogs
                 var saved = await _downloadStorage.SaveAsync(file);
                 try
                 {
-                    blogsContext.Files.Add(new Files
+                    var uploadedFile = new Files
                     {
                         FileName = string.IsNullOrWhiteSpace(FileTitle) ? "[Unknown]" : FileTitle.Trim(),
                         FilePath = saved.StoredName,
@@ -117,9 +116,10 @@ namespace BlazorBlogs
                         Price = decimal.Round(price, 2),
                         CreateDate = DateTime.Now,
                         DownloadCount = 0
-                    });
+                    };
+                    blogsContext.Files.Add(uploadedFile);
                     await blogsContext.SaveChangesAsync();
-                    return Ok();
+                    return Ok(new { fileId = uploadedFile.FileId });
                 }
                 catch
                 {

@@ -87,7 +87,7 @@ img, svg, video {
 }
 
 button,
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea,
 .btn,
@@ -713,6 +713,13 @@ table {
     font-size: 1.25rem;
 }
 
+.download-description {
+    margin: 0 0 .75rem;
+    color: var(--bb-muted);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
 .download-actions {
     display: flex;
     flex-wrap: wrap;
@@ -1047,13 +1054,14 @@ h1:focus {
     border-color: #929292;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-    color: var(--bs-secondary-color);
-    text-align: end;
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: transparent;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-    text-align: start;
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    color: var(--bs-secondary-color);
 }
 
 .modal[style*="display:block"] {

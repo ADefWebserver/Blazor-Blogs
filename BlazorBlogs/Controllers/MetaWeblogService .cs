@@ -21,6 +21,7 @@ namespace BlazorBlogs
         private IHttpContextAccessor _httpContextAccessor;
         private readonly BlazorBlogsContext _BlazorBlogsContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserContentPaths _userContentPaths;
 
         public MetaWeblogService(
@@ -28,12 +29,14 @@ namespace BlazorBlogs
             IHttpContextAccessor httpContextAccessor,
             BlazorBlogsContext blazorBlogsContext,
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             UserContentPaths userContentPaths)
         {
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _BlazorBlogsContext = blazorBlogsContext;
             _userManager = userManager;
+            _signInManager = signInManager;
             _userContentPaths = userContentPaths;
         }
 
@@ -561,18 +564,39 @@ namespace BlazorBlogs
         #region private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
         private async Task<bool> IsValidMetaWeblogUserAsync(string username, string password)
         {
-            // Get user
-            var objApplicationUser = await _userManager.FindByEmailAsync(username.ToLower());
-
-            // MUst be an Administrator
-            if (await _userManager.IsInRoleAsync(objApplicationUser, ADMINISTRATION_ROLE))
-            {
-                return await _userManager.CheckPasswordAsync(objApplicationUser, password);
-            }
-            else
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrEmpty(password))
             {
                 return false;
             }
+
+            // Get user (unknown users fail the same way as bad passwords)
+            var objApplicationUser = await _userManager.FindByEmailAsync(username.Trim());
+            if (objApplicationUser == null)
+            {
+                return false;
+            }
+
+            // Must be an Administrator
+            if (!await _userManager.IsInRoleAsync(objApplicationUser, ADMINISTRATION_ROLE))
+            {
+                return false;
+            }
+
+            // Respect account lockout and count failed attempts
+            var result = await _signInManager.CheckPasswordSignInAsync(
+                objApplicationUser, password, lockoutOnFailure: true);
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+
+            // XML-RPC cannot perform a second factor, so it must not become a 2FA bypass
+            if (await _userManager.GetTwoFactorEnabledAsync(objApplicationUser))
+            {
+                return false;
+            }
+
+            return true;
         }
         #endregion
 

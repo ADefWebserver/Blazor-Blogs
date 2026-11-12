@@ -13,5 +13,6 @@ namespace BlazorBlogs.Data.Models
         public int DownloadCount { get; set; }
         public decimal Price { get; set; }
         public string OriginalFileName { get; set; }
+        public string Description { get; set; }
     }
 }

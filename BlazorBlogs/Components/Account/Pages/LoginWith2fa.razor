@@ -27,11 +27,9 @@
                 <label for="Input.TwoFactorCode" class="form-label">Authenticator code</label>
                 <ValidationMessage For="() => Input.TwoFactorCode" class="text-danger" />
             </div>
-            <div class="checkbox mb-3">
-                <label for="remember-machine" class="form-label">
-                    <InputCheckbox @bind-Value="Input.RememberMachine" />
-                    Remember this machine
-                </label>
+            <div class="form-check mb-3">
+                <InputCheckbox @bind-Value="Input.RememberMachine" id="remember-machine" class="darker-border-checkbox form-check-input" />
+                <label for="remember-machine" class="form-check-label">Remember this machine</label>
             </div>
             <div>
                 <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>

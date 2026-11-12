@@ -991,8 +991,12 @@ namespace BlazorBlogs.Data
                               FileName = Files.FileName,
                               FilePath = Files.FilePath,
                               Price = Files.Price,
-                              OriginalFileName = Files.OriginalFileName
-                          }).AsNoTracking().OrderBy(x => x.FileName).ToListAsync();
+                              OriginalFileName = Files.OriginalFileName,
+                              Description = Files.Description
+                          }).AsNoTracking()
+                            .OrderByDescending(x => x.Price > 0)
+                            .ThenBy(x => x.FileName)
+                            .ToListAsync();
         }
         #endregion
 
@@ -1016,9 +1020,11 @@ namespace BlazorBlogs.Data
                                              FileName = Files.FileName,
                                              FilePath = Files.FilePath.Replace("\\files", "files"),
                                              Price = Files.Price,
-                                             OriginalFileName = Files.OriginalFileName
+                                             OriginalFileName = Files.OriginalFileName,
+                                             Description = Files.Description
                                          }).AsNoTracking()
-                                                 .OrderBy(x => x.FileName)
+                                                 .OrderByDescending(x => x.Price > 0)
+                                                 .ThenBy(x => x.FileName)
                                                  .Skip(page * 10)
                                                  .Take(10)
                                                  .ToListAsync();
@@ -1031,6 +1037,9 @@ namespace BlazorBlogs.Data
         {
             try
             {
+                if ((objFilesDTO.Description?.Length ?? 0) > 4000)
+                    throw new InvalidOperationException("Description cannot exceed 4000 characters.");
+
                 Files objFiles = new Files();
                 objFiles.CreateDate = DateTime.Now;
                 objFiles.DownloadCount = 0;
@@ -1038,6 +1047,7 @@ namespace BlazorBlogs.Data
                 objFiles.FilePath = objFilesDTO.FilePath;
                 objFiles.Price = objFilesDTO.Price;
                 objFiles.OriginalFileName = objFilesDTO.OriginalFileName;
+                objFiles.Description = objFilesDTO.Description;
 
                 _context.Files.Add(objFiles);
                 _context.SaveChanges();
@@ -1056,6 +1066,9 @@ namespace BlazorBlogs.Data
         {
             try
             {
+                if ((objFilesDTO.Description?.Length ?? 0) > 4000)
+                    throw new InvalidOperationException("Description cannot exceed 4000 characters.");
+
                 int intFilesId = Convert.ToInt32(objFilesDTO.FileId);
 
                 var ExistingFiles =
@@ -1073,6 +1086,7 @@ namespace BlazorBlogs.Data
 
                     ExistingFiles.Price = objFilesDTO.Price;
                     ExistingFiles.OriginalFileName = objFilesDTO.OriginalFileName;
+                    ExistingFiles.Description = objFilesDTO.Description;
 
                     _context.SaveChanges();
                 }
@@ -1345,7 +1359,7 @@ namespace BlazorBlogs.Data
                 var AdminRoleList = await context.AspNetRoles
                         // Use AsNoTracking to disable EF change tracking
                         .AsNoTracking()
-                         .Where(x => x.Name.ToLower() == "Administrators")
+                         .Where(x => x.Name == "Administrators")
                          .ToListAsync();
 
                 if (AdminRoleList.Count == 0)

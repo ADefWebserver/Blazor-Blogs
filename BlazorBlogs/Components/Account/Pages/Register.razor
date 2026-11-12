@@ -44,11 +44,9 @@
                 <label for="Input.ConfirmPassword">Confirm Password</label>
                 <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
             </div>
-            <div class="checkbox mb-3">
-                <label class="form-label">
-                    <InputCheckbox @bind-Value="Input.SubscribeToNewsletter" class="darker-border-checkbox form-check-input" />
-                    Email me the newsletter
-                </label>
+            <div class="form-check mb-3">
+                <InputCheckbox @bind-Value="Input.SubscribeToNewsletter" id="subscribe-to-newsletter" class="darker-border-checkbox form-check-input" />
+                <label for="subscribe-to-newsletter" class="form-check-label">Email me the newsletter</label>
             </div>
             <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </EditForm>

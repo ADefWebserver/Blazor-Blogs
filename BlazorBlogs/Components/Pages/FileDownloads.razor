@@ -41,6 +41,10 @@
         </div>
         <div class="download-card-body">
             <h2>@file.FileName</h2>
+            @if (!string.IsNullOrWhiteSpace(file.Description))
+            {
+                <p class="download-description">@file.Description</p>
+            }
             <div class="bb-badge">@(file.Price == 0 ? "Free" : file.Owned ? "Purchased" : $"{file.Price:0.00} {StripeSettings.Currency.ToUpperInvariant()}")</div>
             @if (file.Price > 0)
             {
@@ -108,10 +112,12 @@ else
                 <input class="form-control" @bind="SelectedFile.FileName" />
                 <label>Price</label>
                 <input class="form-control" type="number" min="0" step="0.01" @bind="SelectedFile.Price" />
+                <label>Description</label>
+                <textarea class="form-control" maxlength="4000" rows="5" @bind="SelectedFile.Description"></textarea>
                 <RadzenUpload ChooseText="Upload And Save" Multiple="false" Accept=".zip,application/zip"
                               Url="@($"api/upload/single?FileTitle={Uri.EscapeDataString(SelectedFile.FileName ?? "")}&Price={SelectedFile.Price.ToString(CultureInfo.InvariantCulture)}")"
                               Style="margin-bottom:20px;height:45px"
-                              Progress="OnProgress" Error="OnUploadError" />
+                              Complete="OnUploadComplete" Error="OnUploadError" />
             </div>
         </div></div>
     </div>
@@ -130,6 +136,8 @@ else
                 <input class="form-control" @bind="SelectedFile.FileName" />
                 <label>Price</label>
                 <input class="form-control" type="number" min="0" step="0.01" @bind="SelectedFile.Price" />
+                <label>Description</label>
+                <textarea class="form-control" maxlength="4000" rows="5" @bind="SelectedFile.Description"></textarea>
                 <button class="btn btn-primary" @onclick="SaveFile">Save</button>
                 <button class="btn btn-danger" @onclick="DeleteFile">Delete</button>
             </div>
@@ -203,7 +211,8 @@ else
                     OriginalFileName = x.OriginalFileName,
                     Price = x.Price,
                     CreateDate = x.CreateDate,
-                    DownloadCount = x.DownloadCount
+                    DownloadCount = x.DownloadCount,
+                    Description = x.Description
                 })
                 .SingleOrDefaultAsync();
             if (target is not null)
@@ -232,6 +241,9 @@ else
     {
         try
         {
+            if ((SelectedFile.Description?.Length ?? 0) > 4000)
+                throw new InvalidOperationException("Description cannot exceed 4000 characters.");
+
             await ScopedServices.GetRequiredService<BlogsService>().UpdateFilesAsync(SelectedFile);
             await GetFiles();
             FileEditPopup = false;
@@ -292,12 +304,29 @@ else
         }
     }
 
-    private async Task OnProgress(UploadProgressArgs args)
+    private async Task OnUploadComplete(UploadCompleteEventArgs args)
     {
-        if (args.Loaded == args.Total)
+        try
         {
+            if (args.Cancelled)
+                return;
+            if ((SelectedFile.Description?.Length ?? 0) > 4000)
+                throw new InvalidOperationException("Description cannot exceed 4000 characters.");
+
+            using var response = System.Text.Json.JsonDocument.Parse(args.RawResponse);
+            var fileId = response.RootElement.GetProperty("fileId").GetInt32();
+            var context = ScopedServices.GetRequiredService<BlazorBlogsContext>();
+            var file = await context.Files.SingleAsync(x => x.FileId == fileId);
+            file.Description = SelectedFile.Description?.Trim() ?? "";
+            await context.SaveChangesAsync();
+
             FileUploadPopup = false;
             await GetFiles();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = ex.GetBaseException().Message;
+            ToastService.ShowError(ErrorMessage);
         }
     }
 

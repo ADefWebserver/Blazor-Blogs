@@ -181,9 +181,9 @@ else
         StateHasChanged();
     }
 
-    void NewBlog()
+    async Task NewBlog()
     {
-        BlogAdministrationControl.AddNewBlog();
+        await BlogAdministrationControl.AddNewBlog();
     }
 
     async Task BlogUpdatedEvent()

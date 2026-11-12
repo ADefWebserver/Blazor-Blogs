@@ -239,6 +239,7 @@ namespace BlazorBlogs.Data
                     .HasMaxLength(4000);
 
                 entity.Property(e => e.OriginalFileName).HasMaxLength(260);
+                entity.Property(e => e.Description).HasMaxLength(4000);
                 entity.Property(e => e.Price).HasColumnType("decimal(10,2)");
             });
 
