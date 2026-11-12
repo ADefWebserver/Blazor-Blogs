@@ -12,23 +12,9 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 
 [Read the 10.06.00 release announcement](https://blazorblogs.azurewebsites.net/ViewBlogPost/1014)
 
-![Screenshot](Animation.gif)
-
 ![Blazor Blogs 10.06.00 home page](Docs/screenshots/10.06.00-home.png)
 
 ![Blazor Blogs 10.06.00 downloads page](Docs/screenshots/10.06.00-downloads.png)
-
-![Screenshot](Screenshot001.png)
-
-![Screenshot](Screenshot006.png)
-
-![Screenshot](Screenshot003.png)
-
-![Screenshot](Screenshot004.png)
-
-![Screenshot](Screenshot005.png)
-
-![image](https://github.com/user-attachments/assets/de5a539a-ccde-4430-8ba4-55437b4bbf7e)
 
 ### Features
 
