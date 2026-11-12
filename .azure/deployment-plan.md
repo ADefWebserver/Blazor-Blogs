@@ -1,160 +1,116 @@
-# Blazor Blogs Azure Upgrade Verification Plan
+# Blazor Blogs Production Backup and Deployment Plan
 
-**Status:** Completed - Verification Passed and Resources Deleted
+**Status:** Completed - Deployment Verified
 
 ## 1. Objective
 
-Deploy a previous released version of Blazor Blogs to a temporary, isolated Azure
-App Service and Azure SQL environment in the approved test subscription, deploy
-the current workspace version over it, verify the upgrade preserves application
-data and behavior, and then delete the dedicated temporary resource group.
+Create a recoverable backup of the existing production Azure App Service deployment,
+then deploy the current workspace release with no destructive site cleanup.
 
-## 2. Scope
+## 2. Azure Target
 
-- Prepare temporary Azure infrastructure with Infrastructure as Code.
-- Deploy the prior released GitHub version.
-- Initialize version `09.00.00`, create an administrator and a uniquely named
-  upgrade-verification post/category.
-- Deploy the current workspace version in place.
-- Authenticate as administrator, run the guided upgrade, and verify database
-  version `10.05.00`, preserved login/content, and core application routes.
-- Delete only the dedicated temporary resource group after verification.
-- Excluded: Stripe payment execution and Google login.
+- Subscription: Existing production subscription
+- Tenant: Existing production tenant
+- Resource group: Existing production resource group
+- App Service: Existing production app
+- Location: Existing production region
+- Current SKU: Production App Service tier
+- Current runtime: Windows, .NET 9
+- Current endpoint: Existing public production endpoint
 
-## 3. Azure Context
+## 3. Scope
 
-- Subscription: redacted.
-- Region: West US 3 (`westus3`).
-- Isolation: Dedicated temporary resource group.
-- Destructive scope explicitly requested by user: delete the temporary website
-  and its resource group after verification.
+- Verify the authenticated Azure context and target resource.
+- Build and test the current workspace release.
+- Capture a local recovery package and a point-in-time copy of production
+  application content and configuration required for rollback.
+- Confirm the production database is protected independently.
+- Publish a self-contained Windows x64 package and deploy it with `--clean false`.
+- Verify the production endpoint and application behavior after deployment.
+- Excluded: infrastructure replacement, resource-group deletion, database reset,
+  schema rollback, and deletion of user content.
 
-## 4. Architecture
+## 4. Backup and Rollback
 
-- Azure App Service plan: B1, Linux or Windows-compatible deployment for the
-  Blazor Server app, HTTPS-only, TLS 1.2+, Always On, no client affinity
-  requirement.
-- Azure SQL logical server and Basic database with Entra-only authentication.
-- User-assigned managed identity used by the App Service and configured as the
-  SQL Entra administrator. No SQL administrator login/password will be
-  generated.
-- Connection string uses `Active Directory Managed Identity` and the identity
-  client ID.
-- Persistent user content under `%HOME%\data\BlazorBlogs`; ZIP deployment keeps
-  existing files.
-- Bicep under `infra/upgrade-test/`; resource naming includes a test suffix.
+- Preserve the production site package as a timestamped rollback artifact.
+- Preserve the live `site\wwwroot` tree, which contains the legacy persistent user
+  content because this production app does not define `Storage__UserContentPath`.
+- Confirm a database restore point or documented database backup before upload.
+- Deploy with ZIP deployment and `--clean false`; if verification fails, redeploy the
+  captured rollback package and verify again.
 
-## 5. Analysis and Decisions
+## 5. Deployment Recipe
 
-- Previous version: GitHub release/tag `09.00.00`, targeting .NET 9.
-- Current version: workspace version `10.05.00`, targeting .NET 11.
-- Upgrade path: current install wizard executes scripts `10.00.00.sql` through
-  `10.05.00.sql` in order against the existing `09.00.00` database.
-- Deployment recipe: Bicep infrastructure plus local `dotnet publish` ZIP
-  deployment with Azure CLI; each App Service deployment is validated before
-  code deployment.
-- Policy review: only the subscription's Defender for Cloud audit initiative is
-  assigned; no deny policy blocks the proposed resources.
-- Region/quota: B1 is available in West US 3; Azure SQL Basic is `Available` there.
-  App Service plan usage reports no hard limit. SQL capability output confirms
-  provisioning availability.
+- Local `dotnet publish` in `Release` mode with the existing
+  `deploy/Deploy-Website.ps1` safeguards.
+- Azure App Service ZIP deployment to the existing production resource.
+- No Bicep or ARM infrastructure modification is planned.
 
-## 5.1 Verification Procedure
-
-1. Export and build tag `09.00.00` without modifying the current checkout.
-2. Provision temporary Bicep infrastructure with a deployment what-if preview.
-3. Deploy the `09.00.00` publish ZIP.
-4. Complete initial schema setup and create the administrator through the
-   supported install wizard.
-5. Create a uniquely named post/category and confirm schema version `09.00.00`.
-6. Deploy the current workspace publish ZIP to the same App Service without
-   deleting existing user content.
-7. Sign in, follow `/installwizard/UPGRADE`, and complete the guided migration.
-8. Confirm schema version `10.05.00` and preservation of the administrator,
-   post, category, profile, settings, RSS, and download surfaces.
-9. Confirm temporary resources in the dedicated resource group, then delete that
-   resource group and verify it no longer exists.
-
-## 6. Execution Gates
-
-1. Obtain user approval before provisioning.
-2. Generate and validate infrastructure.
-3. Invoke `azure-validate` and record proof in this plan.
-4. Change plan status only when validation completes.
-5. Deploy prior version, create verification data, and verify baseline.
-6. Deploy current version in place and verify upgrade.
-7. Delete only the dedicated temporary resource group and verify deletion.
+## 6. Validation and Execution Gates
 
 ### All validation checks pass
 
-- [x] 1. Core Validation: CLI, auth, Bicep build, deployment validation, and
-  resource-group what-if.
-- [x] 2. Bicep linting.
-- [x] 3. Azure Policy validation.
+- [x] 1. Core Validation (CLI, auth, build, package safety, target App Service).
+- [x] 2. Docker Build (not applicable; the App Service deployment is self-contained).
+- [x] 3. Azure Policy Validation.
 
-## Role Assignment Verification
-
-- Status: Verified.
-- Identities checked: `user-assigned managed identity` assigned to the App
-  Service and configured as the Azure SQL server Entra administrator.
-- Roles confirmed: Azure SQL Entra administrator grants the identity the required
-  server/database data-plane access; no storage, Key Vault, or control-plane
-  runtime access is required by this design.
-- Issues: None. The signed-in deployment principal has `Owner` at the target
-  subscription.
+- [x] Confirm production subscription and App Service target.
+- [x] Confirm current app state, runtime, SKU, slots, and backup capabilities.
+- [x] Confirm database and persistent content backup status.
+- [x] Correct the stale schema-registration test for release `10.06.00`.
+- [x] Run tests and build/publish validation.
+- [x] Obtain deployment approval.
+- [x] Create rollback artifacts and back up production.
+- [x] Deploy the current package.
+- [x] Verify endpoint availability and application health.
+- [x] Record rollback and verification evidence.
 
 ## 7. Validation Proof
 
-- 2026-11-11: `Bicep-build_bicep` completed successfully for
-  `infra/upgrade-test/main.bicep`.
-- 2026-11-11: `Bicep-build_bicepparam` completed successfully for
-  `baseline.bicepparam` and `current.bicepparam`.
-- 2026-11-11: release `09.00.00` published successfully to a temporary ZIP
-  package from an isolated `git archive`.
-- 2026-11-11: current workspace version `10.05.00` published successfully to a
-  temporary ZIP package; publish output contains no private user content.
-- 2026-11-11: `dotnet test ... --no-restore` passed 5/5 tests.
-- 2026-11-11: `dotnet build BlazorBlogs.sln -c Release --no-restore`
-  succeeded with 0 warnings and 0 errors.
-- 2026-11-11: subscription policy review found only the Defender for Cloud audit
-  initiative and no blocking deny assignment.
-- 2026-11-11: App Service B1 and Azure SQL Basic are available in `westus3`;
-  resource provider registrations are present and App Service quota is
-  unrestricted.
-- 2026-11-11: `validate-deployment.ps1` completed with `OVERALL: PASS`;
-  what-if reported 12 creates, 0 modifies, and 0 deletes.
-- 2026-11-11: `az bicep lint` completed with no lint errors.
-- 2026-11-11: static role review passed; the managed identity is the Entra-only
-  SQL administrator and the deployment principal has subscription `Owner`.
-- 2026-11-11: baseline infrastructure deployment completed successfully in a
-  dedicated temporary resource group.
-- 2026-11-11: release `09.00.00` initialized successfully. The administrator,
-  post `Azure Upgrade Baseline 09.00.00`, category
-  `Upgrade Baseline Category`, and post/category association were persisted.
-- 2026-11-11: current infrastructure deployment and .NET 11 runtime update
-  completed successfully. The initial framework-dependent package returned
-  500.31 because the worker did not provide the .NET 11 shared runtime; a
-  self-contained `win-x64` package recovered the deployment on the same site.
-- 2026-11-11: guided upgrade completed from schema version `09.00.00` to
-  `10.05.00`.
-- 2026-11-11: post content, category/filter assignment, administrator login,
-  settings, administration routes, downloads view, purchases view, logs,
-  account pages, and RSS all passed after upgrade. Every checked route returned
-  HTTP 200; Stripe payment execution and Google login were not exercised.
-- 2026-11-11: root health endpoint returned HTTP 200. `/health` and `/alive`
-  return 404 in the current production configuration, so root-route health was
-  used for the final verification.
-- 2026-11-11: live identity verification passed. The web app's user-assigned
-  identity principal ID exactly matched the Azure SQL Entra administrator SID,
-  Entra-only authentication was enabled, and no unrelated Azure RBAC roles were
-  required.
-- 2026-11-11: the dedicated temporary resource group was deleted successfully;
-  `az group exists` returned `false`.
+- 2026-11-11: Azure authentication selected the approved production tenant and
+  subscription.
+- 2026-11-11: The production App Service is Running; HTTPS-only and Always On are
+  enabled.
+- 2026-11-11: No deployment slots or configured App Service backup schedules were
+  found.
+- 2026-11-11: Current production root endpoint returned HTTP 200. The production
+  runtime reports .NET 9 and no `Storage__UserContentPath` override, so rollback
+  must include the live site files.
+- 2026-11-11: Release build succeeded. Tests reported 4/5 passing because the
+  schema-registration test still expects `10.05.00` while the app and complete
+  `10.06.00` script registration target `10.06.00`.
+- 2026-11-11: Updated the schema-registration test to assert version `10.06.00`.
+  All 5/5 tests then passed. The Release build completed with 0 errors, and the
+  self-contained `win-x64` publish succeeded with the protected-content guard
+  finding no uploaded/private files in the package.
+- 2026-11-11: Policy review found only the inherited region restriction, MFA write/
+  delete enforcement, and Defender for Cloud audit policies; none blocks a West US
+  code-only ZIP deployment.
+- 2026-11-11: Core validation passed for the code-only recipe: Azure CLI 2.84.0
+  authenticated to the approved tenant and subscription, the target App Service was
+  resolved and healthy, 5/5 tests passed, Release build completed, and the
+  self-contained `win-x64` publish passed the protected-content check. No
+  infrastructure template is changed, so ARM/Bicep deployment validation is not
+  applicable.
+- 2026-11-11: Captured and hash-verified a temporary live-site rollback archive;
+  the archive was deleted after deployment.
+- 2026-11-11: Verified the production database was Online and exported a
+  hash-verified temporary BACPAC; the archive was deleted after deployment.
+- 2026-11-11: Deployed the Release self-contained `win-x64` package with
+  `--clean false`; the OneDeploy deployment completed successfully.
+- 2026-11-11: Restored the legacy connection string into
+  `appsettings.Local.json`, applied registered schema scripts `10.00.00` through
+  `10.06.00` after the pre-upgrade BACPAC, and verified database version
+  `10.06.00`.
+- 2026-11-11: Verified the site is Running and `/`, `/api/RSSFeed/Rss`,
+  `/Account/Login`, and `/filedownloads` all returned HTTP 200. Database counts
+  remained 10 blogs, 4 categories, 1 file, and 666 users.
+- 2026-11-11: Restored 2 legacy `wwwroot/files` entries omitted by the incremental
+  deployment. Final byte-for-byte checks verified 5 uploads, 174 blog files, and
+  2 downloadable files with 0 missing and 0 changed.
 
-### Live Role Verification
+## Role Assignment Verification
 
-- Status: Pass.
-- Identity: temporary managed identity name redacted.
-- SQL administrator SID matched the web app identity principal ID exactly.
-- Azure SQL Entra-only authentication: Enabled.
-- Unrelated Azure RBAC assignments: 0 at the SQL server scope.
+- Status: Not applicable to this code-only deployment.
+- The deployment changes no identities or RBAC assignments. Existing production
+  application configuration and database access remain unchanged.

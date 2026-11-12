@@ -27,8 +27,8 @@ public sealed class SchemaRegistrationTests
         var projectText = File.ReadAllText(projectPath);
         var runnerText = File.ReadAllText(runnerPath);
 
-        Assert.Contains("const string CurrentVersion = \"10.05.00\"", File.ReadAllText(layoutPath));
-        foreach (var version in new[] { "10.00.00", "10.01.00", "10.02.00", "10.03.00", "10.04.00", "10.05.00" })
+        Assert.Contains("const string CurrentVersion = \"10.06.00\"", File.ReadAllText(layoutPath));
+        foreach (var version in new[] { "10.00.00", "10.01.00", "10.02.00", "10.03.00", "10.04.00", "10.05.00", "10.06.00" })
         {
             Assert.True(File.Exists(Path.Combine(root, "BlazorBlogs", "SQLScripts", $"{version}.sql")));
             Assert.Contains(version, runnerText);

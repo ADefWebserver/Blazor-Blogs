@@ -8,8 +8,15 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 ## Live example site: https://blazorblogs.azurewebsites.net
 #### Also see: [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 
+## Blazor Blogs 10.06.00
+
+[Read the 10.06.00 release announcement](https://blazorblogs.azurewebsites.net/ViewBlogPost/1014)
 
 ![Screenshot](Animation.gif)
+
+![Blazor Blogs 10.06.00 home page](Docs/screenshots/10.06.00-home.png)
+
+![Blazor Blogs 10.06.00 downloads page](Docs/screenshots/10.06.00-downloads.png)
 
 ![Screenshot](Screenshot001.png)
 
@@ -25,17 +32,35 @@ See: [Installing Blazor-Blogs on Microsoft Azure (Deploy To Azure Button Method)
 
 ### Features
 
-* Supports unlimited Bloggers
-* Rich Text Editor with image uploads 
-* [Open Live Writer and Windows Live Writer support](https://blazorblogs.azurewebsites.net/ViewBlogPost/1005)
-* [Disqus integration for Blog post comments](https://blazorblogs.azurewebsites.net/ViewBlogPost/1004)
-* User Administration and role management
-* User Registration with Email Verification and Password Resets
-* File Download Page
-* Custom Privacy Statement and Terms Of Use
-* Dynamic Header and Logo
-* Unlimited Tags for Blog Posts
-* RSS Feeds
+#### 10.06.00 highlights
+
+* Upgraded to .NET 11 with Aspire-based local development and Azure deployment.
+* Responsive blog, article, administration, account, newsletter, and download pages.
+* Search and category filters, configurable accent colors, custom header content,
+  dynamic branding, and locally hosted variable fonts.
+* Radzen HTML editing for rich posts, summaries, newsletters, and site headers.
+* Google sign-in configured from the administration settings.
+* Self-service newsletter subscriptions, preferences, unsubscribe/resubscribe, and
+  resumable campaign delivery.
+* Free and paid downloads with protected files, Stripe Checkout, guest purchases,
+  Stripe Tax, purchase history, refunds, and download-link resend support.
+* 10.00.00 through 10.06.00 database scripts, including newsletter, Stripe,
+  appearance, and file-description updates.
+* Safe connection-string migration to `appsettings.Local.json`, incremental schema
+  upgrades, and persistent user-content paths.
+* Deployment scripts, Aspire infrastructure, CI, and focused automated tests.
+
+#### Core capabilities
+
+* Supports unlimited bloggers, posts, tags, and categories.
+* Rich text editing with image uploads.
+* [Open Live Writer and Windows Live Writer support](https://blazorblogs.azurewebsites.net/ViewBlogPost/1005).
+* [Disqus integration for blog comments](https://blazorblogs.azurewebsites.net/ViewBlogPost/1004).
+* User administration, roles, registration, email verification, account recovery,
+  and account lockout.
+* Custom privacy, terms, logos, site URLs, application headers, and accent colors.
+* Downloads, purchases, newsletters, RSS feeds, application logs, and DotNetNuke
+  blog import.
 
 ### Installing
 
@@ -107,10 +132,10 @@ published package is uploaded, the script refuses content under `wwwroot/uploads
 `wwwroot/blogs`, `wwwroot/files`, or `PrivateFiles`. Azure zip deployment uses
 `--clean false`, so user content already present in the site folder is not wiped.
 
-> Live-Azure proof remains required: no Azure resources were provisioned while
-> implementing this deployment. A throw-away resource group must still verify the
-> Windows .NET 11 runtime, UAMI-to-Azure-SQL login, repeat deployment, wizard flow,
-> byte-for-byte user-content preservation, and rollback.
+The Windows .NET 11 production path, managed-identity SQL design, repeat deployment,
+upgrade wizard, protected user-content preservation, and rollback package flow have
+been verified against a live Azure deployment. Existing installations remain
+responsible for backing up their database and persistent user content.
 
 ### Deploy to Azure button and existing button sites
 
