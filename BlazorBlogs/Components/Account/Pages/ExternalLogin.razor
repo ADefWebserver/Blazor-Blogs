@@ -100,10 +100,14 @@
         var email = externalLoginInfo.Principal.FindFirstValue(ClaimTypes.Email)?.Trim();
         var verifiedValue = externalLoginInfo.Principal
             .FindFirstValue(ExternalAuthOptionsStore.GoogleEmailVerifiedClaim);
-        if (string.IsNullOrWhiteSpace(email) ||
-            !bool.TryParse(verifiedValue, out var emailVerified) ||
-            !emailVerified)
+        var emailVerified = externalLoginInfo.Principal
+            .FindAll(ExternalAuthOptionsStore.GoogleEmailVerifiedClaim)
+            .Any(c => bool.TryParse(c.Value, out var v) && v);
+        if (string.IsNullOrWhiteSpace(email) || !emailVerified)
         {
+            Logger.LogWarning(
+                "Google sign-in rejected: email present {HasEmail}, verified claim {Verified}.",
+                !string.IsNullOrWhiteSpace(email), verifiedValue ?? "(missing)");
             RedirectManager.RedirectToWithStatus(
                 "Account/Login",
                 "Google did not confirm your email address.",

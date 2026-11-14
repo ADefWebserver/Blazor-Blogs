@@ -68,7 +68,11 @@ public sealed class ExternalAuthOptionsStore(
             ? configured.ClientSecret
             : PlaceholderClientSecret;
         options.SaveTokens = false;
+        // Google's v2 userinfo endpoint returns "verified_email"; the v3 / OpenID Connect
+        // endpoint returns "email_verified". Map whichever one is present.
+        options.ClaimActions.Remove(GoogleEmailVerifiedClaim);
         options.ClaimActions.MapJsonKey(GoogleEmailVerifiedClaim, "verified_email");
+        options.ClaimActions.MapJsonKey(GoogleEmailVerifiedClaim, "email_verified");
         options.Events.OnRedirectToAuthorizationEndpoint = context =>
         {
             context.Response.Redirect(
