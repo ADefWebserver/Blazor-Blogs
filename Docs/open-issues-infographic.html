@@ -1,0 +1,556 @@
+<title>Blazor Blogs 10.06 Issue Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one long column of numbered plan sections, each a band with a diagram or grid; issue colors thread through every section */
+:root{
+  --bg:#f5f7f8; --panel:#ffffff; --fg:#17232b; --muted:#5a6b75; --line:#d6dee2; --soft:#eaf0f2;
+  --i55:#2f6fd6; --i49:#c17a0a; --i43:#7a4cc9; --ok:#2e8a57; --warn:#c17a0a; --bad:#c23b3b; --accent:#0f7c86;
+  --i55s:#e3edfc; --i49s:#fbefd9; --i43s:#eee6fa; --oks:#e0f2e8; --bads:#f9e2e2;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f171c; --panel:#162229; --fg:#e4ecef; --muted:#98aab3; --line:#2a3a43; --soft:#1c2b33;
+  --i55:#6ea2f5; --i49:#e8a83c; --i43:#a988ea; --ok:#5cc28a; --warn:#e8a83c; --bad:#ec6d6d; --accent:#3fb7c2;
+  --i55s:#1a2c47; --i49s:#3a2c12; --i43s:#2b2143; --oks:#173327; --bads:#3d1d1d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f171c; --panel:#162229; --fg:#e4ecef; --muted:#98aab3; --line:#2a3a43; --soft:#1c2b33;
+  --i55:#6ea2f5; --i49:#e8a83c; --i43:#a988ea; --ok:#5cc28a; --warn:#e8a83c; --bad:#ec6d6d; --accent:#3fb7c2;
+  --i55s:#1a2c47; --i49s:#3a2c12; --i43s:#2b2143; --oks:#173327; --bads:#3d1d1d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(28px,4.5vw,44px)}
+h2{font-size:22px;display:flex;gap:12px;align-items:baseline}
+h2 .n{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:500}
+h3{font-size:16px}
+p{margin:0}
+.muted{color:var(--muted)}
+.mono,code{font-family:var(--mono);font-size:.88em}
+code{background:var(--soft);padding:1px 5px;border-radius:4px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:18px}
+.label{font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.scroll{overflow-x:auto}
+.pill{display:inline-block;font:500 11px/1 var(--mono);padding:4px 7px;border-radius:99px;white-space:nowrap}
+.p55{background:var(--i55s);color:var(--i55)} .p49{background:var(--i49s);color:var(--i49)} .p43{background:var(--i43s);color:var(--i43)}
+.pall{background:var(--soft);color:var(--accent)} .pok{background:var(--oks);color:var(--ok)} .pbad{background:var(--bads);color:var(--bad)}
+/* hero */
+header{display:flex;flex-direction:column;gap:16px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px}
+.meta b{font-family:var(--mono);font-weight:500;color:var(--accent)}
+.issue{border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:10px;border:1px solid var(--line);background:var(--panel)}
+.issue .num{font:700 34px/1 var(--display)}
+.i55 .num{color:var(--i55)} .i49 .num{color:var(--i49)} .i43 .num{color:var(--i43)}
+.i55{border-top:4px solid var(--i55)} .i49{border-top:4px solid var(--i49)} .i43{border-top:4px solid var(--i43)}
+.issue ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--muted)}
+/* goals */
+.goal{display:flex;gap:10px;align-items:flex-start;font-size:13.5px}
+.goal b{font-family:var(--mono);color:var(--accent);min-width:26px}
+/* decisions */
+.dec{border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.dec .top{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.dec .id{font:600 13px var(--mono)}
+.dec .rej{color:var(--muted);font-size:12px}
+.dec .rej s{color:var(--bad)}
+/* chains */
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chain .step{padding:8px 12px;border-radius:8px;background:var(--soft);font-size:13px;border:1px solid var(--line)}
+.chain .step.first{background:var(--i55s);border-color:var(--i55);color:var(--fg)}
+.chain .arr{color:var(--muted);font-family:var(--mono)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+td code{white-space:nowrap}
+/* limits bars */
+.limit{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;font-size:13px}
+.bar{height:10px;border-radius:5px;background:var(--soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--i43)}
+.limit .v{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.tree{font:13px/1.7 var(--mono);background:var(--soft);border-radius:8px;padding:14px 16px;white-space:pre}
+.reject{display:flex;flex-wrap:wrap;gap:6px}
+.reject span{font:12px var(--mono);padding:3px 8px;border-radius:5px;background:var(--bads);color:var(--bad)}
+.allow span{background:var(--oks);color:var(--ok)}
+svg text{font-family:var(--body);fill:var(--fg)}
+svg .sm{font-size:11px;fill:var(--muted)}
+svg .mn{font-family:var(--mono)}
+/* timeline */
+.tl{display:grid;grid-template-columns:repeat(11,minmax(84px,1fr));gap:6px;min-width:980px}
+.tk{border-radius:8px;padding:10px 8px;font-size:12px;display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);background:var(--panel)}
+.tk b{font:600 14px var(--mono)}
+.tk.c55{border-top:4px solid var(--i55)} .tk.c49{border-top:4px solid var(--i49)} .tk.c43{border-top:4px solid var(--i43)} .tk.cdoc{border-top:4px solid var(--muted)} .tk.ctest{border-top:4px solid var(--ok)} .tk.cfin{border-top:4px solid var(--accent);background:var(--soft)}
+.phase{display:grid;grid-template-columns:repeat(11,minmax(84px,1fr));gap:6px;min-width:980px;font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.phase div{border-bottom:2px solid var(--line);padding-bottom:4px}
+/* risk */
+.heat{display:grid;grid-template-columns:90px repeat(3,1fr);gap:6px;min-width:520px}
+.heat .ax{font:500 11px var(--mono);color:var(--muted);text-transform:uppercase;display:flex;align-items:center;justify-content:center;text-align:center}
+.cell{border-radius:8px;min-height:86px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.cell span{font:600 12px var(--mono);background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:3px 6px;cursor:default}
+.h1{background:var(--soft)} .h2{background:var(--i49s)} .h3{background:var(--bads)}
+.risklist{font-size:12.5px;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:4px 18px}
+.risklist div{display:flex;gap:8px}
+.risklist b{font-family:var(--mono);min-width:30px;color:var(--accent)}
+.sec{display:flex;flex-direction:column;gap:4px;font-size:13px;padding:12px;border-left:3px solid var(--bad);background:var(--soft);border-radius:0 8px 8px 0}
+.sec b{font-family:var(--display)}
+.fam{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:8px;font-size:12.5px}
+.fam .lv{display:flex;gap:4px;flex-wrap:wrap}
+.ac{display:flex;gap:10px;font-size:13px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)}
+.ac b{font-family:var(--mono);min-width:40px;color:var(--accent)}
+.ac .pill{margin-left:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.code{font:12.5px/1.6 var(--mono);background:var(--soft);border-radius:8px;padding:12px 14px;overflow-x:auto;white-space:pre}
+@media (max-width:560px){.limit{grid-template-columns:110px 1fr 70px}section{padding:16px}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <span class="label">Blazor Blogs · Draft for implementation · 2026-11-19</span>
+  <h1>Open Issues and Feature Testing Plan</h1>
+  <p class="muted" style="max-width:70ch">Close three open GitHub issues on top of version 10.06.00, then verify every feature advertised in the README through automated tests or a named manual scenario. Delivery profile: <b>Balanced</b>, chosen by the owner.</p>
+  <div class="meta">
+    <span>Source version <b>10.06.00</b></span>
+    <span>Target schema <b>10.08.00</b></span>
+    <span>PR tasks <b>T01–T11</b></span>
+    <span>Decisions <b>14</b></span>
+    <span>Risks <b>14</b></span>
+    <span>Acceptance criteria <b>15</b></span>
+  </div>
+  <div class="grid g3">
+    <div class="issue i55">
+      <div class="num">#55</div><h3>Social preview metadata</h3>
+      <ul><li>Complete Open Graph + X/Twitter tags in the first HTML response</li><li>Today: only <code>og:url</code> and <code>og:title</code></li><li>Pure <code>SocialPreviewBuilder</code>; no schema change</li></ul>
+    </div>
+    <div class="issue i49">
+      <div class="num">#49</div><h3>Optional Google site search</h3>
+      <ul><li>Admin toggle, default <code>False</code></li><li>Native GET form, works without JavaScript</li><li>Fixes today's unencoded <code>window.open</code> URL</li></ul>
+    </div>
+    <div class="issue i43">
+      <div class="num">#43</div><h3>Uploadable theme packages</h3>
+      <ul><li>Upload, preview, activate, deactivate, delete</li><li>CSS + allow-listed static assets only, never code</li><li>Stored in persistent user content, outside publish</li></ul>
+    </div>
+  </div>
+</header>
+
+<section>
+  <h2><span class="n">§2</span>Goals and non-goals</h2>
+  <div class="grid g2">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="label">Goals</span>
+      <div class="goal"><b>G1</b>Close #55, #49, #43 with observable acceptance evidence</div>
+      <div class="goal"><b>G2</b>Preserve fresh installs and upgrades from 10.06.00</div>
+      <div class="goal"><b>G3</b>Each issue independently reviewable and releasable</div>
+      <div class="goal"><b>G4</b>Uploaded themes persist outside the publish package</div>
+      <div class="goal"><b>G5</b>Malicious archives rejected without changing the active theme</div>
+      <div class="goal"><b>G6</b>Preview, search, themes testable without live social networks</div>
+      <div class="goal"><b>G7</b>Every README feature tested by automation or a named manual scenario</div>
+      <div class="goal"><b>G8</b><code>main</code> stays releasable after every merged integration PR</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span class="label">Out of scope</span>
+      <table>
+        <tr><td><span class="pill p43">Themes</span></td><td>Razor, DLLs, components, remote catalogs, per-user or scheduled themes, JavaScript</td></tr>
+        <tr><td><span class="pill p55">Previews</span></td><td>Per-post override fields, authoring UI, guarantees about scraper caches</td></tr>
+        <tr><td><span class="pill p49">Search</span></td><td>A database search engine; indexing private content</td></tr>
+        <tr><td><span class="pill pall">Testing</span></td><td>Counting third-party outages as app bugs; production credentials in tests</td></tr>
+        <tr><td><span class="pill pall">Issues</span></td><td>Anything opened after planning; re-query before T11</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§3</span>Decisions</h2>
+  <div class="legend"><span><span class="pill pok">Owner</span> chosen by the owner during planning</span><span>Others are planner defaults and can be revisited</span></div>
+  <div class="grid g4">
+    <div class="dec"><div class="top"><span class="id">D1</span><span class="pill pok">Owner</span></div>One combined plan for shared settings, schema, layout and CI<div class="rej"><s>Separate documents</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D2</span><span class="pill pok">Owner</span></div>Focused PR stack plus one final cumulative PR<div class="rej"><s>One monolithic PR</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D3</span><span class="pill pok">Owner</span></div>Themes are CSS + static assets, never executable<div class="rej"><s>Razor / DLL plugins</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D4</span><span class="pill pok">Owner</span></div>Image: first post image → logo → default PNG<div class="rej"><s>Logo only; override field</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D5</span></div>Description: summary → post text → app name, max 200 code points<div class="rej"><s>Raw HTML; unlimited</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D6</span></div>Canonical base from <code>SiteUrlService</code>, request base as fallback<div class="rej"><s>NavigationManager.Uri</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D7</span></div>Google search off by default<div class="rej"><s>Always on</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D8</span></div>Plain HTML GET form with computed <code>q</code><div class="rej"><s>window.open with raw string</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D9</span></div>Dedicated admin-only theme controller<div class="rej"><s>Reuse UploadController</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D10</span></div>Themes in persistent user content, served read-only<div class="rej"><s>Tracked wwwroot</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D11</span></div>Upload never activates; activation is a separate step<div class="rej"><s>Activate on upload</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D12</span><span class="pill pok">Owner</span></div>Every feature gets owner + evidence; external ones may be manual<div class="rej"><s>E2E automation for everything</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D13</span></div>Additive versioned SQL scripts, registered in 3 places<div class="rej"><s>EF migrations</s></div></div>
+    <div class="dec"><div class="top"><span class="id">D14</span></div>Theme CSS may reference only manifest-declared relative files<div class="rej"><s>Trust admin CSS fully</s></div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§5.1</span>Component map</h2>
+  <div class="scroll">
+  <svg viewBox="0 0 1100 340" width="100%" style="min-width:820px" role="img" aria-label="Component structure diagram">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+    <g stroke="var(--muted)" stroke-width="1.4" fill="none" marker-end="url(#ar)">
+      <path d="M150,60 H230"/><path d="M370,60 C420,60 420,40 470,40"/><path d="M370,70 C420,70 420,130 470,130"/>
+      <path d="M630,130 H700"/><path d="M630,140 C670,160 670,210 700,210"/>
+      <path d="M840,130 H900" /><path d="M700,290 C650,290 650,60 630,48"/>
+      <path d="M150,290 H230"/><path d="M370,290 H690"/><path d="M370,280 C450,250 820,250 900,145"/>
+      <path d="M150,200 H230"/><path d="M370,200 H470"/><path d="M630,200 C660,200 680,215 700,215"/>
+      <path d="M150,300 C200,330 960,330 980,300"/>
+    </g>
+    <g font-size="13">
+      <rect x="20" y="40" width="130" height="40" rx="8" fill="var(--soft)" stroke="var(--line)"/><text x="85" y="65" text-anchor="middle">Administrator</text>
+      <rect x="230" y="40" width="140" height="40" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="300" y="65" text-anchor="middle">Settings page</text>
+      <rect x="470" y="20" width="160" height="40" rx="8" fill="var(--i49s)" stroke="var(--i49)"/><text x="550" y="45" text-anchor="middle">Site search settings</text>
+      <rect x="470" y="110" width="160" height="40" rx="8" fill="var(--i43s)" stroke="var(--i43)"/><text x="550" y="135" text-anchor="middle">Theme controller</text>
+      <rect x="700" y="110" width="140" height="40" rx="8" fill="var(--i43s)" stroke="var(--i43)"/><text x="770" y="135" text-anchor="middle">ThemePackageService</text>
+      <rect x="900" y="110" width="180" height="40" rx="8" fill="var(--i43s)" stroke="var(--i43)"/><text x="990" y="135" text-anchor="middle">Persistent theme files</text>
+      <rect x="700" y="195" width="160" height="40" rx="8" fill="var(--i43s)" stroke="var(--i43)"/><text x="780" y="220" text-anchor="middle">ThemePackages table</text>
+      <rect x="20" y="180" width="130" height="40" rx="8" fill="var(--soft)" stroke="var(--line)"/><text x="85" y="205" text-anchor="middle">Social crawler</text>
+      <rect x="230" y="180" width="140" height="40" rx="8" fill="var(--i55s)" stroke="var(--i55)"/><text x="300" y="205" text-anchor="middle">Post metadata builder</text>
+      <rect x="470" y="180" width="160" height="40" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="550" y="205" text-anchor="middle">Blog data</text>
+      <rect x="20" y="270" width="130" height="40" rx="8" fill="var(--soft)" stroke="var(--line)"/><text x="85" y="295" text-anchor="middle">Public browser</text>
+      <rect x="230" y="270" width="140" height="40" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="300" y="295" text-anchor="middle">App and layouts</text>
+      <rect x="690" y="270" width="140" height="40" rx="8" fill="var(--panel)" stroke="var(--line)" opacity="0"/>
+      <rect x="980" y="270" width="100" height="40" rx="8" fill="var(--i49s)" stroke="var(--i49)"/><text x="1030" y="295" text-anchor="middle">Google</text>
+    </g>
+    <text x="20" y="20" class="sm">Color marks which issue owns each component: blue #55, amber #49, violet #43</text>
+  </svg>
+  </div>
+</section>
+
+<section style="border-top:4px solid var(--i55)">
+  <h2><span class="n">§5.2</span>#55 · Social preview metadata</h2>
+  <div class="grid g2">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div><span class="label">Image fallback chain (D4)</span></div>
+      <div class="chain"><span class="step first">First safe <code>&lt;img&gt;</code> in post</span><span class="arr">→</span><span class="step"><code>ApplicationLogo</code></span><span class="arr">→</span><span class="step"><code>social-preview.png</code></span></div>
+      <div><span class="label">Description fallback chain (D5)</span></div>
+      <div class="chain"><span class="step first">Normalized <code>BlogSummary</code></span><span class="arr">→</span><span class="step">Text from <code>BlogContent</code></span><span class="arr">→</span><span class="step"><code>ApplicationName</code></span></div>
+      <p class="muted" style="font-size:13px">Truncated to <b>200 Unicode code points</b>, HTML stripped and entities decoded.</p>
+      <div><span class="label">Image URL filter</span></div>
+      <div class="reject allow"><span>absolute http(s)</span><span>app-relative under site base</span></div>
+      <div class="reject"><span>javascript:</span><span>data:</span><span>//protocol-relative</span><span>#fragment</span><span>malformed</span><span>server-side fetch</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span class="label">Tags emitted for a valid post</span>
+      <table>
+        <tr><th>Tag</th><th>Source</th></tr>
+        <tr><td><code>title</code> · <code>og:title</code> · <code>twitter:title</code></td><td><code>BlogTitle</code> as text</td></tr>
+        <tr><td>canonical · <code>og:url</code></td><td><code>baseUrl + ViewBlogPost/{id}</code></td></tr>
+        <tr><td><code>og:type</code></td><td><code>article</code></td></tr>
+        <tr><td><code>og:site_name</code></td><td><code>ApplicationName</code></td></tr>
+        <tr><td>description fields</td><td>description chain</td></tr>
+        <tr><td>image fields</td><td>image chain</td></tr>
+        <tr><td><code>twitter:card</code></td><td><code>summary_large_image</code> with image, else <code>summary</code></td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="scroll">
+  <svg viewBox="0 0 1100 200" width="100%" style="min-width:820px" role="img" aria-label="Social preview request sequence">
+    <g font-size="13" text-anchor="middle">
+      <text x="80" y="20" font-weight="600">Crawler</text><text x="280" y="20" font-weight="600">Post page</text><text x="500" y="20" font-weight="600">BlogsService</text><text x="720" y="20" font-weight="600">SiteUrlService</text><text x="950" y="20" font-weight="600">SocialPreviewBuilder</text>
+    </g>
+    <g stroke="var(--line)" stroke-dasharray="4 4"><path d="M80,30V190"/><path d="M280,30V190"/><path d="M500,30V190"/><path d="M720,30V190"/><path d="M950,30V190"/></g>
+    <g stroke="var(--i55)" stroke-width="1.5" fill="none" marker-end="url(#ar)">
+      <path d="M80,50H275"/><path d="M280,75H495"/><path d="M280,110H715"/><path d="M280,140H945"/>
+    </g>
+    <g stroke="var(--ok)" stroke-width="1.5" stroke-dasharray="5 3" fill="none" marker-end="url(#ar)"><path d="M950,160H285"/><path d="M280,180H85"/></g>
+    <g font-size="12">
+      <text x="175" y="44" text-anchor="middle">GET /ViewBlogPost/{id}</text>
+      <text x="390" y="69" text-anchor="middle">GetBlog(id) → BlogDTO or none</text>
+      <text x="500" y="104" text-anchor="middle">GetBaseUrlAsync(fallback)</text>
+      <text x="610" y="134" text-anchor="middle">BuildPostAsync(blog, base)</text>
+      <text x="610" y="155" text-anchor="middle" class="sm">escaped, normalized metadata</text>
+      <text x="180" y="175" text-anchor="middle" class="sm">first HTML response with all tags</text>
+    </g>
+  </svg>
+  </div>
+  <p class="muted" style="font-size:13px">If the post is missing or the ID is invalid, the page returns not-found metadata and status. No failure path may emit scriptable content, stale tags from a previous post, or a blank canonical URL.</p>
+</section>
+
+<section style="border-top:4px solid var(--i49)">
+  <h2><span class="n">§5.3</span>#49 · Optional Google site search</h2>
+  <div class="grid g2">
+    <div class="scroll">
+      <svg viewBox="0 0 520 330" width="100%" style="min-width:460px" role="img" aria-label="Search flow">
+        <g font-size="12.5" text-anchor="middle">
+          <rect x="160" y="8" width="200" height="34" rx="8" fill="var(--soft)" stroke="var(--line)"/><text x="260" y="30">Read GoogleSiteSearchEnabled</text>
+          <rect x="190" y="62" width="140" height="34" rx="17" fill="var(--i49s)" stroke="var(--i49)"/><text x="260" y="84">Enabled?</text>
+          <rect x="10" y="62" width="130" height="34" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="75" y="84">No form rendered</text>
+          <rect x="160" y="116" width="200" height="34" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="260" y="138">Labeled GET form</text>
+          <rect x="190" y="170" width="140" height="34" rx="17" fill="var(--i49s)" stroke="var(--i49)"/><text x="260" y="192">Terms nonblank?</text>
+          <rect x="360" y="170" width="150" height="34" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="435" y="192">Accessible validation</text>
+          <rect x="140" y="224" width="240" height="34" rx="8" fill="var(--panel)" stroke="var(--line)"/><text x="260" y="246">site: from SiteBaseUrl or origin</text>
+          <rect x="140" y="278" width="240" height="34" rx="8" fill="var(--i49s)" stroke="var(--i49)"/><text x="260" y="300">Encode once → google.com/search</text>
+        </g>
+        <g stroke="var(--muted)" stroke-width="1.3" fill="none" marker-end="url(#ar)">
+          <path d="M260,42V60"/><path d="M190,79H142"/><path d="M260,96V114"/><path d="M260,150V168"/><path d="M330,187H358"/><path d="M260,204V222"/><path d="M260,258V276"/>
+        </g>
+        <g class="sm" font-size="11"><text x="166" y="74">no</text><text x="266" y="110">yes</text><text x="336" y="182">no</text><text x="266" y="218">yes</text></g>
+      </svg>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="label">Encoding example</span>
+      <div class="code">Terms:       garden &amp; "new year"
+SiteBaseUrl: https://&lt;site&gt;/
+
+q=garden+%26+%22new+year%22+site%3A&lt;site&gt;</div>
+      <span class="label">Rules</span>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px;display:flex;flex-direction:column;gap:4px">
+        <li>Exactly one trusted <code>site:</code> clause; never trust one typed by the visitor</li>
+        <li>Bound input is never mutated, so repeat searches don't stack clauses</li>
+        <li>Works by keyboard and with JavaScript off; Back button behaves</li>
+        <li>Only public search terms go to Google: no identity, cookies, or email</li>
+        <li>Category filter stays separate</li>
+      </ul>
+      <p class="muted" style="font-size:13px">New setting via <code>10.07.00.sql</code>, guarded insert of <code>GoogleSiteSearchEnabled = False</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section style="border-top:4px solid var(--i43)">
+  <h2><span class="n">§5.4</span>#43 · Theme packages</h2>
+  <div class="grid g2">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="label">Archive layout</span>
+      <div class="tree">theme.json        <span class="muted">manifest ≤ 32 KiB</span>
+theme.css         <span class="muted">UTF-8 ≤ 1 MiB</span>
+assets/
+  example.webp    <span class="muted">declared in manifest</span></div>
+      <span class="label">Stored at</span>
+      <div class="code">&lt;Storage:UserContentPath&gt;/public/themes/&lt;slug&gt;/&lt;package-id&gt;/</div>
+      <span class="label">Allowed asset types</span>
+      <div class="reject allow"><span>.avif</span><span>.gif</span><span>.jpeg</span><span>.jpg</span><span>.png</span><span>.webp</span><span>.woff</span><span>.woff2</span></div>
+      <span class="label">Rejected</span>
+      <div class="reject"><span>.svg</span><span>@import</span><span>remote url()</span><span>data:</span><span>javascript:</span><span>&lt;style&gt; / HTML / JS</span><span>..</span><span>absolute path</span><span>backslash</span><span>drive prefix</span><span>symlink</span><span>device name</span><span>duplicate path</span><span>DLL / EXE</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span class="label">Size limits</span>
+      <div class="limit"><span>Compressed archive</span><div class="bar"><i style="width:50%"></i></div><span class="v">10 MiB</span></div>
+      <div class="limit"><span>Expanded total</span><div class="bar"><i style="width:100%"></i></div><span class="v">20 MiB</span></div>
+      <div class="limit"><span>theme.css</span><div class="bar"><i style="width:5%"></i></div><span class="v">1 MiB</span></div>
+      <div class="limit"><span>theme.json</span><div class="bar"><i style="width:1%"></i></div><span class="v">32 KiB</span></div>
+      <div class="limit"><span>Entries</span><div class="bar"><i style="width:100%;background:var(--accent)"></i></div><span class="v">250 max</span></div>
+      <p class="muted" style="font-size:12px">Bars share one scale against the 20 MiB expanded ceiling; entries are a count.</p>
+      <span class="label">Manifest fields</span>
+      <table>
+        <tr><td><code>slug</code></td><td><code>^[a-z0-9]+(?:-[a-z0-9]+)*$</code>, ≤ 50 chars</td></tr>
+        <tr><td><code>version</code></td><td><code>major.minor.patch</code>; slug + version unique</td></tr>
+        <tr><td><code>stylesheet</code></td><td><code>theme.css</code></td></tr>
+        <tr><td><code>assets</code></td><td>list of relative asset paths</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <span class="label">Package lifecycle</span>
+  <div class="scroll">
+  <svg viewBox="0 0 1100 230" width="100%" style="min-width:860px" role="img" aria-label="Theme lifecycle states">
+    <g font-size="13" text-anchor="middle">
+      <rect x="10" y="80" width="130" height="50" rx="10" fill="var(--soft)" stroke="var(--line)"/><text x="75" y="102">Archive</text><text x="75" y="120" class="sm">selected by admin</text>
+      <rect x="200" y="80" width="150" height="50" rx="10" fill="var(--i43s)" stroke="var(--i43)"/><text x="275" y="102">Validate</text><text x="275" y="120" class="sm">limits, paths, CSS</text>
+      <rect x="200" y="170" width="150" height="46" rx="10" fill="var(--bads)" stroke="var(--bad)"/><text x="275" y="190">400 rejected</text><text x="275" y="206" class="sm">no partial files</text>
+      <rect x="410" y="80" width="160" height="50" rx="10" fill="var(--i43s)" stroke="var(--i43)"/><text x="490" y="102">Stage → rename</text><text x="490" y="120" class="sm">temp folder → package ID</text>
+      <rect x="630" y="80" width="140" height="50" rx="10" fill="var(--panel)" stroke="var(--i43)" stroke-width="2"/><text x="700" y="102" font-weight="600">Inactive</text><text x="700" y="120" class="sm">201, row inserted</text>
+      <rect x="860" y="20" width="140" height="50" rx="10" fill="var(--oks)" stroke="var(--ok)" stroke-width="2"/><text x="930" y="42" font-weight="600">Active</text><text x="930" y="60" class="sm">ActiveThemePackageId</text>
+      <rect x="860" y="150" width="140" height="50" rx="10" fill="var(--soft)" stroke="var(--line)"/><text x="930" y="172">Deleted</text><text x="930" y="190" class="sm">204</text>
+      <rect x="410" y="170" width="160" height="46" rx="10" fill="var(--bads)" stroke="var(--bad)"/><text x="490" y="190">DB insert fails</text><text x="490" y="206" class="sm">folder removed</text>
+      <rect x="630" y="4" width="160" height="40" rx="10" fill="var(--soft)" stroke="var(--line)" stroke-dasharray="4 3"/><text x="710" y="22">Preview</text><text x="710" y="37" class="sm">admin only, one request</text>
+    </g>
+    <g stroke="var(--muted)" stroke-width="1.4" fill="none" marker-end="url(#ar)">
+      <path d="M140,105H198"/><path d="M275,130V168"/><path d="M350,105H408"/><path d="M490,130V168"/><path d="M570,105H628"/>
+      <path d="M770,95 C810,80 820,50 858,45"/><path d="M860,58 C820,85 810,105 772,112"/>
+      <path d="M770,118 C810,140 830,170 858,175"/><path d="M700,80V46"/>
+    </g>
+    <g font-size="11.5" class="sm">
+      <text x="800" y="62" text-anchor="middle">activate</text><text x="822" y="104" text-anchor="middle">deactivate</text><text x="806" y="168" text-anchor="middle">delete</text>
+      <text x="1010" y="100" text-anchor="start">Delete while active</text><text x="1010" y="116" text-anchor="start" fill="var(--bad)">→ 409 Conflict</text>
+    </g>
+  </svg>
+  </div>
+  <div class="grid g3" style="font-size:13px">
+    <div><b>Fallback.</b> If the active stylesheet goes missing, <code>App.razor</code> uses built-in styles and logs the package ID.</div>
+    <div><b>Reconcile.</b> At startup, orphan folders without a row are deleted after a one-hour grace period, only inside <code>ThemesPath</code>.</div>
+    <div><b>No recreate.</b> A row whose folder is missing stays non-activatable and is reported to the admin.</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§6</span>Contracts: settings, schema, endpoints</h2>
+  <div class="grid g2">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span class="label">Schema timeline</span>
+      <svg viewBox="0 0 500 120" width="100%" role="img" aria-label="Schema versions">
+        <path d="M40,50H460" stroke="var(--line)" stroke-width="3"/>
+        <circle cx="60" cy="50" r="10" fill="var(--muted)"/><circle cx="250" cy="50" r="10" fill="var(--i49)"/><circle cx="440" cy="50" r="10" fill="var(--i43)"/>
+        <g text-anchor="middle" font-size="13">
+          <text x="60" y="28" class="mn" font-weight="600">10.06.00</text><text x="60" y="80" class="sm">current</text>
+          <text x="250" y="28" class="mn" font-weight="600">10.07.00</text><text x="250" y="80" class="sm">GoogleSiteSearchEnabled</text>
+          <text x="440" y="28" class="mn" font-weight="600">10.08.00</text><text x="440" y="80" class="sm">ThemePackages table</text><text x="440" y="96" class="sm">ActiveThemePackageId</text>
+        </g>
+      </svg>
+      <p class="muted" style="font-size:12.5px">Numbers are proposed. If merge order changes, renumber and update all three registration points: script runner, project file, and <code>MainLayout.CurrentVersion</code>.</p>
+      <span class="label">New settings</span>
+      <table>
+        <tr><th>Setting</th><th>Type</th><th>Default</th></tr>
+        <tr><td><code>GoogleSiteSearchEnabled</code></td><td>True / False</td><td><code>False</code></td></tr>
+        <tr><td><code>ActiveThemePackageId</code></td><td>lowercase GUID or empty</td><td><code>""</code></td></tr>
+      </table>
+      <p class="muted" style="font-size:12.5px">Reused: <code>SiteBaseUrl</code>, <code>ApplicationName</code>, <code>ApplicationLogo</code>, <code>Storage:UserContentPath</code>. No new environment keys.</p>
+    </div>
+    <div class="scroll" style="display:flex;flex-direction:column;gap:10px">
+      <span class="label">HTTP routes</span>
+      <table>
+        <tr><th>Method</th><th>Route</th><th>Auth</th><th>Results</th></tr>
+        <tr><td>GET</td><td><code>/ViewBlogPost/{id:int}</code></td><td>anon</td><td>full head metadata</td></tr>
+        <tr><td>GET</td><td><code>/</code> search form</td><td>anon</td><td>to Google</td></tr>
+        <tr><td>GET</td><td><code>/settings/themes/preview/{id}</code></td><td>admin</td><td>404 · 403</td></tr>
+        <tr><td>POST</td><td><code>/api/themes/import</code></td><td>admin + CSRF</td><td>201 · 400 · 413</td></tr>
+        <tr><td>POST</td><td><code>/api/themes/{id}/activate</code></td><td>admin + CSRF</td><td>204 · 404</td></tr>
+        <tr><td>POST</td><td><code>/api/themes/deactivate</code></td><td>admin + CSRF</td><td>204</td></tr>
+        <tr><td>DELETE</td><td><code>/api/themes/{id}</code></td><td>admin + CSRF</td><td>204 · 404 · 409</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§7.1 · §12</span>PR stack: T01 → T11</h2>
+  <div class="legend">
+    <span><i style="background:var(--i55)"></i>#55</span><span><i style="background:var(--i49)"></i>#49</span><span><i style="background:var(--i43)"></i>#43</span><span><i style="background:var(--muted)"></i>Docs</span><span><i style="background:var(--ok)"></i>Testing</span><span><i style="background:var(--accent)"></i>Final PR to main</span>
+  </div>
+  <div class="scroll" style="display:flex;flex-direction:column;gap:6px">
+    <div class="phase"><div style="grid-column:span 4">Issue fixes → integration branch</div><div style="grid-column:span 2">Docs + harness</div><div style="grid-column:span 4">Feature verification</div><div>Ship</div></div>
+    <div class="tl">
+      <div class="tk c55"><b>T01</b>Social preview builder &amp; post metadata</div>
+      <div class="tk c49"><b>T02</b>Optional search + 10.07.00</div>
+      <div class="tk c43"><b>T03</b>Theme storage, registry, validator + 10.08.00</div>
+      <div class="tk c43"><b>T04</b>Theme admin UI &amp; rendering</div>
+      <div class="tk cdoc"><b>T05</b>README &amp; operator contract</div>
+      <div class="tk ctest"><b>T06</b>Regression / SSR / antiforgery harness</div>
+      <div class="tk ctest"><b>T07</b>Create Feature-Test-Matrix.md</div>
+      <div class="tk ctest"><b>T08</b>Public &amp; content browser features</div>
+      <div class="tk ctest"><b>T09</b>Account, local, fake SMTP / gateway</div>
+      <div class="tk ctest"><b>T10</b>External: SMTP, Google, Stripe, Aspire, Azure</div>
+      <div class="tk cfin"><b>T11</b>Re-check issues, cumulative PR to <code>main</code></div>
+    </div>
+  </div>
+  <div class="grid g3" style="font-size:13px">
+    <div><span class="label">Dependencies</span><ul style="margin:6px 0 0;padding-left:18px"><li>T01 and T02 may run in parallel</li><li>T03 must precede T04</li><li>Schema PRs rebase and renumber before merge</li><li>T05 needs T01–T04 behavior</li></ul></div>
+    <div><span class="label">Verification gates</span><ul style="margin:6px 0 0;padding-left:18px"><li>T06 harness before T07 matrix</li><li>T07 buckets rows for T08–T10</li><li>T10 needs owner-provided test accounts or a dated exception</li></ul></div>
+    <div><span class="label">Failure loop</span><ul style="margin:6px 0 0;padding-left:18px"><li>A failure creates a separate focused fix PR</li><li>New issues found at T11 are planned separately</li><li>Cumulative PR can't merge with rows only <span class="pill pbad">Blocked</span></li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§7.5</span>CI gate</h2>
+  <div class="chain">
+    <span class="step">Restore</span><span class="arr">→</span><span class="step">Release build</span><span class="arr">→</span><span class="step">Unit &amp; render tests</span><span class="arr">→</span><span class="step">Schema registration</span><span class="arr">→</span><span class="step">Publish exclusion</span><span class="arr">→</span><span class="step">Aspire graph</span><span class="arr">→</span><span class="step first" style="background:var(--oks);border-color:var(--ok)">Browser &amp; integration matrix</span>
+  </div>
+  <div class="code">dotnet restore BlazorBlogs.sln
+dotnet build BlazorBlogs.sln -c Release --no-restore --nologo
+dotnet test  BlazorBlogs.sln -c Release --no-build --nologo
+dotnet publish BlazorBlogs/BlazorBlogs.csproj -c Release -o &lt;temporary-output&gt;
+aspire publish --apphost BlazorBlogs.AppHost/BlazorBlogs.AppHost.csproj --list-steps --non-interactive
+aspire deploy  --apphost BlazorBlogs.AppHost/BlazorBlogs.AppHost.csproj --list-steps --non-interactive</div>
+</section>
+
+<section>
+  <h2><span class="n">§10.2</span>Feature-wide test matrix</h2>
+  <div class="legend"><span><span class="pill pall">auto</span> unit, render, browser or integration in CI</span><span><span class="pill p49">manual</span> external service, owner-run</span></div>
+  <div class="grid g4">
+    <div class="fam"><b>Install &amp; upgrade</b><span class="muted">Fresh install, upgrade from 10.06.00, failed-script retry, data kept</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T09</span></div></div>
+    <div class="fam"><b>Blogs</b><span class="muted">List/read, paging, CRUD, image upload, authorization</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T08</span></div></div>
+    <div class="fam"><b>Tags &amp; DNN import</b><span class="muted">Category/tag use, sample import, rich content retained</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T08</span></div></div>
+    <div class="fam"><b>Rich editor</b><span class="muted">Summary/content/header/newsletter, image insert, source round trip</span><div class="lv"><span class="pill pall">browser</span><span class="pill pall">T08</span></div></div>
+    <div class="fam"><b>Live Writer / MetaWeblog</b><span class="muted">Endpoint responds; synthetic publish/edit/delete</span><div class="lv"><span class="pill pall">integration</span></div></div>
+    <div class="fam"><b>Comments &amp; analytics</b><span class="muted">Disqus on/off; no third-party call when disabled</span><div class="lv"><span class="pill pall">render</span></div></div>
+    <div class="fam"><b>Identity</b><span class="muted">Register, verify, login, lockout, recovery, roles, user admin</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T09</span></div></div>
+    <div class="fam"><b>Google sign-in</b><span class="muted">Disabled, configured, canceled, link/create, failure</span><div class="lv"><span class="pill p49">manual</span><span class="pill p49">T10</span></div></div>
+    <div class="fam"><b>Search &amp; branding</b><span class="muted">Search on/off, query safety, logo, header, accent, site URL, themes</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T08</span></div></div>
+    <div class="fam"><b>Newsletter</b><span class="muted">Subscribe, confirm, preferences, unsubscribe, campaign resume, SMTP failure</span><div class="lv"><span class="pill pall">fake SMTP</span><span class="pill p49">live SMTP</span></div></div>
+    <div class="fam"><b>Downloads &amp; purchases</b><span class="muted">Free/paid/guest, checkout, webhook, replay, refund, link expiry</span><div class="lv"><span class="pill pall">fake gateway</span><span class="pill p49">Stripe test</span></div></div>
+    <div class="fam"><b>RSS &amp; logs</b><span class="muted">Feed parses; logs admin-only</span><div class="lv"><span class="pill pall">auto</span><span class="pill pall">T08</span></div></div>
+    <div class="fam"><b>User content</b><span class="muted">Default/configured roots, copy without overwrite, survives publish</span><div class="lv"><span class="pill pall">auto</span></div></div>
+    <div class="fam"><b>Local Aspire</b><span class="muted">Fresh <code>aspire run</code>, SQL data persists across restart</span><div class="lv"><span class="pill p49">manual</span><span class="pill p49">T10</span></div></div>
+    <div class="fam"><b>Azure</b><span class="muted">Provision, second deploy, persistent content, rollback package</span><div class="lv"><span class="pill p49">manual</span><span class="pill p49">T10</span></div></div>
+    <div class="fam"><b>Accessibility</b><span class="muted">Keyboard, labels, focus, zoom, 375 px and 1440 px</span><div class="lv"><span class="pill pall">browser</span><span class="pill pall">T08</span></div></div>
+  </div>
+  <p class="muted" style="font-size:13px">Every row records Area, Level, Preconditions, Steps, Expected, Evidence and Owner. The implementing developer owns local and synthetic scenarios; the repository owner owns SMTP, Google, Stripe and cloud runs and reviews the evidence. Missing access means <span class="pill pbad">Blocked</span>, never <span class="pill pok">Pass</span>.</p>
+</section>
+
+<section>
+  <h2><span class="n">§11</span>Risk map</h2>
+  <div class="grid g2">
+    <div class="scroll">
+      <div class="heat">
+        <div></div><div class="ax">Low likelihood</div><div class="ax">Medium</div><div class="ax">High</div>
+        <div class="ax">Critical impact</div><div class="cell h2"></div><div class="cell h3"><span title="Theme upload traversal or code">R5</span></div><div class="cell h3"></div>
+        <div class="ax">High</div><div class="cell h1"></div><div class="cell h2"><span>R1</span><span>R6</span><span>R7</span><span>R8</span></div><div class="cell h3"><span>R11</span></div>
+        <div class="ax">Medium</div><div class="cell h1"><span>R4</span></div><div class="cell h1"><span>R9</span><span>R10</span><span>R13</span><span>R14</span></div><div class="cell h2"><span>R2</span><span>R3</span><span>R12</span></div>
+      </div>
+    </div>
+    <div class="risklist">
+      <div><b>R1</b>HeadOutlet differs between prerender and navigation</div>
+      <div><b>R2</b>Posts without summary or image give weak metadata</div>
+      <div><b>R3</b>Social networks cache old previews</div>
+      <div><b>R4</b>Search leaks privacy or allows injection</div>
+      <div><b>R5</b>Theme upload enables traversal or code execution</div>
+      <div><b>R6</b>Remote CSS url() or SVG exfiltrates data</div>
+      <div><b>R7</b>Theme CSS hides controls</div>
+      <div><b>R8</b>Active package lost after deployment</div>
+      <div><b>R9</b>Theme files and registry diverge</div>
+      <div><b>R10</b>Schema script numbering conflicts</div>
+      <div><b>R11</b>"All features" testing grows without bound</div>
+      <div><b>R12</b>External credentials absent from CI</div>
+      <div><b>R13</b>Cumulative PR hard to review</div>
+      <div><b>R14</b>New issues appear before merge</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§9</span>Security and privacy requirements</h2>
+  <div class="grid g3">
+    <div class="sec"><b>Archive traversal</b>Every entry resolved under a canonical package folder; no absolute, drive, <code>..</code>, backslash, duplicate or symlink entries.</div>
+    <div class="sec"><b>No code execution</b>CSS and static assets only; HTML, Razor, JS, DLL, EXE and content-type mismatches rejected.</div>
+    <div class="sec"><b>CSS privacy</b>No remote <code>url()</code>, so a theme can't fingerprint visitors through a third party.</div>
+    <div class="sec"><b>Upload availability</b>Size, entry and ratio limits enforced during extraction; partial folders deleted on failure.</div>
+    <div class="sec"><b>Path storage</b>Clients send package IDs only; the server computes every physical path.</div>
+    <div class="sec"><b>Admin authorization</b>Page, controller and service all require Administrators; antiforgery validated.</div>
+    <div class="sec"><b>Metadata injection</b>Attributes encoded; summary and content normalized to plain text.</div>
+    <div class="sec"><b>Query injection</b>Query encoded once; visitor-supplied <code>site:</code> never trusted.</div>
+    <div class="sec"><b>No image fetch</b>Social image URLs are built, never fetched or resolved server-side.</div>
+    <div class="sec"><b>Test data</b>Placeholders like <code>&lt;site&gt;</code>; no real emails, tokens, hostnames or IPs committed.</div>
+    <div class="sec"><b>Credentials</b>CI has no real Google, Stripe or SMTP keys; manual runs report pass/fail only.</div>
+    <div class="sec"><b>Active theme failure</b>Integrity verified before activation; prior active setting kept on any failure.</div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="n">§13</span>Acceptance criteria</h2>
+  <div class="grid g2" style="gap:0 28px">
+    <div>
+      <div class="ac"><b>AC1</b>No unplanned issues in scope; #55, #49, #43 closed by the cumulative PR<span class="pill pall">all</span></div>
+      <div class="ac"><b>AC2</b>Crawler GET returns canonical, OG, description and X tags in initial HTML<span class="pill p55">#55</span></div>
+      <div class="ac"><b>AC3</b>Invalid posts leak no exception, stale tags or script<span class="pill p55">#55</span></div>
+      <div class="ac"><b>AC4</b>Search absent when off; no-JS GET form when on<span class="pill p49">#49</span></div>
+      <div class="ac"><b>AC5</b>Delimiters encoded; exactly one trusted <code>site:</code><span class="pill p49">#49</span></div>
+      <div class="ac"><b>AC6</b>Only administrators manage theme packages<span class="pill p43">#43</span></div>
+      <div class="ac"><b>AC7</b>Valid packages upload inactive, survive restart, activate on confirm<span class="pill p43">#43</span></div>
+      <div class="ac"><b>AC8</b>Malicious archives rejected with no state change or partial files<span class="pill p43">#43</span></div>
+    </div>
+    <div>
+      <div class="ac"><b>AC9</b>Deactivation or a missing package restores built-in appearance<span class="pill p43">#43</span></div>
+      <div class="ac"><b>AC10</b>Theme files excluded from the publish package<span class="pill p43">#43</span></div>
+      <div class="ac"><b>AC11</b>10.06.00 database upgrades once to final version, nothing lost<span class="pill pall">schema</span></div>
+      <div class="ac"><b>AC12</b>Existing restore/build/test/Aspire/publish checks stay green<span class="pill pall">CI</span></div>
+      <div class="ac"><b>AC13</b>Every README feature has a matrix row ending Pass or owner exception<span class="pill pall">tests</span></div>
+      <div class="ac"><b>AC14</b>No credentials, personal data or real hosts in committed evidence<span class="pill pall">privacy</span></div>
+      <div class="ac"><b>AC15</b>Cumulative PR: no unrelated files, issue-to-change map, checks pass<span class="pill pall">PR</span></div>
+    </div>
+  </div>
+</section>
+
+<p class="muted" style="font-size:12.5px;text-align:center">Source: <code>Docs/Open-Issues-and-Feature-Testing-Plan.md</code> · No blocking open questions remain under the Balanced profile.</p>
+</div>
