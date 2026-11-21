@@ -912,6 +912,18 @@ table {
         grid-template-columns: 1fr;
     }
 
+    .post-page,
+    .post-content {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .post-content img,
+    .post-content video {
+        max-width: 100%;
+        height: auto;
+    }
+
     .post-actions {
         align-items: stretch;
         flex-direction: column;
@@ -927,31 +939,40 @@ table {
 
     .bb-topbar {
         position: static;
-        grid-template-columns: 1fr;
-        gap: .35rem;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: .35rem .5rem;
         padding: .65rem 1rem;
     }
 
-    .bb-brand,
-    .bb-primary-nav,
-    .bb-account-nav {
-        justify-self: center;
+    .bb-brand {
+        grid-column: 1;
+        grid-row: 1;
+        min-width: 0;
+        max-width: 100%;
     }
 
-    .bb-brand {
-        margin-right: auto;
+    .bb-brand img {
+        max-width: 100%;
+        max-height: 48px;
+    }
+
+    /* The logo already carries the site name; hide duplicate text on small screens */
+    .bb-brand img ~ span {
+        display: none;
+    }
+
+    .bb-account-nav {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
     }
 
     .bb-primary-nav {
+        grid-column: 1 / -1;
+        grid-row: 2;
         width: 100%;
         justify-content: center;
         overflow-x: auto;
-    }
-
-    .bb-account-nav {
-        position: absolute;
-        top: .65rem;
-        right: .75rem;
     }
 
     .bb-account-nav > div {
@@ -966,7 +987,7 @@ table {
     }
 
     .bb-page-content {
-        width: min(100% - 1rem, 1200px);
+        width: min(100% - 2rem, 1200px);
         padding: 1rem 0 2.5rem;
     }
 
