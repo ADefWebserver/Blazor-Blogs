@@ -30,6 +30,7 @@ namespace BlazorBlogs.Data
         public virtual DbSet<Logs> Logs { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
         public virtual DbSet<StripeRefundEvents> StripeRefundEvents { get; set; }
+        public virtual DbSet<ThemePackage> ThemePackages { get; set; }
 
         public virtual DbSet<Newsletters> Newsletters { get; set; }
 
@@ -303,6 +304,21 @@ namespace BlazorBlogs.Data
                 entity.Property(e => e.SettingValue)
                     .IsRequired()
                     .HasMaxLength(4000);
+            });
+
+            modelBuilder.Entity<ThemePackage>(entity =>
+            {
+                entity.ToTable("ThemePackages");
+                entity.HasKey(e => e.ThemePackageId);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Slug).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Version).IsRequired().HasMaxLength(32);
+                entity.Property(e => e.ManifestJson).IsRequired();
+                entity.Property(e => e.StylesheetUrl).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.CreatedUtc).HasColumnType("datetime2");
+                entity.HasIndex(e => new { e.Slug, e.Version })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_ThemePackages_Package");
             });
 
             modelBuilder.Entity<StripeRefundEvents>(entity =>

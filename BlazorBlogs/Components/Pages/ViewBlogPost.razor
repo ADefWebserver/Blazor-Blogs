@@ -7,43 +7,74 @@
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject BlogsService _BlogsService
+@inject ISocialPreviewBuilder SocialPreviewBuilder
 @inject IHttpContextAccessor httpContextAccessor
 @inject NavigationManager NavigationManager
-@inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
 @inherits OwningComponentBase<BlogsService>
 
-<PageTitle>@SelectedBlog.BlogTitle</PageTitle>
-<Title>@SelectedBlog.BlogTitle</Title>
-<Meta Property="og:url" Content="@AbsoluteUrlOfThisPage" />
-<Meta Property="og:title" Content="@SelectedBlog.BlogTitle" />
-<article class="post-page">
-<div class="bb-page-actions post-actions">
-    <button type="button" class="btn btn-secondary" @onclick="Back">← All posts</button>
-    @if (UserIsAdminOfBlogPost)
-    {
-        <button type="button" class="btn btn-primary" @onclick="EditBlog">Edit post</button>
-    }
-</div>
-<header class="post-header">
-    <div class="bb-meta">
-        <time datetime="@SelectedBlog.BlogDate.ToString("yyyy-MM-dd")">@SelectedBlog.BlogDate.ToString("MMMM d, yyyy")</time>
-        <span aria-hidden="true">·</span>
-        <span>@SelectedBlog.BlogDisplayName</span>
+<PageTitle>@PageTitleText</PageTitle>
+<Title>@PageTitleText</Title>
+@if (CurrentPreview is not null)
+{
+    <Meta Name="description" Content="@CurrentPreview.Description" />
+    <Link Rel="canonical" Href="@CurrentPreview.CanonicalUrl.AbsoluteUri" />
+    <Meta Property="og:title" Content="@CurrentPreview.Title" />
+    <Meta Property="og:description" Content="@CurrentPreview.Description" />
+    <Meta Property="og:url" Content="@CurrentPreview.CanonicalUrl.AbsoluteUri" />
+    <Meta Property="og:type" Content="article" />
+    <Meta Property="og:site_name" Content="@CurrentPreview.SiteName" />
+    <Meta Property="og:image" Content="@CurrentPreview.ImageUrl.AbsoluteUri" />
+    <Meta Property="og:image:alt" Content="@CurrentPreview.ImageAlt" />
+    <Meta Name="twitter:card" Content="@CurrentPreview.TwitterCard" />
+    <Meta Name="twitter:title" Content="@CurrentPreview.Title" />
+    <Meta Name="twitter:description" Content="@CurrentPreview.Description" />
+    <Meta Name="twitter:image" Content="@CurrentPreview.ImageUrl.AbsoluteUri" />
+    <Meta Name="twitter:image:alt" Content="@CurrentPreview.ImageAlt" />
+}
+@if (PostNotFound)
+{
+    <Meta Name="robots" Content="noindex" />
+    <article class="post-page">
+        <div class="bb-page-actions post-actions">
+            <button type="button" class="btn btn-secondary" @onclick="Back">← All posts</button>
+        </div>
+        <header class="post-header">
+            <h1>Post not found</h1>
+        </header>
+        <p>The requested blog post could not be found.</p>
+    </article>
+}
+else
+{
+    <article class="post-page">
+    <div class="bb-page-actions post-actions">
+        <button type="button" class="btn btn-secondary" @onclick="Back">← All posts</button>
+        @if (UserIsAdminOfBlogPost)
+        {
+            <button type="button" class="btn btn-primary" @onclick="EditBlog">Edit post</button>
+        }
     </div>
-    <h1>@SelectedBlog.BlogTitle</h1>
-    </header>
-<div class="post-content">
-    @((MarkupString)SelectedBlog.BlogContent)
-</div>
-<aside class="newsletter-prompt post-newsletter bb-card">
-    <span class="bb-badge">Newsletter</span>
-    <h2>Get new posts in your inbox</h2>
-    <p>Sign in and choose the newsletter updates you want to receive.</p>
-    <a class="btn btn-primary" href="Account/Manage/Newsletter">Manage subscription</a>
-</aside>
-</article>
-<BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
+    <header class="post-header">
+        <div class="bb-meta">
+            <time datetime="@SelectedBlog.BlogDate.ToString("yyyy-MM-dd")">@SelectedBlog.BlogDate.ToString("MMMM d, yyyy")</time>
+            <span aria-hidden="true">·</span>
+            <span>@SelectedBlog.BlogDisplayName</span>
+        </div>
+        <h1>@SelectedBlog.BlogTitle</h1>
+        </header>
+    <div class="post-content">
+        @((MarkupString)SelectedBlog.BlogContent)
+    </div>
+    <aside class="newsletter-prompt post-newsletter bb-card">
+        <span class="bb-badge">Newsletter</span>
+        <h2>Get new posts in your inbox</h2>
+        <p>Sign in and choose the newsletter updates you want to receive.</p>
+        <a class="btn btn-primary" href="Account/Manage/Newsletter">Manage subscription</a>
+    </aside>
+    </article>
+    <BlogAdministration @ref="BlogAdministrationControl" BlogUpdated="BlogUpdatedEvent" />
+}
 
 @code {
     [CascadingParameter]
@@ -56,33 +87,91 @@
     BlogAdministration BlogAdministrationControl;
     System.Security.Claims.ClaimsPrincipal CurrentUser;
     bool UserIsAdminOfBlogPost = false;
-    string AbsoluteUrlOfThisPage => NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
+    bool PostNotFound = false;
+    SocialPreview CurrentPreview;
+    string PageTitleText => CurrentPreview?.Title ?? (PostNotFound ? "Post not found" : "Blog post");
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        try
-        {
-            SelectedBlog = @Service.GetBlog(Convert.ToInt32(BlogPostId));
+        UserIsAdminOfBlogPost = false;
+        PostNotFound = false;
+        CurrentPreview = null;
 
-            // Get the current user
-            CurrentUser = (await authenticationStateTask).User;
-
-            if (CurrentUser.Identity.IsAuthenticated)
-            {
-                if (SelectedBlog.BlogId != 0)
-                {
-                    if (CurrentUser.Identity.Name.ToLower() == SelectedBlog.BlogUserName.ToLower())
-                    {
-                        UserIsAdminOfBlogPost = true;
-                    }
-                }
-            }
-        }
-        catch
+        if (!int.TryParse(BlogPostId, out var postId) || postId <= 0)
         {
-            SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
+            await SetNotFoundAsync(null);
             return;
         }
+
+        try
+        {
+            SelectedBlog = Service.GetBlog(postId);
+        }
+        catch (NullReferenceException)
+        {
+            await SetNotFoundAsync(postId);
+            return;
+        }
+
+        if (SelectedBlog is null || SelectedBlog.BlogId <= 0)
+        {
+            await SetNotFoundAsync(postId);
+            return;
+        }
+
+        CurrentPreview = await SocialPreviewBuilder.BuildPostAsync(
+            SelectedBlog,
+            GetRequestBaseUrl());
+
+        CurrentUser = (await authenticationStateTask).User;
+        if (CurrentUser.Identity?.IsAuthenticated == true &&
+            string.Equals(
+                CurrentUser.Identity.Name,
+                SelectedBlog.BlogUserName,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            UserIsAdminOfBlogPost = true;
+        }
+    }
+
+    async Task SetNotFoundAsync(int? postId)
+    {
+        SelectedBlog = new BlogDTO
+        {
+            BlogDate = DateTime.Now,
+            BlogTitle = "Post not found",
+            BlogDisplayName = string.Empty
+        };
+        PostNotFound = true;
+        CurrentPreview = await SocialPreviewBuilder.BuildNotFoundAsync(
+            postId,
+            GetRequestBaseUrl());
+
+        var response = httpContextAccessor.HttpContext?.Response;
+        if (response is not null && !response.HasStarted)
+        {
+            response.StatusCode = StatusCodes.Status404NotFound;
+        }
+    }
+
+    Uri GetRequestBaseUrl()
+    {
+        var request = httpContextAccessor.HttpContext?.Request;
+        if (request is not null)
+        {
+            var builder = new UriBuilder(request.Scheme, request.Host.Host);
+            if (request.Host.Port.HasValue)
+            {
+                builder.Port = request.Host.Port.Value;
+            }
+
+            builder.Path = request.PathBase.HasValue
+                ? request.PathBase.Value.TrimEnd('/') + "/"
+                : "/";
+            return builder.Uri;
+        }
+
+        return new Uri(NavigationManager.BaseUri, UriKind.Absolute);
     }
 
     protected override async Task
@@ -90,41 +179,38 @@
     {
         if (SelectedBlog.BlogId > 0)
         {
-            try
+            string url = CurrentPreview?.CanonicalUrl.AbsoluteUri ??
+                NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
+
+            if (!string.IsNullOrWhiteSpace(SelectedBlog.GoogleTrackingID))
             {
-                string url = NavigationManager.ToAbsoluteUri($"ViewBlogPost/{BlogPostId}").AbsoluteUri;
-
-                if (SelectedBlog.GoogleTrackingID.Trim() != "")
+                try
                 {
-                    try
-                    {
-                        await GoogleInterop.gaTracking(
-                            JSRuntime,
-                            SelectedBlog.GoogleTrackingID.Trim()
-                            );
-                    }
-                    catch { }
+                    await GoogleInterop.gaTracking(
+                        JSRuntime,
+                        SelectedBlog.GoogleTrackingID.Trim()
+                        );
                 }
-
-                if (Convert.ToBoolean(SelectedBlog.DisqusEnabled))
-                {
-                    try
-                    {
-                        await DisqusInterop.ResetDisqus(
-                            JSRuntime,
-                            BlogPostId.ToString(),
-                            url,
-                            SelectedBlog.BlogTitle);
-
-                        DisqusState.SetDisplayDisqus(true);
-                    }
-                    catch { }
-                }
+                catch (JSException) { }
+                catch (JSDisconnectedException) { }
+                catch (InvalidOperationException) { }
             }
-            catch
+
+            if (SelectedBlog.DisqusEnabled)
             {
-                SelectedBlog = new BlogDTO() { BlogDate = DateTime.Now, BlogTitle = "ERROR - Page Not Found" };
-                return;
+                try
+                {
+                    await DisqusInterop.ResetDisqus(
+                        JSRuntime,
+                        BlogPostId,
+                        url,
+                        SelectedBlog.BlogTitle);
+
+                    DisqusState.SetDisplayDisqus(true);
+                }
+                catch (JSException) { }
+                catch (JSDisconnectedException) { }
+                catch (InvalidOperationException) { }
             }
         }
     }
@@ -140,16 +226,18 @@
         NavigationManager.NavigateTo(url);
     }
 
-    void BlogUpdatedEvent()
+    async Task BlogUpdatedEvent()
     {
-        try
-        {
-            SelectedBlog = _BlogsService.GetBlog(Convert.ToInt32(BlogPostId));
-        }
-        catch
+        SelectedBlog = _BlogsService.GetBlog(Convert.ToInt32(BlogPostId));
+        if (SelectedBlog is null || SelectedBlog.BlogId <= 0)
         {
             // Blog was deleted
             Back();
+            return;
         }
+
+        CurrentPreview = await SocialPreviewBuilder.BuildPostAsync(
+            SelectedBlog,
+            GetRequestBaseUrl());
     }
 }

@@ -43,6 +43,7 @@ namespace BlazorBlogs.Data
                 ApplicationHeaderEnabled = GetBoolean("ApplicationHeaderEnabled", true),
                 ApplicationHeaderEditorMode = Get("ApplicationHeaderEditorMode", string.IsNullOrWhiteSpace(Get("ApplicationHeader")) ? "Rich" : "Raw"),
                 SiteBaseUrl = Get("SiteBaseUrl"),
+                GoogleSiteSearchEnabled = GetBoolean("GoogleSiteSearchEnabled"),
                 ThemeAccentColor = Get("ThemeAccentColor", ThemeDefaults.AccentColor),
                 DisqusEnabled = Get("DisqusEnabled"),
                 DisqusShortName = Get("DisqusShortName"),

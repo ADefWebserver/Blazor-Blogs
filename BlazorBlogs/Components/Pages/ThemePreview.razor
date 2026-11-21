@@ -1,0 +1,56 @@
+@page "/settings/themes/preview/{PackageId:guid}"
+@attribute [Authorize(Roles = "Administrators")]
+@using Microsoft.AspNetCore.Authorization
+@inject IThemePackageService Themes
+@inject ILogger<ThemePreview> Logger
+
+<HeadContent>
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+</HeadContent>
+
+<div class="bb-page-header">
+    <div>
+        <p class="bb-muted">Administrator-only temporary preview</p>
+        <h1>Theme preview</h1>
+        @if (_package is null)
+        {
+            <p>Theme package not found or its files are unavailable.</p>
+        }
+        else
+        {
+            <p><strong>@_package.Name</strong> @_package.Version</p>
+            <p>This URL overrides the stylesheet only for this request. It does not activate the package.</p>
+        }
+    </div>
+    <a class="btn btn-primary" href="/">Return to public site</a>
+</div>
+
+@code {
+    [Parameter] public Guid PackageId { get; set; }
+    [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
+    private BlazorBlogs.Data.Models.ThemePackage _package;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _package = null;
+        var package = await Themes.GetAsync(PackageId);
+        if (package is not null)
+        {
+            try
+            {
+                if (await Themes.GetStylesheetUrlAsync(PackageId) is not null)
+                    _package = package;
+            }
+            catch (Exception ex) when (ex is ThemePackageValidationException
+                                           or IOException
+                                           or UnauthorizedAccessException)
+            {
+                Logger.LogWarning(ex, "Theme preview package {PackageId} is unavailable.", PackageId);
+                _package = null;
+            }
+        }
+
+        if (_package is null && HttpContext is not null)
+            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+    }
+}

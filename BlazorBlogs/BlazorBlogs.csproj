@@ -122,6 +122,14 @@
 		<None Update="SQLScripts\10.06.00.sql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="SQLScripts\10.07.00.sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</None>
+		<None Update="SQLScripts\10.08.00.sql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+		</None>
 		<Content Update="wwwroot\uploads\**\*">
 		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
@@ -129,6 +137,9 @@
 		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 		<Content Update="wwwroot\files\**\*">
+		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</Content>
+		<Content Update="wwwroot\themes\**\*">
 		  <CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</Content>
 		<Content Update="PrivateFiles\**\*">

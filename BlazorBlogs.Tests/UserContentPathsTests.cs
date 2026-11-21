@@ -35,6 +35,9 @@ public sealed class UserContentPathsTests
             Assert.Equal(
                 Path.Combine(root, "persistent", "private", "downloads"),
                 paths.DownloadsPath);
+            Assert.Equal(
+                Path.Combine(root, "persistent", "public", "themes"),
+                paths.ThemesPath);
         }
         finally
         {
@@ -76,6 +79,7 @@ public sealed class UserContentPathsTests
             Assert.Equal("replacement", File.ReadAllText(existingUpload));
             Assert.True(Directory.Exists(Path.Combine(persistentRoot, "public", "blogs")));
             Assert.True(Directory.Exists(paths.DownloadsPath));
+            Assert.True(Directory.Exists(paths.ThemesPath));
         }
         finally
         {

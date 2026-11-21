@@ -14,7 +14,9 @@
 @inject IHeadElementHelper HeadElementHelper
 @inject DisqusState DisqusState
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject GeneralSettingsService GeneralSettingsService
+@inject SiteUrlService SiteUrlService
+@inject IGoogleSiteSearchService GoogleSiteSearchService
 @inherits OwningComponentBase<BlogsService>
 <PageTitle>Blazor-Blogs</PageTitle>
 <Meta Property="og:title" Content="Blazor-Blogs" />
@@ -29,7 +31,7 @@
     }
 </div>
 
-<section class="home-toolbar" aria-label="Post filters">
+<section class="home-toolbar category-toolbar" aria-label="Post category filter">
     <label>
         <span class="visually-hidden">Filter by category</span>
         <RadzenDropDown AllowClear="true"
@@ -41,12 +43,30 @@
                         ValueProperty="CategoryId"
                         Change="@(args => ChangeCategory(args, "DropDown"))" />
     </label>
-    <label class="home-search">
-        <span class="visually-hidden">Search posts</span>
-        <RadzenTextBox @bind-Value="SearchText" Placeholder="Search posts" />
-    </label>
-    <RadzenButton Text="Search" ButtonStyle="ButtonStyle.Primary" Click="@(args => Search())" />
 </section>
+@if (GoogleSiteSearchEnabled)
+{
+    <form class="home-toolbar home-search-form"
+          method="get"
+          action="@NavigationManager.BaseUri"
+          role="search"
+          aria-label="Search this site">
+        <label for="site-search-terms">Search this site</label>
+        <input id="site-search-terms"
+               class="form-control"
+               name="q"
+               type="search"
+               placeholder="Search posts"
+               @bind="SearchText"
+               @bind:event="oninput"
+               required />
+        <button class="btn btn-primary" type="submit">Search</button>
+        @if (!string.IsNullOrWhiteSpace(SearchError))
+        {
+            <p class="text-danger search-error" role="alert">@SearchError</p>
+        }
+    </form>
+}
 
 <div class="home-layout">
     <main class="post-grid" aria-label="Blog posts">
@@ -113,7 +133,10 @@ else
     BlogAdministration BlogAdministrationControl;
     LicenseTerms LicenseTermsControl;
     bool LoadingBlogs = false;
-    string SearchText = "";
+    [SupplyParameterFromQuery(Name = "q")]
+    public string SearchText { get; set; } = "";
+    bool GoogleSiteSearchEnabled;
+    string SearchError = "";
     string ADMINISTRATION_ROLE = "Administrators";
     List<CategoryDTO> colCategorys = new List<CategoryDTO>();
 
@@ -147,6 +170,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        var settings = await GeneralSettingsService.GetGeneralSettingsAsync();
+        GoogleSiteSearchEnabled = settings.GoogleSiteSearchEnabled;
+
         if (SearchState.CurrentPage == 0)
         {
             SearchState.CurrentPage = 1;
@@ -179,6 +205,28 @@ else
 
         LoadingBlogs = false;
         StateHasChanged();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        SearchError = "";
+        if (!GoogleSiteSearchEnabled || string.IsNullOrWhiteSpace(SearchText))
+        {
+            return;
+        }
+
+        try
+        {
+            var baseUrl = await SiteUrlService.GetBaseUrlAsync(NavigationManager.BaseUri);
+            var query = GoogleSiteSearchService.BuildQuery(SearchText, new Uri(baseUrl, UriKind.Absolute));
+            NavigationManager.NavigateTo(
+                GoogleSiteSearchService.BuildDestination(query).AbsoluteUri,
+                forceLoad: true);
+        }
+        catch (ArgumentException)
+        {
+            SearchError = "Enter search terms that do not contain a site restriction.";
+        }
     }
 
     async Task NewBlog()
@@ -248,12 +296,4 @@ else
         StateHasChanged();
     }
 
-    private async Task Search()
-    {
-        // get the url of the current site
-        var uri = new Uri(NavigationManager.Uri);
-        SearchText = SearchText + $" site:{uri.DnsSafeHost}";
-        // redirect user to google search
-        await JSRuntime.InvokeVoidAsync("window.open", "https://www.google.com/search?q=" + SearchText, "_self");
-    }
 }

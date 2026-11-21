@@ -130,6 +130,11 @@ namespace BlazorBlogs.Data
                                    BlogDisplayName = "",
                                }).AsNoTracking().FirstOrDefault();
 
+            if (objBlog is null)
+            {
+                return null;
+            }
+
             // Add Blog Categories
             objBlog.BlogCategory = new List<BlogCategory>();
 

@@ -56,6 +56,7 @@ if ([string]::IsNullOrWhiteSpace($ZipPath)) {
     $protectedPaths = @(
         'wwwroot\uploads',
         'wwwroot\blogs',
+        'wwwroot\themes',
         'wwwroot\files',
         'PrivateFiles'
     )

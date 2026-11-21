@@ -55,6 +55,11 @@
         </Authorized>
     </AuthorizeView>
 </div>
+<AuthorizeView Roles="Administrators">
+    <Authorized>
+        <ThemeManager />
+    </Authorized>
+</AuthorizeView>
 <!-- AuthorizeView allows us to only show sections of the page -->
 <!-- based on the security on the current user -->
 <AuthorizeView>
@@ -90,6 +95,19 @@
                                    placeholder="https://example.com/"
                                    @bind="objGeneralSettings.SiteBaseUrl" />
                             <small class="bb-muted">Used for Google, newsletter, Stripe and download links.</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="google-site-search-enabled">Enable Google site search</label></td>
+                        <td>
+                            <select id="google-site-search-enabled"
+                                    aria-label="Enable Google site search"
+                                    class="form-control"
+                                    @bind="objGeneralSettings.GoogleSiteSearchEnabled">
+                                <option value="true">True</option>
+                                <option value="false">False</option>
+                            </select>
+                            <small class="bb-muted">Show a public search form that sends terms to Google, scoped to this site.</small>
                         </td>
                     </tr>
                     <tr>
@@ -410,6 +428,9 @@
             "ThemeAccentColor",
             objGeneralSettings.ThemeAccentColor);
         await _GeneralSettingsService.SetSettingAsync("SiteBaseUrl", objGeneralSettings.SiteBaseUrl);
+        await _GeneralSettingsService.SetSettingAsync(
+            "GoogleSiteSearchEnabled",
+            objGeneralSettings.GoogleSiteSearchEnabled.ToString());
 
         objGeneralSettings.ApplicationHeader ??= "";
         if (!HasContent(objGeneralSettings.ApplicationHeader))

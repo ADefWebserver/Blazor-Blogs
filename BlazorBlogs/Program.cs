@@ -93,6 +93,8 @@ namespace BlazorBlogs
             builder.Services.AddScoped<IEmailSender<ApplicationUser>, EmailSender>();
             builder.Services.AddScoped<SearchState>();
             builder.Services.AddScoped<SiteUrlService>();
+            builder.Services.AddSingleton<IGoogleSiteSearchService, GoogleSiteSearchService>();
+            builder.Services.AddScoped<ISocialPreviewBuilder, SocialPreviewBuilder>();
             builder.Services.AddScoped<NewsletterSubscriptionService>();
             builder.Services.AddScoped<CampaignSender>();
             builder.Services.AddSingleton<CampaignSendRegistry>();
@@ -106,6 +108,8 @@ namespace BlazorBlogs
             builder.Services.AddScoped<PaidDownloadService>();
             builder.Services.AddSingleton<DownloadStorageService>();
             builder.Services.AddSingleton<UserContentPaths>();
+            builder.Services.AddScoped<ThemePackageValidator>();
+            builder.Services.AddScoped<IThemePackageService, ThemePackageService>();
             builder.Services.AddScoped<DisqusState>();
             builder.Services.AddScoped<InstallUpdateState>();
             builder.Services.AddMetaWeblog<BlazorBlogs.MetaWeblogService>();
@@ -177,6 +181,17 @@ namespace BlazorBlogs
             var userContentPaths = app.Services.GetRequiredService<UserContentPaths>();
             userContentPaths.EnsureFoldersAndSeed(app.Logger);
             app.Services.GetRequiredService<DownloadStorageService>().MigrateLegacyFiles();
+            try
+            {
+                using var scope = app.Services.CreateScope();
+                await scope.ServiceProvider
+                    .GetRequiredService<IThemePackageService>()
+                    .ReconcileOrphansAsync();
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogWarning(ex, "Theme package reconciliation could not be completed.");
+            }
 
             if (!string.Equals(
                     userContentPaths.PublicRoot,

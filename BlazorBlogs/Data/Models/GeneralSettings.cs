@@ -21,6 +21,7 @@ namespace BlazorBlogs.Data.Models
         public bool ApplicationHeaderEnabled { get; set; } = true;
         public string ApplicationHeaderEditorMode { get; set; } = "Rich";
         public string SiteBaseUrl { get; set; } = "";
+        public bool GoogleSiteSearchEnabled { get; set; }
         public string ThemeAccentColor { get; set; } = ThemeDefaults.AccentColor;
         public string DisqusEnabled { get; set; }
         public string DisqusShortName { get; set; }

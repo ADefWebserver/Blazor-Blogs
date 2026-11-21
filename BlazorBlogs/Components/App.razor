@@ -13,12 +13,17 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <HeadOutlet @rendermode="PageRenderMode" />
     <RadzenTheme Theme="default" @rendermode="InteractiveServer" />
+    @if (ThemeStylesheetUrl is not null)
+    {
+        <link rel="stylesheet" href="@ThemeStylesheetUrl" data-theme-package="true" />
+    }
 </head>
 
 <body>
     <Routes @rendermode="PageRenderMode" />
     <script src="_framework/blazor.web.js"></script>
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js?v=@(typeof(Radzen.Colors).Assembly.GetName().Version)"></script>
+    <script src="js/themes.js"></script>
     <script async src='https://www.google-analytics.com/analytics.js'></script>
 
     <script>
@@ -78,7 +83,48 @@
 @code {
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
+    [Inject] private IThemePackageService ThemePackages { get; set; } = default!;
+    [Inject] private ILogger<App> Logger { get; set; } = default!;
+    private string ThemeStylesheetUrl { get; set; }
 
     private IComponentRenderMode PageRenderMode =>
         HttpContext.AcceptsInteractiveRouting() ? InteractiveServer : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (TryGetPreviewId(HttpContext.Request.Path, out var previewId)
+                && HttpContext.User.IsInRole("Administrators"))
+            {
+                ThemeStylesheetUrl = await ThemePackages.GetStylesheetUrlAsync(previewId);
+            }
+            else
+            {
+                ThemeStylesheetUrl = await ThemePackages.GetActiveStylesheetUrlAsync();
+            }
+        }
+        catch (Exception ex) when (ex is ThemePackageValidationException
+                                       or IOException
+                                       or UnauthorizedAccessException
+                                       or System.Data.Common.DbException)
+        {
+            ThemeStylesheetUrl = null;
+            Logger.LogWarning(ex, "Theme stylesheet is unavailable; using built-in styles.");
+        }
+    }
+
+    private static bool TryGetPreviewId(PathString path, out Guid packageId)
+    {
+        const string prefix = "/settings/themes/preview/";
+        var value = path.Value;
+        if (value is not null && value.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+            && Guid.TryParseExact(value[prefix.Length..].Trim('/'), "D", out packageId))
+        {
+            return true;
+        }
+
+        packageId = Guid.Empty;
+        return false;
+    }
 }

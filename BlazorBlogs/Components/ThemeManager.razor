@@ -1,0 +1,146 @@
+@using BlazorBlogs.Data
+@using BlazorBlogs.Data.Models
+@using Microsoft.AspNetCore.Antiforgery
+@inject IThemePackageService Themes
+@inject IAntiforgery Antiforgery
+@inject ILogger<ThemeManager> Logger
+
+<section class="settings-card" aria-labelledby="theme-packages-heading">
+    <div class="bb-section-heading">
+        <div>
+            <h2 id="theme-packages-heading">Theme packages</h2>
+            <p>Import non-executable CSS and approved static assets. Imports do not activate automatically.</p>
+        </div>
+    </div>
+
+    <form class="theme-api-form theme-import-form"
+          action="/api/themes/import"
+          method="post"
+          enctype="multipart/form-data"
+          data-api-method="POST">
+        <input type="hidden" name="@AntiforgeryFieldName" value="@AntiforgeryToken" />
+        <label for="theme-archive">Theme archive (.zip, maximum 10 MiB)</label>
+        <div class="bb-inline-actions">
+            <input id="theme-archive" class="form-control" type="file" name="archive"
+                   accept=".zip,application/zip" required />
+            <button class="btn btn-primary" type="submit">Import</button>
+        </div>
+    </form>
+    <div class="theme-api-message" role="status" aria-live="polite"></div>
+
+    @if (_packages is null)
+    {
+        <p><em>Loading theme packages...</em></p>
+    }
+    else if (_packages.Count == 0)
+    {
+        <p class="bb-muted">No theme packages have been imported.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table settings-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Version</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var package in _packages)
+                    {
+                        var active = package.ThemePackageId == _activePackageId;
+                        <tr>
+                            <td>
+                                <strong>@package.Name</strong>
+                                <div class="bb-muted"><code>@package.Slug</code></div>
+                            </td>
+                            <td>@package.Version</td>
+                            <td>
+                                @if (active)
+                                {
+                                    <span class="bb-badge">Active</span>
+                                }
+                                else
+                                {
+                                    <span>Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="bb-inline-actions">
+                                    <a class="btn btn-secondary"
+                                       href="@($"/settings/themes/preview/{package.ThemePackageId:D}")"
+                                       target="_blank" rel="noopener">Preview</a>
+                                    @if (active)
+                                    {
+                                        <form class="theme-api-form" action="/api/themes/deactivate"
+                                              method="post" data-api-method="POST">
+                                            @AntiforgeryInput
+                                            <button class="btn btn-warning" type="submit">Deactivate</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form class="theme-api-form"
+                                              action="@($"/api/themes/{package.ThemePackageId:D}/activate")"
+                                              method="post" data-api-method="POST">
+                                            @AntiforgeryInput
+                                            <button class="btn btn-primary" type="submit">Activate</button>
+                                        </form>
+                                        <form class="theme-api-form"
+                                              action="@($"/api/themes/{package.ThemePackageId:D}")"
+                                              method="post" data-api-method="DELETE">
+                                            @AntiforgeryInput
+                                            <button class="btn btn-danger" type="submit">Delete</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@code {
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private IReadOnlyList<ThemePackage> _packages;
+    private Guid? _activePackageId;
+    private string AntiforgeryToken { get; set; } = "";
+    private string AntiforgeryFieldName { get; set; } = "__RequestVerificationToken";
+    private RenderFragment AntiforgeryInput => builder =>
+    {
+        builder.OpenElement(0, "input");
+        builder.AddAttribute(1, "type", "hidden");
+        builder.AddAttribute(2, "name", AntiforgeryFieldName);
+        builder.AddAttribute(3, "value", AntiforgeryToken);
+        builder.CloseElement();
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext is not null)
+        {
+            var token = Antiforgery.GetAndStoreTokens(HttpContext);
+            AntiforgeryToken = token.RequestToken ?? "";
+            AntiforgeryFieldName = token.FormFieldName ?? "__RequestVerificationToken";
+        }
+
+        try
+        {
+            _packages = await Themes.ListAsync();
+            _activePackageId = await Themes.GetActivePackageIdAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogWarning(ex, "Theme packages could not be loaded for the settings page.");
+            _packages = Array.Empty<ThemePackage>();
+        }
+    }
+}

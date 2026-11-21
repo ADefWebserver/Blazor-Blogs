@@ -15,6 +15,7 @@ public sealed class UserContentPaths
             PublicRoot = Path.GetFullPath(environment.WebRootPath);
             UploadsPath = Path.Combine(PublicRoot, "uploads");
             BlogsPath = Path.Combine(PublicRoot, "blogs");
+            ThemesPath = Path.Combine(PublicRoot, "themes");
             DownloadsPath = Path.Combine(environment.ContentRootPath, "PrivateFiles");
         }
         else
@@ -23,6 +24,7 @@ public sealed class UserContentPaths
             PublicRoot = Path.Combine(configuredRoot, "public");
             UploadsPath = Path.Combine(PublicRoot, "uploads");
             BlogsPath = Path.Combine(PublicRoot, "blogs");
+            ThemesPath = Path.Combine(PublicRoot, "themes");
             DownloadsPath = Path.Combine(configuredRoot, "private", "downloads");
         }
     }
@@ -30,6 +32,7 @@ public sealed class UserContentPaths
     public string PublicRoot { get; }
     public string UploadsPath { get; }
     public string BlogsPath { get; }
+    public string ThemesPath { get; }
     public string DownloadsPath { get; }
 
     public string ToRelativeUrl(string physicalPath)
@@ -58,6 +61,7 @@ public sealed class UserContentPaths
     {
         Directory.CreateDirectory(UploadsPath);
         Directory.CreateDirectory(BlogsPath);
+        Directory.CreateDirectory(ThemesPath);
         Directory.CreateDirectory(DownloadsPath);
 
         if (!string.Equals(PublicRoot, _environment.WebRootPath, StringComparison.OrdinalIgnoreCase))

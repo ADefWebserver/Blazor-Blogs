@@ -41,7 +41,7 @@ jobs:
         run: |
           $output = Join-Path $env:RUNNER_TEMP 'blazorblogs-publish'
           dotnet publish BlazorBlogs/BlazorBlogs.csproj -c Release -o $output --no-build --nologo
-          $protected = @('wwwroot/uploads', 'wwwroot/blogs', 'wwwroot/files', 'PrivateFiles')
+          $protected = @('wwwroot/uploads', 'wwwroot/blogs', 'wwwroot/themes', 'wwwroot/files', 'PrivateFiles')
           foreach ($path in $protected) {
             $files = Get-ChildItem (Join-Path $output $path) -File -Recurse -Force -ErrorAction SilentlyContinue
             if ($files) { throw "Publish contains protected user content under $path." }

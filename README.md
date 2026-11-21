@@ -10,7 +10,7 @@ See: [How to Use AI to Deploy and Update Your Blazor Blogs Website](https://blaz
 ## Live example site: https://blazorblogs.azurewebsites.net
 #### Also see: [Installing Blazor-Blogs on Microsoft Azure (Manual Method)](https://blazorblogs.azurewebsites.net/ViewBlogPost/1007 "Installing Blazor-Blogs on Microsoft Azure")
 
-## Blazor Blogs 10.06.00
+## Blazor Blogs 10.08.00
 
 [Read the 10.06.00 release announcement](https://blazorblogs.azurewebsites.net/ViewBlogPost/1014)
 
@@ -38,6 +38,16 @@ See: [How to Use AI to Deploy and Update Your Blazor Blogs Website](https://blaz
   upgrades, and persistent user-content paths.
 * Deployment scripts, Aspire infrastructure, CI, and focused automated tests.
 
+#### 10.07.00 and 10.08.00 highlights
+
+* Blog posts emit crawler-visible canonical, Open Graph, and X/Twitter metadata in
+  the initial HTML, with a safe description and image fallback chain.
+* Administrators can optionally expose a no-JavaScript Google site-search form.
+* Administrators can import, preview, activate, deactivate, and delete validated
+  non-executable CSS/asset themes stored with persistent user content.
+* Deterministic feature verification and external evidence ownership are tracked in
+  [Docs/Feature-Test-Matrix.md](Docs/Feature-Test-Matrix.md).
+
 #### Core capabilities
 
 * Supports unlimited bloggers, posts, tags, and categories.
@@ -47,8 +57,71 @@ See: [How to Use AI to Deploy and Update Your Blazor Blogs Website](https://blaz
 * User administration, roles, registration, email verification, account recovery,
   and account lockout.
 * Custom privacy, terms, logos, site URLs, application headers, and accent colors.
+* Optional Google site search and persistent, administrator-managed visual themes.
 * Downloads, purchases, newsletters, RSS feeds, application logs, and DotNetNuke
   blog import.
+
+### Social previews and site search
+
+Blog post pages use the configured **Site base URL** for canonical and share URLs,
+falling back to the request origin when no valid public URL is configured. Preview
+descriptions are normalized from the summary, then the post body, then the site name.
+The first safe post image is preferred, followed by the application logo and the
+repository default.
+
+Google site search is disabled by default. Enable **Google site search** in
+Settings to render a native GET form. User-entered terms are encoded and scoped with
+one trusted `site:` restriction derived from the configured public base URL.
+
+### Theme packages
+
+Theme packages are administrator-only ZIP archives containing exactly:
+
+```text
+theme.json
+theme.css
+assets/
+  <allow-listed-static-files>
+```
+
+`theme.json` has this shape:
+
+```json
+{
+  "name": "Example Theme",
+  "slug": "example-theme",
+  "version": "1.0.0",
+  "stylesheet": "theme.css",
+  "assets": [
+    "assets/example.webp"
+  ]
+}
+```
+
+The slug must be lowercase kebab case, at most 50 characters, and the version must
+be `major.minor.patch`. The archive is limited to 10 MiB compressed, 20 MiB expanded,
+and 250 entries. `theme.css` is limited to 1 MiB and `theme.json` to 32 KiB. Assets may
+use `.avif`, `.gif`, `.jpeg`, `.jpg`, `.png`, `.webp`, `.woff`, or `.woff2`; SVG and
+executable content are not accepted.
+
+Themes are CSS/static assets only. The server rejects executable files, traversal,
+links, duplicate paths, invalid file signatures, external CSS imports, remote or
+data URLs, and references to files not declared by the manifest. Imports are inactive
+until an administrator explicitly activates them. Preview URLs are private to
+administrators, temporary, and marked `noindex`.
+
+Packages are stored at:
+
+```text
+<Storage:UserContentPath>\public\themes\<slug>\<package-id>
+```
+
+If `Storage:UserContentPath` is not configured, the existing web root's `themes`
+folder is used. Uploaded themes are excluded from clean publish/deployment packages
+and remain on the configured persistent filesystem. To deactivate a theme and
+restore the built-in appearance, use **Deactivate** in Settings. An active theme
+must be deactivated before it can be deleted. If an active package becomes
+unavailable, the application logs its package ID and falls back to built-in styles.
 
 ### Installing
 
@@ -117,7 +190,7 @@ For a code-only update or rollback:
 
 `-ZipPath` skips publishing and deploys the existing package. Before every newly
 published package is uploaded, the script refuses content under `wwwroot/uploads`,
-`wwwroot/blogs`, `wwwroot/files`, or `PrivateFiles`. Azure zip deployment uses
+`wwwroot/blogs`, `wwwroot/themes`, `wwwroot/files`, or `PrivateFiles`. Azure zip deployment uses
 `--clean false`, so user content already present in the site folder is not wiped.
 
 The Windows .NET 11 production path, managed-identity SQL design, repeat deployment,
@@ -148,6 +221,7 @@ Aspire/button deployments store that content in:
 ```text
 %HOME%\data\BlazorBlogs\public\uploads
 %HOME%\data\BlazorBlogs\public\blogs
+%HOME%\data\BlazorBlogs\public\themes
 %HOME%\data\BlazorBlogs\private\downloads
 ```
 
