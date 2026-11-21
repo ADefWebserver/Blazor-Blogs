@@ -156,9 +156,11 @@
                         <td>Show Application Header</td>
                         <td>
                             <select aria-label="Show application header" class="form-control"
-                                    @bind="objGeneralSettings.ApplicationHeaderEnabled">
-                                <option value="true">True</option>
-                                <option value="false">False</option>
+                                    @bind="ShowApplicationHeader">
+                                @foreach (var option in OptionsTrueFalse)
+                                {
+                                    <option value="@option">@option</option>
+                                }
                             </select>
                         </td>
                     </tr>
@@ -313,6 +315,12 @@
     List<string> OptionsTrueFalse = new List<string>() { "True", "False" };
     List<string> OptionsSMTP = new List<string>() { "Anonymous", "Basic", "NTLM" };
     string AllowRegistration = "";
+    string ShowApplicationHeader
+    {
+        get => objGeneralSettings.ApplicationHeaderEnabled ? "True" : "False";
+        set => objGeneralSettings.ApplicationHeaderEnabled =
+            string.Equals(value, "True", StringComparison.OrdinalIgnoreCase);
+    }
     string VerifiedRegistration = "";
     string SMTPSecure = "";
     string SMTPAuthentication = "";
