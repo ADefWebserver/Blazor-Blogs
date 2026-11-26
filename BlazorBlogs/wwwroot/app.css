@@ -688,6 +688,27 @@ table {
     border-radius: 10px;
 }
 
+/* Legacy (Windows Live Writer) posts nest one inline-styled <pre> per line with dark-on-white syntax colors. */
+.post-content pre:has(> pre) {
+    color: #1f2328;
+    background: #ffffff;
+    border: 1px solid var(--bb-border, #e5e7eb);
+}
+
+.post-content pre pre {
+    overflow: visible;
+    margin: 0 !important;
+    padding: 0;
+    color: inherit;
+    background: transparent !important;
+    border: 0;
+    border-radius: 0;
+}
+
+.post-content pre pre:empty {
+    min-height: 1lh;
+}
+
 .post-content blockquote {
     padding-left: 1rem;
     color: var(--bb-muted);

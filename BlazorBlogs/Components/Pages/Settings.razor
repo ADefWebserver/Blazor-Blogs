@@ -103,9 +103,9 @@
                             <select id="google-site-search-enabled"
                                     aria-label="Enable Google site search"
                                     class="form-control"
-                                    @bind="objGeneralSettings.GoogleSiteSearchEnabled">
-                                <option value="true">True</option>
-                                <option value="false">False</option>
+                                    @bind="GoogleSiteSearchEnabledValue">
+                                <option value="True">True</option>
+                                <option value="False">False</option>
                             </select>
                             <small class="bb-muted">Show a public search form that sends terms to Google, scoped to this site.</small>
                         </td>
@@ -307,6 +307,14 @@
     string ADMINISTRATION_ROLE = "Administrators";
 
     GeneralSettings objGeneralSettings = new GeneralSettings();
+
+    // Bound as a string because Blazor renders a bool-bound <select> value inconsistently.
+    string GoogleSiteSearchEnabledValue
+    {
+        get => objGeneralSettings.GoogleSiteSearchEnabled ? "True" : "False";
+        set => objGeneralSettings.GoogleSiteSearchEnabled =
+            string.Equals(value, "True", StringComparison.OrdinalIgnoreCase);
+    }
     private FileSelector FileManagerControl;
     private HtmlEditor ApplicationHeaderEditor;
     private HtmlEditorMode ApplicationHeaderEditorMode;
